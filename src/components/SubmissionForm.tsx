@@ -83,15 +83,8 @@ export const SubmissionForm = ({ onBack }: SubmissionFormProps) => {
       }));
 
       // Validate answers server-side to get scoring and per-question correctness
-      const validateRes = await fetch('/api/mcq/validate', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ answers: answersArray })
-      });
-      if (!validateRes.ok) throw new Error('Failed to validate answers');
-      const validateBody = await validateRes.json();
-      if (!validateBody || !validateBody.success) throw new Error((validateBody && validateBody.error && validateBody.error.message) || 'Validation failed');
-      const result = validateBody.data;
+      const validateRes = await supabase.rpc('validate-answers', { answers: answersArray });
+      const result = validateRes.data;
 
       // Fetch all questions so we can translate selectedAnswer (text) -> index
       const { data: allQuestions, error: qerr } = await supabase.from('mcq_questions').select('*');
