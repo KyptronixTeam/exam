@@ -33,8 +33,9 @@ app.use(limiter);
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
-// Skip auth for public config endpoint
+// Skip auth for public endpoints
 app.use('/api/mcq/config', (req, res, next) => next());
+app.use('/api/mcq/validate', (req, res, next) => next());
 
 // Setup Swagger documentation
 setupSwagger(app);
