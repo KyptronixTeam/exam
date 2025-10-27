@@ -1,0 +1,19 @@
+subject,question,option1,option2,option3,option4,correct_answer
+Web Development,You notice your webpage layout breaks when resizing the browser. Which CSS property would best help create a flexible layout?,position,display:flex,overflow:auto,float,1
+Web Development,A React developer needs to prevent a component from re-rendering when props haven't changed. Which method or hook helps achieve this?,useEffect,React.memo,useReducer,useRef,1
+Web Development,Your API built with Node.js is responding slowly due to blocking operations. Which approach can improve performance?,Use synchronous file system calls,Run in a single thread,Use asynchronous I/O with callbacks or promises,Add more console logs,2
+Web Development,You have a navigation bar that should stay fixed at the top while scrolling. Which CSS property should you use?,position:relative,position:absolute,position:fixed,position:sticky,2
+Web Development,A developer accidentally exposes an API key in frontend React code. What’s the best fix?,Use environment variables in frontend,Move the key to backend and call it via API,Hide it with CSS,Rename the key,1
+Web Development,An image is not displaying in HTML though the file exists. What’s the most likely reason?,File format unsupported,Incorrect src path,Image too large,No alt text,1
+Web Development,You have a React form and want to track input changes in real time. Which hook do you use?,useEffect,useMemo,useState,useRef,2
+Web Development,A user complains a button click in your React app triggers twice. What’s a possible reason?,Button has double event binding,Button type is submit in a form,React version bug,Multiple setState calls,1
+Web Development,Your Node.js app crashes when reading a large file into memory. What’s the best solution?,Increase RAM,Read file using streams,Use setImmediate,Use child_process,1
+Web Development,You want to redirect users in React Router v6 after login. Which hook would you use?,useHistory,useNavigate,useRouter,useLink,1
+Web Development,Your webpage needs to load faster by reducing HTTP requests. What approach helps the most?,Inline all CSS,Use image sprites and combine scripts,Increase server memory,Add console logs,1
+Web Development,You have a CSS animation that’s choppy on low-end devices. What’s the best optimization?,Use translate3d for GPU acceleration,Use opacity in keyframes,Add more frames,Increase animation delay,0
+Web Development,A React component needs to fetch data on mount and update state. Where should the API call go?,Outside the component,Inside render(),Inside useEffect(),Inside JSX,2
+Web Development,A Node.js app needs to serve static files. Which Express middleware helps achieve this?,bodyParser.json(),express.static(),express.urlencoded(),app.use(cors()),1
+Web Development,You have nested components in React passing props through many layers. Which solution avoids prop drilling?,React.memo,Redux or Context API,useState in parent,useCallback,1
+Web Development,An HTML table needs a sticky header while scrolling. Which CSS property combination works best?,position:sticky and top:0,position:fixed and bottom:0,position:absolute and z-index:10,overflow:hidden,0
+Web Development,Your CSS media query isn’t applying on mobile devices. What might be missing?,DOCTYPE declaration,Viewport meta tag,Correct color scheme,alt attribute,1
+Web Development,A Node.js backend must handle 1000 requests/sec efficiently. What design approach is ideal?,Blocking I/O,Cluster mode with load balancing,Single-threaded with loops,Add sleep between requests,1

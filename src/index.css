@@ -1,0 +1,73 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
+All colors MUST be HSL.
+*/
+
+@layer base {
+  :root {
+    /* Futuristic Deep Space Theme */
+    --background: 225 71% 8%;
+    --foreground: 180 100% 95%;
+
+    --card: 225 50% 12%;
+    --card-foreground: 180 100% 95%;
+
+    --popover: 225 50% 12%;
+    --popover-foreground: 180 100% 95%;
+
+    /* Electric Blue Primary */
+    --primary: 191 100% 50%;
+    --primary-foreground: 225 71% 8%;
+
+    /* Purple Accent */
+    --secondary: 271 76% 53%;
+    --secondary-foreground: 0 0% 100%;
+
+    --muted: 225 30% 20%;
+    --muted-foreground: 180 20% 70%;
+
+    /* Cyan Accent */
+    --accent: 191 100% 50%;
+    --accent-foreground: 225 71% 8%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 225 30% 18%;
+    --input: 225 30% 18%;
+    --ring: 191 100% 50%;
+
+    --radius: 1rem;
+
+    /* Custom Gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(225 71% 8%) 0%, hsl(225 50% 15%) 100%);
+    --gradient-hero: linear-gradient(135deg, hsl(191 100% 50%) 0%, hsl(271 76% 53%) 100%);
+    --gradient-glow: radial-gradient(circle at center, hsl(191 100% 50% / 0.2) 0%, transparent 70%);
+    
+    /* Glass Effects */
+    --glass-bg: hsl(225 50% 12% / 0.4);
+    --glass-border: hsl(191 100% 50% / 0.2);
+    
+    /* Shadows & Glow */
+    --shadow-glow: 0 0 40px hsl(191 100% 50% / 0.3);
+    --shadow-depth: 0 20px 60px hsl(225 71% 8% / 0.8);
+    --shadow-card: 0 8px 32px hsl(225 71% 8% / 0.5);
+    
+    /* Animations */
+    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-bounce: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+  }
+}
