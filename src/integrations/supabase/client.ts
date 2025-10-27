@@ -128,11 +128,8 @@ const rpc = async (name: string, params?: any) => {
     return { data: res.data };
   }
   if (name === 'mcq_config') {
-    // Public endpoint, don't send auth
-    const res = await fetch(API_BASE + '/api/mcq/config', { method: 'GET' });
-    const json = await res.json().catch(() => null);
-    if (!res.ok) throw json || new Error('Request failed');
-    return { data: json.data };
+    const res = await request('/api/mcq/config', { method: 'GET' });
+    return { data: res.data };
   }
   if (name === 'mcq_categories') {
     // Return canonical categories from backend
