@@ -17,10 +17,11 @@ router.get('/config', mcqController.getConfig);
 // will treat "config" as an `id` and route to getQuestion (causing a
 // "Question not found" error).  Place authenticated parameterized routes
 // after fixed path routes.
+router.post('/validate', mcqController.validateAnswers);
+
 router.get('/:id', authenticate, mcqController.getQuestion);
 
 // Validate answers (public for assessment)
-router.post('/validate', mcqController.validateAnswers);
 
 // Admin CRUD
 const mcqValidators = [
