@@ -79,7 +79,8 @@ export const SubmissionsView = () => {
   const fetchSubmissions = async (page = 1) => {
     try {
       setLoading(true);
-      const response = await fetch(`http://localhost:5112/api/submissions?page=${page}&limit=${limit}`);
+      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5112';
+      const response = await fetch(`${apiUrl}/api/submissions?page=${page}&limit=${limit}`);
       
       if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
       
