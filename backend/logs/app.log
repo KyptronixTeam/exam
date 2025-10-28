@@ -1,0 +1,15 @@
+{"level":"info","message":"MCQ routes registered:","routes":["GET /categories","GET /","GET /config","POST /validate","GET /:id","POST /","POST /bulk","PUT /:id","DELETE /:id"],"service":"node-express-backend","timestamp":"2025-10-28 18:15:02"}
+{"level":"info","message":"MongoDB connected successfully to development database","service":"node-express-backend","timestamp":"2025-10-28 18:15:03"}
+{"level":"info","message":"Server running on port 5112 in development mode","service":"node-express-backend","timestamp":"2025-10-28 18:15:03"}
+{"level":"info","message":"API documentation available at http://localhost:5112/api-docs","service":"node-express-backend","timestamp":"2025-10-28 18:15:03"}
+{"err":"jwt malformed","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=50","service":"node-express-backend","timestamp":"2025-10-28 18:15:13","token":"null..."}
+{"err":"jwt malformed","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=50","service":"node-express-backend","timestamp":"2025-10-28 18:15:19","token":"null..."}
+{"err":"jwt malformed","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=50","service":"node-express-backend","timestamp":"2025-10-28 18:15:32","token":"null..."}
+{"err":"jwt malformed","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=50","service":"node-express-backend","timestamp":"2025-10-28 18:16:05","token":"undefine..."}
+{"ip":"::1","level":"warn","message":"Missing Authorization header for request","path":"/api/submissions?_order=created_at&_order_dir=desc&limit=10&page=1","service":"node-express-backend","timestamp":"2025-10-28 18:18:19"}
+{"ip":"::1","level":"warn","message":"Missing Authorization header for request","path":"/api/submissions?_order=created_at&_order_dir=desc&limit=10&page=1","service":"node-express-backend","timestamp":"2025-10-28 18:18:26"}
+{"ip":"::1","level":"warn","message":"Missing Authorization header for request","path":"/api/submissions?_order=created_at&_order_dir=desc&limit=10&page=1","service":"node-express-backend","timestamp":"2025-10-28 18:18:46"}
+{"level":"info","message":"MCQ routes registered:","routes":["GET /categories","GET /","GET /config","POST /validate","GET /:id","POST /","POST /bulk","PUT /:id","DELETE /:id"],"service":"node-express-backend","timestamp":"2025-10-28 18:20:07"}
+{"level":"info","message":"MongoDB connected successfully to development database","service":"node-express-backend","timestamp":"2025-10-28 18:20:08"}
+{"level":"info","message":"Server running on port 5112 in development mode","service":"node-express-backend","timestamp":"2025-10-28 18:20:08"}
+{"level":"info","message":"API documentation available at http://localhost:5112/api-docs","service":"node-express-backend","timestamp":"2025-10-28 18:20:08"}

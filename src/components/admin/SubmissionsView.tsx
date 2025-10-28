@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import {
   Table,
@@ -14,11 +13,11 @@ import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
 interface Submission {
   id?: string;
   _id?: string;
-  // legacy flat fields
   full_name?: string;
   email?: string;
   phone?: string;
@@ -34,7 +33,6 @@ interface Submission {
   mcqScore?: any;
   mcq_score?: any;
   mcqAnswers?: any;
-  // nested new shape
   personalInfo?: {
     fullName?: string;
     email?: string;
@@ -63,21 +61,34 @@ export const SubmissionsView = () => {
   const [loading, setLoading] = useState(true);
   const [selected, setSelected] = useState<Submission | null>(null);
   const [open, setOpen] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalSubmissions, setTotalSubmissions] = useState(0);
+  const [limit] = useState(10);
 
   useEffect(() => {
-    fetchSubmissions();
-  }, []);
+    fetchSubmissions(currentPage);
+  }, [currentPage]);
 
-  const fetchSubmissions = async () => {
+  const handlePageChange = (page: number) => {
+    if (page >= 1 && page <= totalPages) {
+      setCurrentPage(page);
+    }
+  };
+
+  const fetchSubmissions = async (page = 1) => {
     try {
-      const { data, error } = await supabase
-        .from("submissions")
-        .select("*")
-        .order("created_at", { ascending: false });
-
-      if (error) throw error;
-
-      setSubmissions(data || []);
+      setLoading(true);
+      const response = await fetch(`http://localhost:5112/api/submissions?page=${page}&limit=${limit}`);
+      
+      if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+      
+      const result = await response.json();
+      if (result.success && result.data) {
+        setSubmissions(result.data.items || []);
+        setTotalSubmissions(result.data.total || 0);
+        setTotalPages(result.data.pages || 1);
+      }
     } catch (error: any) {
       toast({
         title: "Error",
@@ -98,7 +109,7 @@ export const SubmissionsView = () => {
       <CardHeader>
         <CardTitle>All Submissions</CardTitle>
         <CardDescription>
-          Total submissions: {submissions.length}
+          Total submissions: {totalSubmissions} | Page {currentPage} of {totalPages}
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -126,7 +137,7 @@ export const SubmissionsView = () => {
                 const department = submission.personalInfo?.department || submission.course_department || '';
                 const projectTitle = submission.projectDetails?.title || submission.project_title || '';
                 const status = submission.status || 'submitted';
-                const dateRaw = submission.submittedAt || submission.createdAt || submission.created_at || submission.created_at;
+                const dateRaw = submission.submittedAt || submission.createdAt || submission.created_at;
                 let dateStr = '';
                 try {
                   const d = new Date(dateRaw);
@@ -160,7 +171,63 @@ export const SubmissionsView = () => {
             </TableBody>
           </Table>
         </ScrollArea>
-        {/* Details Dialog */}
+        
+        {totalPages > 1 && (
+          <div className="flex items-center justify-between mt-4">
+            <div className="text-sm text-muted-foreground">
+              Showing {((currentPage - 1) * limit) + 1} to {Math.min(currentPage * limit, totalSubmissions)} of {totalSubmissions} submissions
+            </div>
+            <div className="flex items-center space-x-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => handlePageChange(currentPage - 1)}
+                disabled={currentPage === 1}
+              >
+                <ChevronLeft className="h-4 w-4" />
+                Previous
+              </Button>
+              
+              <div className="flex items-center space-x-1">
+                {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                  let pageNum;
+                  if (totalPages <= 5) {
+                    pageNum = i + 1;
+                  } else if (currentPage <= 3) {
+                    pageNum = i + 1;
+                  } else if (currentPage >= totalPages - 2) {
+                    pageNum = totalPages - 4 + i;
+                  } else {
+                    pageNum = currentPage - 2 + i;
+                  }
+                  
+                  return (
+                    <Button
+                      key={pageNum}
+                      variant={currentPage === pageNum ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => handlePageChange(pageNum)}
+                      className="w-8 h-8 p-0"
+                    >
+                      {pageNum}
+                    </Button>
+                  );
+                })}
+              </div>
+              
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => handlePageChange(currentPage + 1)}
+                disabled={currentPage === totalPages}
+              >
+                Next
+                <ChevronRight className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
+        )}
+        
         <Dialog open={open} onOpenChange={(val) => { if (!val) setSelected(null); setOpen(val); }}>
           <DialogContent className="sm:max-w-3xl max-h-[80vh] overflow-y-auto">
             <DialogHeader>
@@ -192,13 +259,11 @@ export const SubmissionsView = () => {
 
                   <div className="p-4 border rounded md:col-span-2">
                     <h4 className="font-semibold mb-2">MCQ Score / Answers</h4>
-                    {/* Score summary */}
                     <div className="mb-2 text-sm">
                       <strong>Total:</strong> {selected.mcqScore?.totalQuestions ?? selected.mcq_score?.totalQuestions ?? (selected.mcq_answers ? selected.mcq_answers.length : '-')}
                       <span className="ml-4"><strong>Correct:</strong> {selected.mcqScore?.correctAnswers ?? selected.mcq_score?.correctAnswers ?? '-'}</span>
-                      <span className="ml-4"><strong>Percent:</strong> {selected.mcqScore?.percentage ?? selected.mcq_score?.percentage ?? '-' }%</span>
+                      <span className="ml-4"><strong>Percent:</strong> {selected.mcqScore?.percentage ?? selected.mcq_score?.percentage ?? '-'}%</span>
                     </div>
-                    {/* Answers list */}
                     <div className="max-h-40 overflow-y-auto">
                       <table className="w-full text-sm">
                         <thead>

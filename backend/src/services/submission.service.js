@@ -77,7 +77,7 @@ const deleteSubmission = async (id, actor) => {
   return true;
 };
 
-const listSubmissions = async ({ page = 1, limit = 20, filter = {}, actor = {} }) => {
+const listSubmissions = async ({ page = 1, limit = 50, filter = {}, actor = {} }) => {
   const query = {};
   if (!(actor.roles || []).includes('admin')) {
     // non-admins only see their own

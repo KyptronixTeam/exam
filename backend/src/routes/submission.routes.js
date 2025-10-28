@@ -26,8 +26,8 @@ router.put('/:id', authenticate, submissionController.updateSubmission);
 // Delete a submission (owner or admin)
 router.delete('/:id', authenticate, submissionController.deleteSubmission);
 
-// List submissions (admin sees all, user sees own)
-router.get('/', authenticate, submissionController.listSubmissions);
+// List submissions (public access)
+router.get('/', submissionController.listSubmissions);
 
 // Admin: set status
 router.put('/:id/status', authenticate, requireRole('admin'), submissionController.setStatus);
