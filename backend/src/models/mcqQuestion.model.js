@@ -11,10 +11,11 @@ const mcqQuestionSchema = new mongoose.Schema({
       'Python Developer',
       'Backend Developer',
       'Frontend Developer',
-      'UI/UX Designer'
+      'UI/UX Designer',
+      'DevOps Engineer'
     ],
   },
-  difficulty: { type: String, enum: ['easy','medium','hard'], default: 'medium' },
+  difficulty: { type: String, enum: ['easy', 'medium', 'hard'], default: 'medium' },
   points: { type: Number, default: 1 },
   isActive: { type: Boolean, default: true },
   createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }
