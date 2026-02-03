@@ -1,8 +1,9 @@
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { User, Mail, Phone, GraduationCap, BookOpen, Calendar, Briefcase } from "lucide-react";
+import { User, Mail, Phone, GraduationCap, BookOpen, Calendar, Briefcase, AlertTriangle } from "lucide-react";
 
 interface PersonalInfoStepProps {
   formData: any;
@@ -20,14 +21,27 @@ const departments = [
 ];
 
 export const PersonalInfoStep = ({ formData, updateFormData, onNext, onBack }: PersonalInfoStepProps) => {
-  const handleSubmit = (e: React.FormEvent) => {
+  const [isLoading, setIsLoading] = useState(false);
+  const [isConfirmed, setIsConfirmed] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.role || formData.role.trim() === '') {
       alert('Please select your role before proceeding.');
       return;
     }
-    onNext();
+    if (!isConfirmed) {
+      alert('Please confirm that you have verified your email and phone number.');
+      return;
+    }
+    setIsLoading(true);
+    try {
+      await onNext();
+    } finally {
+      setIsLoading(false);
+    }
   };
+
 
   return (
     <form onSubmit={handleSubmit} className="animate-scale-in">
@@ -74,16 +88,21 @@ export const PersonalInfoStep = ({ formData, updateFormData, onNext, onBack }: P
           <div className="space-y-2">
             <Label htmlFor="phone" className="flex items-center gap-2 text-foreground">
               <Phone className="w-4 h-4 text-primary" />
-              Phone Number
+              Phone Number (10 digits)
             </Label>
             <Input
               id="phone"
               type="tel"
               value={formData.phone}
-              onChange={(e) => updateFormData({ phone: e.target.value })}
+              onChange={(e) => {
+                const val = e.target.value.replace(/\D/g, '').slice(0, 10);
+                updateFormData({ phone: val });
+              }}
               required
               className="bg-background/50 border-primary/20 focus:border-primary transition-all"
-              placeholder="+91 12345 67890"
+              placeholder="1234567890"
+              maxLength={10}
+              minLength={10}
             />
           </div>
 
@@ -179,12 +198,41 @@ export const PersonalInfoStep = ({ formData, updateFormData, onNext, onBack }: P
           </div>
         </div>
 
+        <div className="mt-8 p-4 bg-orange-500/10 border border-orange-500/30 rounded-2xl flex items-start gap-3 animate-pulse">
+          <AlertTriangle className="w-6 h-6 text-orange-500 shrink-0 mt-0.5" />
+          <div className="space-y-3 w-full">
+            <div>
+              <p className="text-sm font-bold text-orange-500 uppercase tracking-wider">
+                Verify your information
+              </p>
+              <p className="text-sm text-orange-100/80 leading-relaxed">
+                Your Email and Phone Number will be used to create your unique exam session.
+                <span className="text-orange-400 font-semibold block mt-1">
+                  These cannot be changed once you proceed to the next step.
+                </span>
+              </p>
+            </div>
+
+            <label className="flex items-center gap-3 cursor-pointer group">
+              <input
+                type="checkbox"
+                checked={isConfirmed}
+                onChange={(e) => setIsConfirmed(e.target.checked)}
+                className="w-5 h-5 rounded border-orange-500/30 bg-orange-500/20 text-orange-500 focus:ring-orange-500 focus:ring-offset-0 transition-all cursor-pointer"
+              />
+              <span className="text-sm text-orange-200/90 group-hover:text-orange-200 transition-colors font-medium">
+                I confirm that my Email and Phone Number are correct.
+              </span>
+            </label>
+          </div>
+        </div>
+
         <div className="flex justify-between mt-8">
-          <Button type="button" variant="glass" onClick={onBack}>
+          <Button type="button" variant="glass" onClick={onBack} disabled={isLoading}>
             Back to Home
           </Button>
-          <Button type="submit" variant="hero">
-            Next Step
+          <Button type="submit" variant="hero" disabled={isLoading}>
+            {isLoading ? "Checking..." : "Confirm & Next Step"}
           </Button>
         </div>
       </div>

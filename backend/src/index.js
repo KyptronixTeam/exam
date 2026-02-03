@@ -67,6 +67,11 @@ app.use('/api/files', fileRoutes);
 const adminRoutes = require('./routes/admin.routes');
 app.use('/api/admin', adminRoutes);
 
+// Mount session routes (for exam sessions)
+const sessionRoutes = require('./routes/session.routes');
+app.use('/api/session', sessionRoutes);
+
+
 // Health check endpoint
 app.get('/health', (req, res) => {
   res.status(200).json({
@@ -98,7 +103,7 @@ const startServer = async () => {
   try {
     // Connect to database
     await connectDatabase();
-    
+
     // Start server
     app.listen(config.port, () => {
       logger.info(`Server running on port ${config.port} in ${config.nodeEnv} mode`);

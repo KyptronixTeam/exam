@@ -1,13 +1,15 @@
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { useExamSession } from "@/hooks/useExamSession";
 import { PersonalInfoStep } from "./form-steps/PersonalInfoStep";
 import { ProjectDetailsStep } from "./form-steps/ProjectDetailsStep";
 import { MCQStep } from "./form-steps/MCQStep";
-// FileUploadStep removed/commented out per request
-// import { FileUploadStep } from "./form-steps/FileUploadStep";
 import { ReviewStep } from "./form-steps/ReviewStep";
 import { SuccessModal } from "./SuccessModal";
+import { FailureModal } from "./FailureModal";
+import { SubmitConfirmModal } from "./SubmitConfirmModal";
+
 
 interface FormData {
   // Personal Info
@@ -26,6 +28,10 @@ interface FormData {
   githubRepo?: string;
   // MCQ Answers
   mcqAnswers: Record<string, string>;
+  mcqCurrentPage: number;
+  // Assessment Results
+  assessmentPassed?: boolean;
+  assessmentScore?: number;
   // File Upload
   files: File[];
 }
@@ -44,8 +50,12 @@ const initialFormData: FormData = {
   websiteUrl: "",
   githubRepo: "",
   mcqAnswers: {},
+  mcqCurrentPage: 0,
+  assessmentPassed: false,
+  assessmentScore: 0,
   files: [],
 };
+
 
 interface SubmissionFormProps {
   onBack: () => void;
@@ -55,103 +65,226 @@ export const SubmissionForm = ({ onBack }: SubmissionFormProps) => {
   const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState<FormData>(initialFormData);
   const [showSuccess, setShowSuccess] = useState(false);
+  const [showFailure, setShowFailure] = useState(false);
+  const [showSubmitConfirm, setShowSubmitConfirm] = useState(false);
+  const [failureMessage, setFailureMessage] = useState("");
+
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [sessionStarted, setSessionStarted] = useState(false);
 
-  const updateFormData = (data: Partial<FormData>) => {
+  const { toast } = useToast();
+  const {
+    startSession,
+    saveProgress,
+    submitExam,
+    loadLocalSession,
+    clearLocalSession,
+    failAssessment
+  } = useExamSession();
+
+  // Load local session on mount
+  useEffect(() => {
+    const localSession = loadLocalSession();
+    if (localSession && localSession.status === 'in_progress') {
+      // Restore form data from local session
+      const savedData = localSession.formData;
+      if (savedData) {
+        setFormData(prev => ({
+          ...prev,
+          fullName: savedData.fullName || prev.fullName,
+          email: savedData.email || prev.email,
+          phone: savedData.phone || prev.phone,
+          collegeName: savedData.collegeName || prev.collegeName,
+          department: savedData.department || prev.department,
+          role: savedData.role || prev.role,
+          year: savedData.year || prev.year,
+          semester: savedData.semester || prev.semester,
+          projectTitle: savedData.projectTitle || prev.projectTitle,
+          projectDescription: savedData.projectDescription || prev.projectDescription,
+          websiteUrl: savedData.websiteUrl || prev.websiteUrl,
+          githubRepo: savedData.githubRepo || prev.githubRepo,
+          mcqAnswers: savedData.mcqAnswers || prev.mcqAnswers,
+          mcqCurrentPage: savedData.mcqCurrentPage || prev.mcqCurrentPage,
+          assessmentPassed: savedData.assessmentPassed ?? prev.assessmentPassed,
+          assessmentScore: savedData.assessmentScore ?? prev.assessmentScore,
+        }));
+        setCurrentStep(localSession.currentStep || 1);
+        setSessionStarted(true);
+        toast({
+          title: "Session Restored",
+          description: "Resuming from where you left off.",
+        });
+      }
+    } else if (localSession && localSession.status === 'failed') {
+      // If session is failed, show failure modal
+      setFailureMessage("You have already attempted this assessment and did not pass.");
+      setShowFailure(true);
+    }
+  }, [loadLocalSession, toast]);
+
+  const updateFormData = useCallback((data: Partial<FormData>) => {
     setFormData((prev) => ({ ...prev, ...data }));
-  };
+  }, []);
 
-  // Reduce total steps by removing the File upload step (step 4)
+  // Auto-save progress when step changes
+  useEffect(() => {
+    if (sessionStarted && currentStep > 1) {
+      saveProgress(currentStep, formData);
+    }
+  }, [currentStep, sessionStarted]);
+
+  // Auto-save MCQ answers and page whenever they change (debounced)
+  useEffect(() => {
+    if (sessionStarted && currentStep === 2) {
+      // Debounce to avoid excessive saves
+      const timeout = setTimeout(() => {
+        saveProgress(currentStep, formData);
+      }, 500);
+      return () => clearTimeout(timeout);
+    }
+  }, [formData.mcqAnswers, formData.mcqCurrentPage, sessionStarted, currentStep]);
+
   const TOTAL_STEPS = 4;
+
   const nextStep = () => {
-    setCurrentStep((prev) => Math.min(prev + 1, TOTAL_STEPS));
+    const newStep = Math.min(currentStep + 1, TOTAL_STEPS);
+    setCurrentStep(newStep);
+    if (sessionStarted) {
+      saveProgress(newStep, formData);
+    }
   };
 
   const prevStep = () => {
     setCurrentStep((prev) => Math.max(prev - 1, 1));
   };
 
-  const { toast } = useToast();
+  // Handle personal info submission - start/resume session
+  const handlePersonalInfoSubmit = async () => {
+    // Start or resume session with email + phone
+    const result = await startSession(formData.email, formData.phone);
+
+    if (!result.success) {
+      toast({
+        title: "Error",
+        description: result.error || "Failed to start session",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (result.alreadyCompleted) {
+      toast({
+        title: "Already Submitted",
+        description: result.message || "You have already attempted this exam.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Session started/resumed
+    setSessionStarted(true);
+
+    // If resuming, load the saved data
+    if (!result.isNew && result.session) {
+      const savedData = result.session.formData;
+      if (savedData) {
+        setFormData(prev => ({
+          ...prev,
+          ...savedData
+        }));
+        setCurrentStep(result.session.currentStep || 2);
+        toast({
+          title: "Session Resumed",
+          description: "Continuing from where you left off.",
+        });
+        return;
+      }
+    }
+
+    // New session - save initial data and proceed
+    saveProgress(2, formData);
+    nextStep();
+  };
 
   const handleSubmit = async () => {
     setIsSubmitting(true);
     try {
-      // Prepare answers array in the format expected by the validate RPC
-      const answersArray = Object.entries(formData.mcqAnswers).map(([questionId, selected]) => ({
+      // If the user reached step 4 (ReviewStep), they have already passed the MCQ
+      // Use the stored assessment result instead of re-validating
+      const isPassing = formData.assessmentPassed === true;
+      const storedScore = formData.assessmentScore || 0;
+
+      // Build mcqScore from stored data
+      const mcqScore = {
+        totalQuestions: Object.keys(formData.mcqAnswers || {}).length,
+        correctAnswers: Math.round((storedScore / 100) * Object.keys(formData.mcqAnswers || {}).length),
+        percentage: storedScore
+      };
+
+      // Build mcqAnswersForDb (simplified format for storage)
+      const mcqAnswersForDb = Object.entries(formData.mcqAnswers || {}).map(([questionId, selected]) => ({
         questionId,
-        selectedAnswer: selected
+        selectedAnswer: selected,
+        isCorrect: null // We don't recalculate correctness here
       }));
 
-      // Validate answers server-side to get scoring and per-question correctness
-      const validateRes = await supabase.rpc('validate-answers', { answers: answersArray });
-      const result = validateRes.data;
-
-      // Fetch all questions so we can translate selectedAnswer (text) -> index
-      const { data: allQuestions, error: qerr } = await supabase.from('mcq_questions').select('*');
-      if (qerr) throw qerr;
-
-      const qMap = new Map<string, any>();
-      (allQuestions || []).forEach((q: any) => qMap.set(q.id, q));
-
-      // Build mcqAnswers array in the DB shape: { questionId, selectedAnswer: Number, isCorrect }
-      const mcqAnswersForDb = (result?.details || []).map((d: any) => {
-        const q = qMap.get(d.questionId) || {};
-        const selectedIndex = (d.selected == null) ? -1 : (Array.isArray(q.options) ? q.options.findIndex((o: string) => o === d.selected) : -1);
-        return {
-          questionId: d.questionId,
-          // store null for skipped/unanswered so it's clear in DB
-          selectedAnswer: selectedIndex >= 0 ? selectedIndex : null,
-          isCorrect: !!d.isCorrect
-        };
-      });
-
-      // Build submission payload
-      const payload = {
-        personalInfo: {
+      // Submit exam through session API
+      const submitResult = await submitExam(
+        {
           fullName: formData.fullName,
           email: formData.email,
           phone: formData.phone,
           collegeName: formData.collegeName,
-            department: formData.department,
-            role: formData.role,
+          department: formData.department,
+          role: formData.role,
           year: formData.year,
-          semester: formData.semester
-        },
-        projectDetails: {
-          title: formData.projectTitle,
-          description: formData.projectDescription,
+          semester: formData.semester,
+          projectTitle: formData.projectTitle,
+          projectDescription: formData.projectDescription,
           websiteUrl: formData.websiteUrl,
           githubRepo: formData.githubRepo
         },
-        mcqAnswers: mcqAnswersForDb,
-        mcqScore: {
-          totalQuestions: result?.totalQuestions || mcqAnswersForDb.length,
-          correctAnswers: result?.correctCount || mcqAnswersForDb.filter((a: any) => a.isCorrect).length,
-          percentage: result?.percentage || 0
-        },
-        status: 'submitted',
-        submittedAt: new Date().toISOString()
-      };
+        mcqAnswersForDb,
+        mcqScore
+      );
 
-      const { data, error } = await supabase.from('submissions').insert(payload);
-      console.log('Submission insert response:', { data, error });
-      if (error) throw error;
+      if (!submitResult.success) {
+        throw new Error(submitResult.error || 'Submission failed');
+      }
 
-      setShowSuccess(true);
+      // Clear local storage
+      clearLocalSession();
+
+      // Use the stored assessmentPassed for determining success/failure
+      if (isPassing) {
+        setShowSuccess(true);
+      } else {
+        setFailureMessage(submitResult.message || "Unfortunately, you did not pass the exam.");
+        setShowFailure(true);
+      }
     } catch (err: any) {
       console.error('Submission error', err);
       const msg = err?.error?.message || err?.message || (typeof err === 'object' ? JSON.stringify(err) : String(err));
       toast({ title: 'Submission Failed', description: msg, variant: 'destructive' });
     } finally {
       setIsSubmitting(false);
+      setShowSubmitConfirm(false);
     }
   };
 
   const handleSuccessClose = () => {
     setShowSuccess(false);
-    // Reset form and go back to hero
     setFormData(initialFormData);
     setCurrentStep(1);
+    setSessionStarted(false);
+    onBack();
+  };
+
+  const handleFailureClose = () => {
+    setShowFailure(false);
+    setFormData(initialFormData);
+    setCurrentStep(1);
+    setSessionStarted(false);
     onBack();
   };
 
@@ -163,19 +296,17 @@ export const SubmissionForm = ({ onBack }: SubmissionFormProps) => {
           {[1, 2, 3, 4].map((step) => (
             <div key={step} className="flex items-center">
               <div
-                className={`w-10 h-10 rounded-full flex items-center justify-center font-semibold transition-all duration-300 ${
-                  step <= currentStep
-                    ? "bg-primary text-primary-foreground shadow-[0_0_20px_hsl(var(--primary)/0.5)]"
-                    : "bg-muted text-muted-foreground"
-                }`}
+                className={`w-10 h-10 rounded-full flex items-center justify-center font-semibold transition-all duration-300 ${step <= currentStep
+                  ? "bg-primary text-primary-foreground shadow-[0_0_20px_hsl(var(--primary)/0.5)]"
+                  : "bg-muted text-muted-foreground"
+                  }`}
               >
                 {step}
               </div>
               {step < 4 && (
                 <div
-                  className={`h-1 w-16 mx-1 transition-all duration-300 ${
-                    step < currentStep ? "bg-primary" : "bg-muted"
-                  }`}
+                  className={`h-1 w-16 mx-1 transition-all duration-300 ${step < currentStep ? "bg-primary" : "bg-muted"
+                    }`}
                 />
               )}
             </div>
@@ -195,7 +326,7 @@ export const SubmissionForm = ({ onBack }: SubmissionFormProps) => {
           <PersonalInfoStep
             formData={formData}
             updateFormData={updateFormData}
-            onNext={nextStep}
+            onNext={handlePersonalInfoSubmit}
             onBack={onBack}
           />
         )}
@@ -205,6 +336,7 @@ export const SubmissionForm = ({ onBack }: SubmissionFormProps) => {
             updateFormData={updateFormData}
             onNext={nextStep}
             onBack={prevStep}
+            onFail={(score) => failAssessment(score)}
           />
         )}
         {currentStep === 3 && (
@@ -218,15 +350,30 @@ export const SubmissionForm = ({ onBack }: SubmissionFormProps) => {
         {currentStep === 4 && (
           <ReviewStep
             formData={formData}
-            onSubmit={handleSubmit}
+            onSubmit={() => setShowSubmitConfirm(true)}
             onBack={prevStep}
             isSubmitting={isSubmitting}
           />
         )}
       </div>
 
+      {/* Confirmation Modal */}
+      <SubmitConfirmModal
+        isOpen={showSubmitConfirm}
+        onClose={() => setShowSubmitConfirm(false)}
+        onConfirm={handleSubmit}
+        isSubmitting={isSubmitting}
+      />
+
       {/* Success Modal */}
       <SuccessModal isOpen={showSuccess} onClose={handleSuccessClose} />
+
+      {/* Failure Modal */}
+      <FailureModal
+        isOpen={showFailure}
+        onClose={handleFailureClose}
+        message={failureMessage}
+      />
     </div>
   );
 };

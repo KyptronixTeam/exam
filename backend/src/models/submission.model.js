@@ -21,7 +21,7 @@ const projectDetailsSchema = new mongoose.Schema({
 
 const mcqAnswerSchema = new mongoose.Schema({
   questionId: { type: mongoose.Schema.Types.ObjectId, ref: 'MCQQuestion' },
-  selectedAnswer: { type: Number },
+  selectedAnswer: { type: mongoose.Schema.Types.Mixed }, // Can be string (answer text) or number (index)
   isCorrect: { type: Boolean }
 }, { _id: false });
 
@@ -39,7 +39,7 @@ const submissionSchema = new mongoose.Schema({
   mcqAnswers: { type: [mcqAnswerSchema], default: [] },
   mcqScore: { type: mcqScoreSchema, default: () => ({}) },
   fileIds: [{ type: mongoose.Schema.Types.ObjectId, ref: 'File' }],
-  status: { type: String, enum: ['draft','submitted','under_review','approved','rejected'], default: 'draft' },
+  status: { type: String, enum: ['draft', 'submitted', 'under_review', 'approved', 'rejected'], default: 'draft' },
   submittedAt: { type: Date },
   reviewedAt: { type: Date },
   reviewedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }

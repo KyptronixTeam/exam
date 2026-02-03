@@ -4,21 +4,28 @@ const mongoose = require('mongoose');
 
 const createSubmission = async (userId, data) => {
   const payload = { ...data };
+
+  // Normalize phone if present
+  if (payload.personalInfo && payload.personalInfo.phone) {
+    const digitsOnly = payload.personalInfo.phone.replace(/\D/g, '');
+    payload.personalInfo.phone = digitsOnly.length > 10 ? digitsOnly.slice(-10) : digitsOnly;
+
+    // Check if a submission already exists for this email/phone combination
+    const existing = await Submission.findOne({
+      'personalInfo.email': payload.personalInfo.email.toLowerCase().trim(),
+      'personalInfo.phone': payload.personalInfo.phone
+    });
+    if (existing) {
+      const err = new Error('You have already submitted the exam');
+      err.status = 400;
+      throw err;
+    }
+  }
+
   if (userId) {
     payload.userId = mongoose.Types.ObjectId(userId);
   }
-  // Accept top-level github_repo (legacy) or nested projectDetails.githubRepo
-  if (payload.github_repo && (!payload.projectDetails || !payload.projectDetails.githubRepo)) {
-    payload.projectDetails = payload.projectDetails || {};
-    payload.projectDetails.githubRepo = payload.github_repo;
-  }
-  // Normalize githubRepo: trim and ensure full URL when possible
-  if (payload.projectDetails && payload.projectDetails.githubRepo) {
-    let g = String(payload.projectDetails.githubRepo).trim();
-    if (g.startsWith('github.com')) g = `https://${g}`;
-    payload.projectDetails.githubRepo = g || undefined;
-  }
-  // Normalize role inside personalInfo if present to a canonical form
+  // ... rest of the canonical normalization ...
   if (payload.personalInfo && payload.personalInfo.role) {
     const s = String(payload.personalInfo.role).trim().toLowerCase();
     if (['ui/ux', 'ui ux', 'ux', 'ui', 'ui/ux designer', 'ui ux designer'].includes(s)) payload.personalInfo.role = 'UI/UX Designer';

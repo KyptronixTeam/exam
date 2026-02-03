@@ -7,13 +7,15 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2 } from "lucide-react";
+import { Loader2, AlertCircle } from "lucide-react";
+import { SubmitConfirmModal } from "../SubmitConfirmModal";
 
 interface MCQStepProps {
   formData: any;
   updateFormData: (data: any) => void;
   onNext: () => void;
   onBack: () => void;
+  onFail?: (score: any) => void;
 }
 
 interface Question {
@@ -24,36 +26,67 @@ interface Question {
   correct_answer: string;
 }
 
-export const MCQStep = ({ formData, updateFormData, onNext, onBack }: MCQStepProps) => {
+export const MCQStep = ({ formData, updateFormData, onNext, onBack, onFail }: MCQStepProps) => {
   const { toast } = useToast();
   const [questions, setQuestions] = useState<Question[]>([]);
-  const [answers, setAnswers] = useState<Record<string, string>>({});
-  const [currentPage, setCurrentPage] = useState(0);
+  const [answers, setAnswers] = useState<Record<string, string>>(formData.mcqAnswers || {});
+  const [currentPage, setCurrentPage] = useState(formData.mcqCurrentPage || 0);
   const [attempts, setAttempts] = useState(formData.assessmentAttempts || 0);
   const [loading, setLoading] = useState(false);
   const [checking, setChecking] = useState(false);
   const [showResult, setShowResult] = useState(false);
   const [result, setResult] = useState<any>(null);
+  const [showConfirm, setShowConfirm] = useState(false);
   const [showCorrectAnswers, setShowCorrectAnswers] = useState(false);
   const [passingPercentage, setPassingPercentage] = useState<number | null>(null);
 
-  useEffect(() => {
-    // Load saved data from localStorage
-    const savedAnswers = localStorage.getItem('mcq_answers');
-    const savedPage = localStorage.getItem('mcq_currentPage');
+  const handleSubmit = () => {
+    setShowConfirm(true);
+  };
 
-    if (savedAnswers) {
-      try {
-        const parsedAnswers = JSON.parse(savedAnswers);
-        setAnswers(parsedAnswers);
-      } catch (e) {
-        console.warn('Failed to parse saved answers', e);
-      }
+  const handleFinalSubmit = async () => {
+    setShowConfirm(false);
+    // Increment attempts
+    const currentAttempt = attempts + 1;
+    setAttempts(currentAttempt);
+    setChecking(true);
+
+    try {
+      // Send answers in the format expected by backend
+      const answersArray = questions.map(q => ({
+        questionId: q.id,
+        selectedAnswer: (answers[q.id] && answers[q.id] !== '__SKIPPED__') ? answers[q.id] : null
+      }));
+
+      // Use the supabase shim rpc which forwards to backend and handles auth
+      const rpcRes: any = await supabase.rpc('validate-answers', { answers: answersArray });
+      const data = rpcRes?.data;
+      if (!data) throw new Error('Validation failed');
+      console.log('Assessment result:', data);
+      setResult(data);
+      setShowResult(true);
+
+      // Update form data with assessment results (persist role not department)
+      updateFormData({
+        role: formData.role,
+        mcqAnswers: answers,
+        assessmentScore: data.percentage,
+        assessmentPassed: data.passed,
+        assessmentAttempts: currentAttempt
+      });
+    } catch (error: any) {
+      console.error('Assessment check error:', error);
+      toast({
+        title: 'Error',
+        description: error.message || 'Failed to check assessment. Please try again.',
+        variant: 'destructive',
+      });
+    } finally {
+      setChecking(false);
     }
-    if (savedPage) {
-      setCurrentPage(parseInt(savedPage, 10) || 0);
-    }
-  }, []);
+  };
+
+
 
   // Fetch passing percentage config from backend
   useEffect(() => {
@@ -76,15 +109,23 @@ export const MCQStep = ({ formData, updateFormData, onNext, onBack }: MCQStepPro
     return () => { mounted = false; };
   }, []);
 
-  // Save to localStorage whenever answers change
-  useEffect(() => {
-    localStorage.setItem('mcq_answers', JSON.stringify(answers));
-  }, [answers]);
+  // No longer needed: independently saving to localStorage.
+  // SubmissionForm handles auto-save via formData.
 
-  // Save current page
+  // Sync local state with formData when it changes (e.g., on session restore)
   useEffect(() => {
-    localStorage.setItem('mcq_currentPage', currentPage.toString());
-  }, [currentPage]);
+    const restoredAnswers = formData.mcqAnswers || {};
+    const restoredPage = formData.mcqCurrentPage || 0;
+
+    // Only update if different to avoid unnecessary re-renders
+    if (JSON.stringify(restoredAnswers) !== JSON.stringify(answers)) {
+      setAnswers(restoredAnswers);
+    }
+    if (restoredPage !== currentPage) {
+      setCurrentPage(restoredPage);
+    }
+  }, [formData.mcqAnswers, formData.mcqCurrentPage]);
+
 
   // On mount, ensure we have a role from formData
   useEffect(() => {
@@ -125,8 +166,8 @@ export const MCQStep = ({ formData, updateFormData, onNext, onBack }: MCQStepPro
   const fetchQuestions = async () => {
     setLoading(true);
     try {
-  console.log("Fetching questions for role:", formData.role);
-      
+      console.log("Fetching questions for role:", formData.role);
+
       // Fetch questions filtered by selected department/subject
       // Normalize to canonical category names to maximize matching with backend
       const category = normalizeRole(formData.role);
@@ -171,9 +212,19 @@ export const MCQStep = ({ formData, updateFormData, onNext, onBack }: MCQStepPro
 
       console.log(`Filtered to ${uniqueQuestions.length} unique questions from ${data.length} total`);
 
-  setQuestions(uniqueQuestions as Question[]);
-      setAnswers({});
-      setCurrentPage(0);
+      setQuestions(uniqueQuestions as Question[]);
+
+      // Only reset answers if we don't already have some (e.g., from restoration)
+      if (Object.keys(formData.mcqAnswers || {}).length === 0) {
+        setAnswers({});
+        updateFormData({ mcqAnswers: {} });
+      }
+
+      // Only reset page if it's not already set
+      if (!formData.mcqCurrentPage) {
+        setCurrentPage(0);
+        updateFormData({ mcqCurrentPage: 0 });
+      }
     } catch (error: any) {
       toast({
         title: "Error",
@@ -186,79 +237,50 @@ export const MCQStep = ({ formData, updateFormData, onNext, onBack }: MCQStepPro
   };
 
   const handleAnswerChange = (questionId: string, value: string) => {
-    setAnswers(prev => ({
-      ...prev,
+    const newAnswers = {
+      ...answers,
       [questionId]: value
-    }));
+    };
+    setAnswers(newAnswers);
+    updateFormData({ mcqAnswers: newAnswers });
   };
 
   const handleSkipQuestion = (questionId: string) => {
-    // mark as skipped with a sentinel value so it persists in localStorage
-    setAnswers(prev => ({
-      ...prev,
+    // mark as skipped with a sentinel value
+    const newAnswers = {
+      ...answers,
       [questionId]: '__SKIPPED__'
-    }));
+    };
+    setAnswers(newAnswers);
+    updateFormData({ mcqAnswers: newAnswers });
   };
 
-  const handleSubmit = async () => {
-    // Allow submission even if some questions are skipped. Skipped questions will
-    // be included in the payload as null (or sentinel) and treated as incorrect
-    // by the backend.
-
-    // Increment attempts
-    const currentAttempt = attempts + 1;
-    setAttempts(currentAttempt);
-    setChecking(true);
-
-    try {
-      // Send answers in the format expected by backend
-      const answersArray = questions.map(q => ({
-        questionId: q.id,
-        selectedAnswer: (answers[q.id] && answers[q.id] !== '__SKIPPED__') ? answers[q.id] : null
-      }));
-
-      // Use the supabase shim rpc which forwards to backend and handles auth
-      const rpcRes: any = await supabase.rpc('validate-answers', { answers: answersArray });
-      const data = rpcRes?.data;
-      if (!data) throw new Error('Validation failed');
-      console.log('Assessment result:', data);
-      setResult(data);
-      setShowResult(true);
-
-      // Update form data with assessment results (persist role not department)
-      updateFormData({
-        role: formData.role,
-        mcqAnswers: answers,
-        assessmentScore: data.percentage,
-        assessmentPassed: data.passed,
-        assessmentAttempts: currentAttempt
-      });
-
-      // Clear localStorage after submission
-      localStorage.removeItem('mcq_answers');
-      localStorage.removeItem('mcq_currentPage');
-
-    } catch (error: any) {
-      console.error('Assessment check error:', error);
-      toast({
-        title: 'Error',
-        description: error.message || 'Failed to check assessment. Please try again.',
-        variant: 'destructive',
-      });
-    } finally {
-      setChecking(false);
-    }
+  const syncCurrentPage = (page: number) => {
+    setCurrentPage(page);
+    updateFormData({ mcqCurrentPage: page });
   };
+
+
+
 
   const handleResultClose = () => {
     setShowResult(false);
-    
+
     if (result?.passed) {
       // Proceed to next step (Project Details)
       setResult(null);
       onNext();
     } else {
       // Failed - only 1 attempt allowed, end submission
+      // Call onFail prop if provided
+      if (onFail && result) {
+        onFail({
+          totalQuestions: result.totalQuestions,
+          correctAnswers: result.correctCount,
+          percentage: result.percentage
+        });
+      }
+
       toast({
         title: "Assessment Complete",
         description: "Thank you for participating. Goodbye!",
@@ -274,7 +296,7 @@ export const MCQStep = ({ formData, updateFormData, onNext, onBack }: MCQStepPro
   return (
     <>
       <Card className="border-primary/20 bg-card/50 backdrop-blur-sm">
-          <CardHeader>
+        <CardHeader>
           <CardTitle className="text-2xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
             Department Assessment (1 Attempt Only)
           </CardTitle>
@@ -323,7 +345,7 @@ export const MCQStep = ({ formData, updateFormData, onNext, onBack }: MCQStepPro
                       {q.options.map((option) => {
                         const isCorrect = showCorrectAnswers && option === q.correct_answer;
                         const isWrong = showCorrectAnswers && answers[q.id] === option && option !== q.correct_answer;
-                        
+
                         return (
                           <div key={option} className={`flex items-center space-x-2 select-none ${isCorrect ? 'bg-green-100 dark:bg-green-900/30 p-2 rounded' : isWrong ? 'bg-red-100 dark:bg-red-900/30 p-2 rounded' : ''}`}>
                             <RadioGroupItem value={option} id={`${q.id}-${option}`} />
@@ -346,7 +368,7 @@ export const MCQStep = ({ formData, updateFormData, onNext, onBack }: MCQStepPro
                 <Button
                   type="button"
                   variant="outline"
-                  onClick={() => setCurrentPage(prev => Math.max(0, prev - 1))}
+                  onClick={() => syncCurrentPage(Math.max(0, currentPage - 1))}
                   disabled={currentPage === 0 || checking || showCorrectAnswers}
                 >
                   Previous
@@ -357,7 +379,7 @@ export const MCQStep = ({ formData, updateFormData, onNext, onBack }: MCQStepPro
                 <Button
                   type="button"
                   variant="outline"
-                  onClick={() => setCurrentPage(prev => Math.min(Math.ceil(questions.length / 5) - 1, prev + 1))}
+                  onClick={() => syncCurrentPage(Math.min(Math.ceil(questions.length / 5) - 1, currentPage + 1))}
                   disabled={currentPage >= Math.ceil(questions.length / 5) - 1 || checking || showCorrectAnswers}
                 >
                   Next
@@ -404,8 +426,8 @@ export const MCQStep = ({ formData, updateFormData, onNext, onBack }: MCQStepPro
             </>
           )}          {!loading && formData.role && questions.length === 0 && (
             <p className="text-center text-muted-foreground py-8">
-                 No questions available for this role. Please contact the administrator.
-               </p>
+              No questions available for this role. Please contact the administrator.
+            </p>
           )}
         </CardContent>
       </Card>
@@ -423,72 +445,79 @@ export const MCQStep = ({ formData, updateFormData, onNext, onBack }: MCQStepPro
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-6 pt-4">
-              {/* Score Summary */}
-              <div className="bg-gradient-to-br from-primary/10 to-accent/10 p-6 rounded-lg border-2 border-primary/20">
-                <div className="text-center">
-                  <p className="text-5xl font-bold mb-3 bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-                    {result?.percentage}%
-                  </p>
-                  <div className="flex justify-center items-center gap-4 text-sm">
-                    <div className="flex items-center gap-2">
-                      <span className="text-green-600 font-bold text-lg">✓ {result?.correctCount}</span>
-                      <span className="text-muted-foreground">Correct</span>
-                    </div>
-                    <div className="h-4 w-px bg-border"></div>
-                    <div className="flex items-center gap-2">
-                      <span className="text-red-600 font-bold text-lg">✗ {result?.totalQuestions - result?.correctCount}</span>
-                      <span className="text-muted-foreground">Wrong</span>
-                    </div>
-                    <div className="h-4 w-px bg-border"></div>
-                    <div className="flex items-center gap-2">
-                      <span className="font-bold text-lg">{result?.totalQuestions}</span>
-                      <span className="text-muted-foreground">Total</span>
-                    </div>
+            {/* Score Summary */}
+            <div className="bg-gradient-to-br from-primary/10 to-accent/10 p-6 rounded-lg border-2 border-primary/20">
+              <div className="text-center">
+                <p className="text-5xl font-bold mb-3 bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+                  {result?.percentage}%
+                </p>
+                <div className="flex justify-center items-center gap-4 text-sm">
+                  <div className="flex items-center gap-2">
+                    <span className="text-green-600 font-bold text-lg">✓ {result?.correctCount}</span>
+                    <span className="text-muted-foreground">Correct</span>
+                  </div>
+                  <div className="h-4 w-px bg-border"></div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-red-600 font-bold text-lg">✗ {result?.totalQuestions - result?.correctCount}</span>
+                    <span className="text-muted-foreground">Wrong</span>
+                  </div>
+                  <div className="h-4 w-px bg-border"></div>
+                  <div className="flex items-center gap-2">
+                    <span className="font-bold text-lg">{result?.totalQuestions}</span>
+                    <span className="text-muted-foreground">Total</span>
                   </div>
                 </div>
               </div>
-
-              {/* Feedback Message */}
-              <div className="bg-muted/50 p-4 rounded-lg border">
-                <p className="text-sm leading-relaxed">{result?.feedback}</p>
-              </div>
-
-              {/* Wrong Answers Section removed per request: do not show student mistakes after submission */}
-
-              {/* Status Message */}
-              {result?.passed ? (
-                <div className="bg-green-50 dark:bg-green-950 p-4 rounded-lg border-2 border-green-200 dark:border-green-800">
-                  <p className="text-center font-semibold text-green-700 dark:text-green-300">
-                    ✅ Outstanding! You scored above {passingPercentage ?? 'required'}%. Proceeding to project submission...
-                  </p>
-                </div>
-              ) : (
-                <div className="space-y-3">
-                  <div className="bg-orange-50 dark:bg-orange-950 p-4 rounded-lg border-2 border-orange-200 dark:border-orange-800">
-                    <p className="text-center font-semibold text-orange-700 dark:text-orange-300">
-                      ❌ Assessment not passed. Review your answers above.
-                    </p>
-                  </div>
-                  <div className="text-center py-4 bg-muted/30 rounded-lg">
-                    <p className="text-2xl font-bold mb-2">👋 Thank You!</p>
-                    <p className="text-sm text-muted-foreground">
-                      We appreciate your participation. Redirecting to home...
-                    </p>
-                  </div>
-                </div>
-              )}
-
-              <Button 
-                onClick={handleResultClose}
-                className="w-full"
-                size="lg"
-                variant={result?.passed ? "default" : "destructive"}
-              >
-                {result?.passed ? "Continue to Project Submission →" : "Close"}
-              </Button>
             </div>
+
+            {/* Feedback Message */}
+            <div className="bg-muted/50 p-4 rounded-lg border">
+              <p className="text-sm leading-relaxed">{result?.feedback}</p>
+            </div>
+
+            {/* Wrong Answers Section removed per request: do not show student mistakes after submission */}
+
+            {/* Status Message */}
+            {result?.passed ? (
+              <div className="bg-green-50 dark:bg-green-950 p-4 rounded-lg border-2 border-green-200 dark:border-green-800">
+                <p className="text-center font-semibold text-green-700 dark:text-green-300">
+                  ✅ Outstanding! You scored above {passingPercentage ?? 'required'}%. Proceeding to project submission...
+                </p>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                <div className="bg-orange-50 dark:bg-orange-950 p-4 rounded-lg border-2 border-orange-200 dark:border-orange-800">
+                  <p className="text-center font-semibold text-orange-700 dark:text-orange-300">
+                    ❌ Assessment not passed. Review your answers above.
+                  </p>
+                </div>
+                <div className="text-center py-4 bg-muted/30 rounded-lg">
+                  <p className="text-2xl font-bold mb-2">👋 Thank You!</p>
+                  <p className="text-sm text-muted-foreground">
+                    We appreciate your participation. Redirecting to home...
+                  </p>
+                </div>
+              </div>
+            )}
+
+            <Button
+              onClick={handleResultClose}
+              className="w-full"
+              size="lg"
+              variant={result?.passed ? "default" : "destructive"}
+            >
+              {result?.passed ? "Continue to Project Submission →" : "Close"}
+            </Button>
+          </div>
         </DialogContent>
       </Dialog>
+
+      <SubmitConfirmModal
+        isOpen={showConfirm}
+        onClose={() => setShowConfirm(false)}
+        onConfirm={handleFinalSubmit}
+        isSubmitting={checking}
+      />
     </>
 
   );
