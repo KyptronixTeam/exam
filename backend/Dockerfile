@@ -13,8 +13,8 @@ RUN npm ci --only=production && npm cache clean --force
 # Copy source code
 COPY . .
 
-# Build the application
-RUN npm run build
+# Copy source code
+COPY . .
 
 # Production stage
 FROM node:18-alpine AS production
@@ -32,8 +32,10 @@ COPY package*.json ./
 # Install only production dependencies
 RUN npm ci --only=production && npm cache clean --force
 
-# Copy built application from builder stage
-COPY --from=builder --chown=nodejs:nodejs /app/dist ./dist
+# Copy application source from builder stage
+COPY --from=builder --chown=nodejs:nodejs /app/src ./src
+COPY --from=builder --chown=nodejs:nodejs /app/scripts ./scripts
+COPY --from=builder --chown=nodejs:nodejs /app/tsconfig.json ./tsconfig.json
 
 # Create uploads directory
 RUN mkdir -p uploads logs && chown -R nodejs:nodejs uploads logs
