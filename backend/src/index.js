@@ -1,7 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
-const rateLimit = require('express-rate-limit');
+
 const { config } = require('./config/environment');
 const { connectDatabase } = require('./config/database');
 const { logger } = require('./utils/logger');
@@ -21,13 +21,7 @@ app.use(cors({
 // Ensure preflight OPTIONS requests always receive CORS headers
 app.options('*', cors({ origin: '*', credentials: false }));
 
-// Rate limiting
-const limiter = rateLimit({
-  windowMs: config.security?.rateLimitWindowMs || 15 * 60 * 1000,
-  max: config.security?.rateLimitMaxRequests || 100,
-  message: 'Too many requests from this IP, please try again later.'
-});
-app.use(limiter);
+
 
 // Body parsing middleware
 app.use(express.json({ limit: '10mb' }));

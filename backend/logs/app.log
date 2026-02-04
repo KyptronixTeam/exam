@@ -191,3 +191,7 @@
 {"level":"info","message":"getConfig() called - Fetching MCQ passing percentage","service":"node-express-backend","timestamp":"2026-02-03 16:46:18"}
 {"level":"info","message":"Returning passingPercentage successfully:","service":"node-express-backend","timestamp":"2026-02-03 16:46:18"}
 {"level":"info","message":"Assessment failed - session marked as failed","score":40,"service":"node-express-backend","sessionId":"bf557dc4-fc11-43ff-9690-34e5850d5fe6","timestamp":"2026-02-03 16:48:32"}
+{"level":"info","message":"MCQ routes registered:","routes":["GET /categories","GET /","GET /config","POST /validate","GET /:id","POST /","POST /bulk","PUT /:id","DELETE /:id"],"service":"node-express-backend","timestamp":"2026-02-04 14:25:43"}
+{"level":"info","message":"MongoDB connected successfully to development database","service":"node-express-backend","timestamp":"2026-02-04 14:25:44"}
+{"level":"info","message":"Server running on port 5112 in development mode","service":"node-express-backend","timestamp":"2026-02-04 14:25:44"}
+{"level":"info","message":"API documentation available at http://localhost:5112/api-docs","service":"node-express-backend","timestamp":"2026-02-04 14:25:44"}
