@@ -37,7 +37,7 @@ export const QuestionsManager = () => {
 
   useEffect(() => {
     // Load categories from predefined enum since RPC may not be available
-    const predefinedCategories = ['Full Stack Developer', 'Python Developer', 'Backend Developer', 'Frontend Developer', 'UI/UX Designer'];
+    const predefinedCategories = ['Full Stack Developer', 'Python Developer', 'Backend Developer', 'Frontend Developer', 'UI/UX Designer', 'DevOps Engineer', 'Data Analyst'];
     setCategories(['All', ...predefinedCategories]);
 
     // Try to load additional categories from RPC if available
@@ -414,6 +414,8 @@ export const QuestionsManager = () => {
                   <SelectItem value="Backend Developer">Backend Developer</SelectItem>
                   <SelectItem value="Frontend Developer">Frontend Developer</SelectItem>
                   <SelectItem value="UI/UX Designer">UI/UX Designer</SelectItem>
+                  <SelectItem value="DevOps Engineer">DevOps Engineer</SelectItem>
+                  <SelectItem value="Data Analyst">Data Analyst</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -528,25 +530,25 @@ export const QuestionsManager = () => {
 
       <Card>
         <CardHeader>
-            <div className="w-full flex items-center justify-between gap-4">
-              <div>
-                <CardTitle>Existing Questions</CardTitle>
-                <CardDescription>Total: {questions.length} questions</CardDescription>
-              </div>
-              <div className="flex items-center gap-2">
-                <Label htmlFor="categoryFilter" className="text-sm">Filter</Label>
-                <Select value={selectedCategory} onValueChange={(v) => { setSelectedCategory(v); fetchQuestions(v); }}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="All categories" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {categories.map((c) => (
-                      <SelectItem key={c} value={c}>{c}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
+          <div className="w-full flex items-center justify-between gap-4">
+            <div>
+              <CardTitle>Existing Questions</CardTitle>
+              <CardDescription>Total: {questions.length} questions</CardDescription>
             </div>
+            <div className="flex items-center gap-2">
+              <Label htmlFor="categoryFilter" className="text-sm">Filter</Label>
+              <Select value={selectedCategory} onValueChange={(v) => { setSelectedCategory(v); fetchQuestions(v); }}>
+                <SelectTrigger>
+                  <SelectValue placeholder="All categories" />
+                </SelectTrigger>
+                <SelectContent>
+                  {categories.map((c) => (
+                    <SelectItem key={c} value={c}>{c}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
         </CardHeader>
         <CardContent>
           <div className="space-y-4 max-h-[600px] overflow-y-auto">

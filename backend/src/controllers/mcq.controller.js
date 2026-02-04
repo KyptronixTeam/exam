@@ -12,6 +12,8 @@ const createQuestion = async (req, res) => {
       if (['backend developer', 'backend'].includes(s)) return 'Backend Developer';
       if (['frontend developer', 'frontend'].includes(s)) return 'Frontend Developer';
       if (['ui/ux designer', 'ui ux designer', 'ux designer', 'ui designer', 'uiux designer'].includes(s)) return 'UI/UX Designer';
+      if (['devops engineer', 'devops'].includes(s)) return 'DevOps Engineer';
+      if (['data analyst', 'data analysis', 'analyst'].includes(s)) return 'Data Analyst';
       // fallback: title-case the input
       return String(cat).trim();
     };
@@ -38,6 +40,8 @@ const bulkCreateQuestions = async (req, res) => {
         if (['backend developer', 'backend'].includes(s)) return 'Backend Developer';
         if (['frontend developer', 'frontend'].includes(s)) return 'Frontend Developer';
         if (['ui/ux designer', 'ui ux designer', 'ux designer', 'ui designer', 'uiux designer'].includes(s)) return 'UI/UX Designer';
+        if (['devops engineer', 'devops'].includes(s)) return 'DevOps Engineer';
+        if (['data analyst', 'data analysis', 'analyst'].includes(s)) return 'Data Analyst';
         return String(cat).trim();
       };
 
@@ -112,7 +116,9 @@ const listCategories = async (req, res) => {
       'Python Developer',
       'Backend Developer',
       'Frontend Developer',
-      'UI/UX Designer'
+      'UI/UX Designer',
+      'DevOps Engineer',
+      'Data Analyst'
     ];
     res.json({ success: true, data: { categories } });
   } catch (err) {
@@ -140,8 +146,8 @@ const getConfig = async (req, res) => {
       typeof v === 'number'
         ? v
         : typeof v === 'string' && v.trim() !== ''
-        ? Number(v)
-        : null;
+          ? Number(v)
+          : null;
 
     logger.debug('Parsed passingPercentage value:', passingPercentage);
 

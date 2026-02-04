@@ -12,7 +12,8 @@ const mcqQuestionSchema = new mongoose.Schema({
       'Backend Developer',
       'Frontend Developer',
       'UI/UX Designer',
-      'DevOps Engineer'
+      'DevOps Engineer',
+      'Data Analyst'
     ],
   },
   difficulty: { type: String, enum: ['easy', 'medium', 'hard'], default: 'medium' },

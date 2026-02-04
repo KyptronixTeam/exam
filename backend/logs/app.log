@@ -195,3 +195,27 @@
 {"level":"info","message":"MongoDB connected successfully to development database","service":"node-express-backend","timestamp":"2026-02-04 14:25:44"}
 {"level":"info","message":"Server running on port 5112 in development mode","service":"node-express-backend","timestamp":"2026-02-04 14:25:44"}
 {"level":"info","message":"API documentation available at http://localhost:5112/api-docs","service":"node-express-backend","timestamp":"2026-02-04 14:25:44"}
+{"level":"info","message":"MCQ routes registered:","routes":["GET /categories","GET /","GET /config","POST /validate","GET /:id","POST /","POST /bulk","PUT /:id","DELETE /:id"],"service":"node-express-backend","timestamp":"2026-02-04 14:32:07"}
+{"level":"info","message":"MongoDB connected successfully to development database","service":"node-express-backend","timestamp":"2026-02-04 14:32:08"}
+{"level":"info","message":"Server running on port 5112 in development mode","service":"node-express-backend","timestamp":"2026-02-04 14:32:08"}
+{"level":"info","message":"API documentation available at http://localhost:5112/api-docs","service":"node-express-backend","timestamp":"2026-02-04 14:32:08"}
+{"level":"info","message":"MCQ routes registered:","routes":["GET /categories","GET /","GET /config","POST /validate","GET /:id","POST /","POST /bulk","PUT /:id","DELETE /:id"],"service":"node-express-backend","timestamp":"2026-02-04 14:41:36"}
+{"level":"info","message":"MongoDB connected successfully to development database","service":"node-express-backend","timestamp":"2026-02-04 14:41:36"}
+{"level":"info","message":"MCQ routes registered:","routes":["GET /categories","GET /","GET /config","POST /validate","GET /:id","POST /","POST /bulk","PUT /:id","DELETE /:id"],"service":"node-express-backend","timestamp":"2026-02-04 14:42:08"}
+{"level":"info","message":"MongoDB connected successfully to development database","service":"node-express-backend","timestamp":"2026-02-04 14:42:09"}
+{"level":"info","message":"Server running on port 5112 in development mode","service":"node-express-backend","timestamp":"2026-02-04 14:42:09"}
+{"level":"info","message":"API documentation available at http://localhost:5112/api-docs","service":"node-express-backend","timestamp":"2026-02-04 14:42:09"}
+{"level":"info","message":"getConfig() called - Fetching MCQ passing percentage","service":"node-express-backend","timestamp":"2026-02-04 14:49:46"}
+{"level":"info","message":"Returning passingPercentage successfully:","service":"node-express-backend","timestamp":"2026-02-04 14:49:46"}
+{"level":"info","message":"MCQ routes registered:","routes":["GET /categories","GET /","GET /config","POST /validate","GET /:id","POST /","POST /bulk","PUT /:id","DELETE /:id"],"service":"node-express-backend","timestamp":"2026-02-04 14:55:33"}
+{"level":"info","message":"MongoDB connected successfully to development database","service":"node-express-backend","timestamp":"2026-02-04 14:55:34"}
+{"level":"info","message":"Server running on port 5112 in development mode","service":"node-express-backend","timestamp":"2026-02-04 14:55:34"}
+{"level":"info","message":"API documentation available at http://localhost:5112/api-docs","service":"node-express-backend","timestamp":"2026-02-04 14:55:34"}
+{"level":"info","message":"getConfig() called - Fetching MCQ passing percentage","service":"node-express-backend","timestamp":"2026-02-04 14:57:34"}
+{"level":"info","message":"Returning passingPercentage successfully:","service":"node-express-backend","timestamp":"2026-02-04 14:57:34"}
+{"level":"info","message":"getConfig() called - Fetching MCQ passing percentage","service":"node-express-backend","timestamp":"2026-02-04 14:57:46"}
+{"level":"info","message":"Returning passingPercentage successfully:","service":"node-express-backend","timestamp":"2026-02-04 14:57:46"}
+{"level":"info","message":"getConfig() called - Fetching MCQ passing percentage","service":"node-express-backend","timestamp":"2026-02-04 14:57:56"}
+{"level":"info","message":"Returning passingPercentage successfully:","service":"node-express-backend","timestamp":"2026-02-04 14:57:56"}
+{"level":"info","message":"getConfig() called - Fetching MCQ passing percentage","service":"node-express-backend","timestamp":"2026-02-04 14:58:19"}
+{"level":"info","message":"Returning passingPercentage successfully:","service":"node-express-backend","timestamp":"2026-02-04 14:58:19"}

@@ -147,6 +147,8 @@ export const MCQStep = ({ formData, updateFormData, onNext, onBack, onFail }: MC
     if (['frontend developer', 'frontend'].includes(s)) return 'Frontend Developer';
     // accept the shorter 'UI/UX' label and map to the backend enum
     if (['ui/ux', 'ui ux', 'ux', 'ui', 'ui/ux designer', 'ui ux designer', 'ux designer', 'ui designer', 'uiux designer'].includes(s)) return 'UI/UX Designer';
+    if (['devops engineer', 'devops'].includes(s)) return 'DevOps Engineer';
+    if (['data analyst', 'data analysis', 'analyst', 'data analyt'].includes(s)) return 'Data Analyst';
     // fallback: title-case words
     return String(d).trim();
   };

@@ -18,7 +18,8 @@ const departments = [
   "Backend Developer",
   "Python Developer",
   "Full Stack Developer",
-  "DevOps Engineer"
+  "DevOps Engineer",
+  "Data Analyst"
 ];
 
 export const PersonalInfoStep = ({ formData, updateFormData, onNext, onBack }: PersonalInfoStepProps) => {
