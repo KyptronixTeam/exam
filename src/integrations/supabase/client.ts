@@ -257,9 +257,13 @@ const from = (table: string) => {
       return {
         id: item._id || item.id || item._id,
         subject: item.category || item.subject || null,
+        category: item.category || item.subject || null,
         question: item.question,
         options: item.options,
         correct_answer: item.correctAnswer ?? item.correct_answer,
+        difficulty: item.difficulty,
+        isActive: item.isActive,
+        points: item.points,
         created_at: item.createdAt || item.created_at
       };
     }
@@ -290,7 +294,10 @@ const from = (table: string) => {
           question: payload.question,
           options: payload.options,
           correctAnswer: payload.correct_answer || payload.correctAnswer,
-          category: payload.subject || payload.category
+          category: payload.subject || payload.category,
+          difficulty: payload.difficulty,
+          points: payload.points,
+          isActive: payload.isActive
         };
         const res = await request(base, { method: 'POST', body: JSON.stringify(body) });
         return { data: res.data, error: null };

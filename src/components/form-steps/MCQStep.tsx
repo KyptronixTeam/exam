@@ -3,12 +3,12 @@ import { Button } from "@/components/ui/button";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, AlertCircle } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { SubmitConfirmModal } from "../SubmitConfirmModal";
+import { normalizeMcqRole } from "@/lib/mcqRoles";
 
 interface MCQStepProps {
   formData: any;
@@ -137,22 +137,6 @@ export const MCQStep = ({ formData, updateFormData, onNext, onBack, onFail }: MC
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Normalize role string to match backend canonical categories
-  const normalizeRole = (d: string) => {
-    if (!d) return d;
-    const s = String(d).trim().toLowerCase();
-    if (['full stack developer', 'full-stack developer', 'fullstack developer', 'fullstack', 'fill developer', 'fill', 'full developer'].includes(s)) return 'Full Stack Developer';
-    if (['python developer', 'python'].includes(s)) return 'Python Developer';
-    if (['backend developer', 'backend'].includes(s)) return 'Backend Developer';
-    if (['frontend developer', 'frontend'].includes(s)) return 'Frontend Developer';
-    // accept the shorter 'UI/UX' label and map to the backend enum
-    if (['ui/ux', 'ui ux', 'ux', 'ui', 'ui/ux designer', 'ui ux designer', 'ux designer', 'ui designer', 'uiux designer'].includes(s)) return 'UI/UX Designer';
-    if (['devops engineer', 'devops'].includes(s)) return 'DevOps Engineer';
-    if (['data analyst', 'data analysis', 'analyst', 'data analyt'].includes(s)) return 'Data Analyst';
-    // fallback: title-case words
-    return String(d).trim();
-  };
-
   // Fetch questions on mount and whenever the selected role changes so students
   // see questions immediately after choosing a role (or on initial load).
   useEffect(() => {
@@ -172,7 +156,7 @@ export const MCQStep = ({ formData, updateFormData, onNext, onBack, onFail }: MC
 
       // Fetch questions filtered by selected department/subject
       // Normalize to canonical category names to maximize matching with backend
-      const category = normalizeRole(formData.role);
+      const category = normalizeMcqRole(formData.role);
       console.log("Normalized category for query:", category);
 
       // Try server-side exact match first, then fallback to ilike (case-insensitive
@@ -180,29 +164,17 @@ export const MCQStep = ({ formData, updateFormData, onNext, onBack, onFail }: MC
       // last resort — this handles inconsistent subject values in the DB.
       let data: any[] | null = null;
 
-      // 1) exact match
       let res: any = await supabase.from("mcq_questions").select("*").eq("subject", category);
       console.log("Server exact match result:", res?.data?.length, "rows", res?.error || null);
       if (res.error) throw res.error;
       data = res.data;
 
-      // 2) fallback to ilike (case-insensitive contains)
       if (!data || data.length === 0) {
-        const likePattern = `%${category}%`;
-        const res2: any = await supabase.from("mcq_questions").select("*").ilike("subject", likePattern);
-        console.log("Server ilike match result:", res2?.data?.length, "rows", res2?.error || null);
+        const res2: any = await supabase.from("mcq_questions").select("*");
+        console.log("Server full fetch result:", res2?.data?.length, "rows", res2?.error || null);
         if (res2.error) throw res2.error;
-        data = res2.data;
-      }
-
-      // 3) final fallback: fetch all and filter client-side using a loose match
-      if (!data || data.length === 0) {
-        const res3: any = await supabase.from("mcq_questions").select("*");
-        console.log("Server full fetch result:", res3?.data?.length, "rows", res3?.error || null);
-        if (res3.error) throw res3.error;
-        const all = res3.data || [];
-        const lowerCat = String(category || "").toLowerCase();
-        data = all.filter((q: any) => String(q.subject || "").toLowerCase().includes(lowerCat));
+        const all = res2.data || [];
+        data = all.filter((q: any) => normalizeMcqRole(q.subject || q.category || "") === category);
       }
 
       console.log("Query result - data:", data);

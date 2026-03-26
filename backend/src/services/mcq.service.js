@@ -1,17 +1,6 @@
 const { MCQQuestion } = require('../models');
 const mongoose = require('mongoose');
-
-const normalizeCategory = (cat) => {
-  if (!cat) return cat;
-  const s = String(cat).trim().toLowerCase();
-  if (['full stack developer', 'full-stack developer', 'fullstack developer', 'fullstack'].includes(s)) return 'Full Stack Developer';
-  if (['python developer', 'python'].includes(s)) return 'Python Developer';
-  if (['backend developer', 'backend'].includes(s)) return 'Backend Developer';
-  if (['frontend developer', 'frontend'].includes(s)) return 'Frontend Developer';
-  if (['ui/ux designer', 'ui ux designer', 'ux designer', 'ui designer', 'uiux designer'].includes(s)) return 'UI/UX Designer';
-  // fallback: title-case words
-  return String(cat).trim();
-};
+const { normalizeCategory } = require('../constants/mcqCategories');
 
 const sanitizeQuestionPayload = (data) => {
   const payload = {};
@@ -87,7 +76,7 @@ const listQuestions = async ({ page = 1, limit = 50, filter = {} } = {}) => {
   if (filter.category) {
     // match category case-insensitively to be resilient to client-side casing/spacing
     const escapeRegExp = (s) => String(s).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-    const raw = String(filter.category).trim();
+    const raw = normalizeCategory(filter.category);
     query.category = new RegExp(`^${escapeRegExp(raw)}$`, 'i');
   }
   if (filter.difficulty) query.difficulty = filter.difficulty;

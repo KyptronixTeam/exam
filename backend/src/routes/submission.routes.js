@@ -6,7 +6,7 @@ const { authenticate } = require('../middleware/authMiddleware');
 const { requireRole } = require('../middleware/roleMiddleware');
 const { runValidation } = require('../middleware/validation');
 
-// Create a submission (authenticated)
+// Create a submission (public)
 const submissionCreateValidators = [
 	body('personalInfo.fullName').isString().notEmpty(),
 	body('personalInfo.email').isEmail(),
@@ -26,8 +26,8 @@ router.put('/:id', authenticate, submissionController.updateSubmission);
 // Delete a submission (owner or admin)
 router.delete('/:id', authenticate, submissionController.deleteSubmission);
 
-// List submissions (public access)
-router.get('/', submissionController.listSubmissions);
+// List submissions (admin only)
+router.get('/', authenticate, requireRole('admin'), submissionController.listSubmissions);
 
 // Admin: set status
 router.put('/:id/status', authenticate, requireRole('admin'), submissionController.setStatus);

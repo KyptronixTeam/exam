@@ -8,6 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Plus, Trash2 } from "lucide-react";
+import { MCQ_CATEGORY_OPTIONS } from "@/lib/mcqRoles";
 
 interface Question {
   id: string;
@@ -37,7 +38,7 @@ export const QuestionsManager = () => {
 
   useEffect(() => {
     // Load categories from predefined enum since RPC may not be available
-    const predefinedCategories = ['Full Stack Developer', 'Python Developer', 'Backend Developer', 'Frontend Developer', 'UI/UX Designer', 'DevOps Engineer', 'Data Analyst'];
+    const predefinedCategories = MCQ_CATEGORY_OPTIONS;
     setCategories(['All', ...predefinedCategories]);
 
     // Try to load additional categories from RPC if available
@@ -298,7 +299,10 @@ export const QuestionsManager = () => {
           category: subj,
           question: q,
           options: [o1, o2, o3, o4],
-          correctAnswer: correctIndex
+          correctAnswer: correctIndex,
+          difficulty: /^(easy|medium|hard)$/i.test(difficultyVal) ? difficultyVal.toLowerCase() : 'medium',
+          points: pointsVal && !Number.isNaN(pointsVal) ? pointsVal : 1,
+          isActive: isActiveVal ?? true,
         });
       }
 
@@ -406,18 +410,16 @@ export const QuestionsManager = () => {
               <Label htmlFor="category">Category</Label>
               <Select value={category} onValueChange={setCategory} required>
                 <SelectTrigger>
-                  <SelectValue placeholder="Select category" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="Full Stack Developer">Full Stack Developer</SelectItem>
-                  <SelectItem value="Python Developer">Python Developer</SelectItem>
-                  <SelectItem value="Backend Developer">Backend Developer</SelectItem>
-                  <SelectItem value="Frontend Developer">Frontend Developer</SelectItem>
-                  <SelectItem value="UI/UX Designer">UI/UX Designer</SelectItem>
-                  <SelectItem value="DevOps Engineer">DevOps Engineer</SelectItem>
-                  <SelectItem value="Data Analyst">Data Analyst</SelectItem>
-                </SelectContent>
-              </Select>
+                <SelectValue placeholder="Select category" />
+              </SelectTrigger>
+              <SelectContent>
+                {MCQ_CATEGORY_OPTIONS.map((categoryOption) => (
+                  <SelectItem key={categoryOption} value={categoryOption}>
+                    {categoryOption}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
             </div>
 
             <div className="space-y-2">

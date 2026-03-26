@@ -77,7 +77,7 @@ const listSubmissions = async (req, res) => {
     const filter = {};
     if (req.query.status) filter.status = req.query.status;
     if (req.query.userId) filter.userId = req.query.userId;
-    const actor = req.user ? { id: req.user.id, roles: req.user.roles } : { roles: ['admin'] };
+    const actor = { id: req.user.id, roles: req.user.roles };
     const result = await submissionService.listSubmissions({ page, limit, filter, actor });
     res.json({ success: true, data: result });
   } catch (err) {

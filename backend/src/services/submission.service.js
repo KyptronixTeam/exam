@@ -1,6 +1,7 @@
 const { Submission, File: FileModel } = require('../models');
 const { logger } = require('../utils/logger');
 const mongoose = require('mongoose');
+const { normalizeCategory } = require('../constants/mcqCategories');
 
 const createSubmission = async (userId, data) => {
   const payload = { ...data };
@@ -27,13 +28,7 @@ const createSubmission = async (userId, data) => {
   }
   // ... rest of the canonical normalization ...
   if (payload.personalInfo && payload.personalInfo.role) {
-    const s = String(payload.personalInfo.role).trim().toLowerCase();
-    if (['ui/ux', 'ui ux', 'ux', 'ui', 'ui/ux designer', 'ui ux designer'].includes(s)) payload.personalInfo.role = 'UI/UX Designer';
-    else if (['frontend developer', 'frontend', 'front-end'].includes(s)) payload.personalInfo.role = 'Frontend Developer';
-    else if (['backend developer', 'backend'].includes(s)) payload.personalInfo.role = 'Backend Developer';
-    else if (['python developer', 'python'].includes(s)) payload.personalInfo.role = 'Python Developer';
-    else if (['full stack developer', 'full-stack developer', 'fullstack', 'fill developer', 'fill'].includes(s)) payload.personalInfo.role = 'Full Stack Developer';
-    else payload.personalInfo.role = String(payload.personalInfo.role).trim();
+    payload.personalInfo.role = normalizeCategory(payload.personalInfo.role);
   }
   const submission = new Submission(payload);
   await submission.save();

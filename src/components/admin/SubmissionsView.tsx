@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import {
   Table,
@@ -80,7 +81,18 @@ export const SubmissionsView = () => {
     try {
       setLoading(true);
       const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5112';
-      const response = await fetch(`${apiUrl}/api/submissions?page=${page}&limit=${limit}`);
+      const { data: { session } } = await supabase.auth.getSession();
+      const accessToken = (session as any)?.accessToken || (session as any)?.access_token;
+
+      if (!accessToken) {
+        throw new Error('Admin session not found');
+      }
+
+      const response = await fetch(`${apiUrl}/api/submissions?page=${page}&limit=${limit}`, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
       
       if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
       

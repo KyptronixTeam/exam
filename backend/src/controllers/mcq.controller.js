@@ -1,23 +1,9 @@
 const mcqService = require('../services/mcq.service');
 const { logger } = require('../utils/logger');
+const { MCQ_CATEGORIES, normalizeCategory } = require('../constants/mcqCategories');
 
 const createQuestion = async (req, res) => {
   try {
-    // Normalize category aliases to canonical enum values
-    const normalizeCategory = (cat) => {
-      if (!cat) return cat;
-      const s = String(cat).trim().toLowerCase();
-      if (['full stack developer', 'full-stack developer', 'fullstack developer', 'fullstack'].includes(s)) return 'Full Stack Developer';
-      if (['python developer', 'python'].includes(s)) return 'Python Developer';
-      if (['backend developer', 'backend'].includes(s)) return 'Backend Developer';
-      if (['frontend developer', 'frontend'].includes(s)) return 'Frontend Developer';
-      if (['ui/ux designer', 'ui ux designer', 'ux designer', 'ui designer', 'uiux designer'].includes(s)) return 'UI/UX Designer';
-      if (['devops engineer', 'devops'].includes(s)) return 'DevOps Engineer';
-      if (['data analyst', 'data analysis', 'analyst'].includes(s)) return 'Data Analyst';
-      // fallback: title-case the input
-      return String(cat).trim();
-    };
-
     const body = { ...req.body };
     if (body.category) body.category = normalizeCategory(body.category);
     logger.info('Create MCQ request', { category: body.category, questionLength: body.question && body.question.length });
@@ -31,25 +17,10 @@ const createQuestion = async (req, res) => {
 
 const bulkCreateQuestions = async (req, res) => {
   try {
-    const questions = (req.body.questions || []).map((q) => {
-      const normalizeCategory = (cat) => {
-        if (!cat) return cat;
-        const s = String(cat).trim().toLowerCase();
-        if (['full stack developer', 'full-stack developer', 'fullstack developer', 'fullstack'].includes(s)) return 'Full Stack Developer';
-        if (['python developer', 'python'].includes(s)) return 'Python Developer';
-        if (['backend developer', 'backend'].includes(s)) return 'Backend Developer';
-        if (['frontend developer', 'frontend'].includes(s)) return 'Frontend Developer';
-        if (['ui/ux designer', 'ui ux designer', 'ux designer', 'ui designer', 'uiux designer'].includes(s)) return 'UI/UX Designer';
-        if (['devops engineer', 'devops'].includes(s)) return 'DevOps Engineer';
-        if (['data analyst', 'data analysis', 'analyst'].includes(s)) return 'Data Analyst';
-        return String(cat).trim();
-      };
-
-      return {
-        ...q,
-        category: q.category ? normalizeCategory(q.category) : q.category,
-      };
-    });
+    const questions = (req.body.questions || []).map((q) => ({
+      ...q,
+      category: q.category ? normalizeCategory(q.category) : q.category,
+    }));
 
     logger.info('Bulk MCQ upload', { received: (req.body.questions || []).length, processed: questions.length });
     const created = await mcqService.bulkCreateQuestions(questions);
@@ -97,7 +68,7 @@ const listQuestions = async (req, res) => {
     const page = parseInt(req.query.page || '1', 10);
     const limit = parseInt(req.query.limit || '50', 10);
     const filter = {};
-    if (req.query.category) filter.category = req.query.category;
+    if (req.query.category) filter.category = normalizeCategory(req.query.category);
     if (req.query.difficulty) filter.difficulty = req.query.difficulty;
     const result = await mcqService.listQuestions({ page, limit, filter });
     res.json({ success: true, data: result });
@@ -109,18 +80,7 @@ const listQuestions = async (req, res) => {
 
 const listCategories = async (req, res) => {
   try {
-    // Return canonical category list used by the model. This ensures the admin UI
-    // can show all possible categories even if no questions exist yet for some.
-    const categories = [
-      'Full Stack Developer',
-      'Python Developer',
-      'Backend Developer',
-      'Frontend Developer',
-      'UI/UX Designer',
-      'DevOps Engineer',
-      'Data Analyst'
-    ];
-    res.json({ success: true, data: { categories } });
+    res.json({ success: true, data: { categories: MCQ_CATEGORIES } });
   } catch (err) {
     logger.error('List categories error', err);
     res.status(500).json({ success: false, error: { code: 'SERVER_ERROR', message: 'Failed to list categories' } });

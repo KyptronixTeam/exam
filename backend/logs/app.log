@@ -219,3 +219,35 @@
 {"level":"info","message":"Returning passingPercentage successfully:","service":"node-express-backend","timestamp":"2026-02-04 14:57:56"}
 {"level":"info","message":"getConfig() called - Fetching MCQ passing percentage","service":"node-express-backend","timestamp":"2026-02-04 14:58:19"}
 {"level":"info","message":"Returning passingPercentage successfully:","service":"node-express-backend","timestamp":"2026-02-04 14:58:19"}
+{"level":"info","message":"MCQ routes registered:","routes":["GET /categories","GET /","GET /config","POST /validate","GET /:id","POST /","POST /bulk","PUT /:id","DELETE /:id"],"service":"node-express-backend","timestamp":"2026-03-26 22:16:09"}
+{"level":"info","message":"MongoDB connected successfully to development database","service":"node-express-backend","timestamp":"2026-03-26 22:16:09"}
+{"level":"info","message":"Server running on port 5112 in development mode","service":"node-express-backend","timestamp":"2026-03-26 22:16:09"}
+{"level":"info","message":"API documentation available at http://localhost:5112/api-docs","service":"node-express-backend","timestamp":"2026-03-26 22:16:09"}
+{"level":"info","message":"MCQ routes registered:","routes":["GET /categories","GET /","GET /config","POST /validate","GET /:id","POST /","POST /bulk","PUT /:id","DELETE /:id"],"service":"node-express-backend","timestamp":"2026-03-26 22:35:30"}
+{"level":"info","message":"MongoDB connected successfully to development database","service":"node-express-backend","timestamp":"2026-03-26 22:35:31"}
+{"level":"info","message":"Server running on port 5112 in development mode","service":"node-express-backend","timestamp":"2026-03-26 22:35:31"}
+{"level":"info","message":"API documentation available at http://localhost:5112/api-docs","service":"node-express-backend","timestamp":"2026-03-26 22:35:31"}
+{"level":"info","message":"getConfig() called - Fetching MCQ passing percentage","service":"node-express-backend","timestamp":"2026-03-26 22:35:57"}
+{"level":"info","message":"Returning passingPercentage successfully:","service":"node-express-backend","timestamp":"2026-03-26 22:35:57"}
+{"isPassing":true,"level":"info","message":"Evaluating pass/fail","passingPercentage":70,"percentage":70,"service":"node-express-backend","timestamp":"2026-03-26 22:37:27"}
+{"level":"info","message":"Passing submission created","score":70,"service":"node-express-backend","sessionId":"cb454f2d-ae10-46da-a6bc-d1a581c305ad","submissionId":"69c567cf6151c188258c8f10","timestamp":"2026-03-26 22:37:27"}
+{"level":"info","message":"MCQ routes registered:","routes":["GET /categories","GET /","GET /config","POST /validate","GET /:id","POST /","POST /bulk","PUT /:id","DELETE /:id"],"service":"node-express-backend","timestamp":"2026-03-26 22:57:03"}
+{"level":"info","message":"MongoDB connected successfully to development database","service":"node-express-backend","timestamp":"2026-03-26 22:57:04"}
+{"level":"info","message":"MCQ routes registered:","routes":["GET /categories","GET /","GET /config","POST /validate","GET /:id","POST /","POST /bulk","PUT /:id","DELETE /:id"],"service":"node-express-backend","timestamp":"2026-03-26 22:58:32"}
+{"level":"info","message":"MongoDB connected successfully to development database","service":"node-express-backend","timestamp":"2026-03-26 22:58:32"}
+{"level":"info","message":"MCQ routes registered:","routes":["GET /categories","GET /","GET /config","POST /validate","GET /:id","POST /","POST /bulk","PUT /:id","DELETE /:id"],"service":"node-express-backend","timestamp":"2026-03-26 22:58:44"}
+{"level":"info","message":"MongoDB connected successfully to development database","service":"node-express-backend","timestamp":"2026-03-26 22:58:45"}
+{"level":"info","message":"MCQ routes registered:","routes":["GET /categories","GET /","GET /config","POST /validate","GET /:id","POST /","POST /bulk","PUT /:id","DELETE /:id"],"service":"node-express-backend","timestamp":"2026-03-26 22:59:15"}
+{"level":"info","message":"MongoDB connected successfully to development database","service":"node-express-backend","timestamp":"2026-03-26 22:59:15"}
+{"level":"info","message":"Server running on port 5113 in development mode","service":"node-express-backend","timestamp":"2026-03-26 22:59:15"}
+{"level":"info","message":"API documentation available at http://localhost:5113/api-docs","service":"node-express-backend","timestamp":"2026-03-26 22:59:15"}
+{"ip":"::1","level":"warn","message":"Missing Authorization header for request","path":"/api/submissions?page=1&limit=1","service":"node-express-backend","timestamp":"2026-03-26 22:59:17"}
+{"level":"info","message":"MCQ routes registered:","routes":["GET /categories","GET /","GET /config","POST /validate","GET /:id","POST /","POST /bulk","PUT /:id","DELETE /:id"],"service":"node-express-backend","timestamp":"2026-03-26 23:02:47"}
+{"level":"info","message":"MongoDB connected successfully to development database","service":"node-express-backend","timestamp":"2026-03-26 23:02:48"}
+{"level":"info","message":"Server running on port 5114 in development mode","service":"node-express-backend","timestamp":"2026-03-26 23:02:48"}
+{"level":"info","message":"API documentation available at http://localhost:5114/api-docs","service":"node-express-backend","timestamp":"2026-03-26 23:02:48"}
+{"ip":"::1","level":"warn","message":"Missing Authorization header for request","path":"/api/submissions?page=1&limit=1","service":"node-express-backend","timestamp":"2026-03-26 23:02:50"}
+{"level":"info","message":"MCQ routes registered:","routes":["GET /categories","GET /","GET /config","POST /validate","GET /:id","POST /","POST /bulk","PUT /:id","DELETE /:id"],"service":"node-express-backend","timestamp":"2026-03-26 23:03:13"}
+{"level":"info","message":"MongoDB connected successfully to development database","service":"node-express-backend","timestamp":"2026-03-26 23:03:13"}
+{"level":"info","message":"Server running on port 5112 in development mode","service":"node-express-backend","timestamp":"2026-03-26 23:03:13"}
+{"level":"info","message":"API documentation available at http://localhost:5112/api-docs","service":"node-express-backend","timestamp":"2026-03-26 23:03:13"}

@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const { MCQ_CATEGORIES } = require('../constants/mcqCategories');
 
 const mcqQuestionSchema = new mongoose.Schema({
   question: { type: String, required: true },
@@ -6,15 +7,7 @@ const mcqQuestionSchema = new mongoose.Schema({
   correctAnswer: { type: Number, required: true },
   category: {
     type: String,
-    enum: [
-      'Full Stack Developer',
-      'Python Developer',
-      'Backend Developer',
-      'Frontend Developer',
-      'UI/UX Designer',
-      'DevOps Engineer',
-      'Data Analyst'
-    ],
+    enum: MCQ_CATEGORIES,
   },
   difficulty: { type: String, enum: ['easy', 'medium', 'hard'], default: 'medium' },
   points: { type: Number, default: 1 },

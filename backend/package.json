@@ -6,6 +6,7 @@
   "scripts": {
     "start": "node src/index.js",
     "dev": "node src/index.js",
+    "seed:additional-mcq": "node src/scripts/seed-additional-role-questions.js",
     "test": "jest",
     "test:watch": "jest --watch",
     "lint": "eslint src/**/*.js",

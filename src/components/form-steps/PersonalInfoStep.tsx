@@ -4,6 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { User, Mail, Phone, GraduationCap, BookOpen, Calendar, Briefcase, AlertTriangle } from "lucide-react";
+import { STUDENT_ROLE_OPTIONS } from "@/lib/mcqRoles";
 
 interface PersonalInfoStepProps {
   formData: any;
@@ -11,16 +12,6 @@ interface PersonalInfoStepProps {
   onNext: () => void;
   onBack: () => void;
 }
-
-const departments = [
-  "UI/UX",
-  "Frontend Developer",
-  "Backend Developer",
-  "Python Developer",
-  "Full Stack Developer",
-  "DevOps Engineer",
-  "Data Analyst"
-];
 
 export const PersonalInfoStep = ({ formData, updateFormData, onNext, onBack }: PersonalInfoStepProps) => {
   const [isLoading, setIsLoading] = useState(false);
@@ -190,9 +181,9 @@ export const PersonalInfoStep = ({ formData, updateFormData, onNext, onBack }: P
                 <SelectValue placeholder="Select your role" />
               </SelectTrigger>
               <SelectContent>
-                {departments.map((dept) => (
-                  <SelectItem key={dept} value={dept}>
-                    {dept}
+                {STUDENT_ROLE_OPTIONS.map((role) => (
+                  <SelectItem key={role} value={role}>
+                    {role}
                   </SelectItem>
                 ))}
               </SelectContent>
