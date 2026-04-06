@@ -32,4 +32,7 @@ router.get('/', authenticate, requireRole('admin'), submissionController.listSub
 // Admin: set status
 router.put('/:id/status', authenticate, requireRole('admin'), submissionController.setStatus);
 
+// Admin: toggle shortlist
+router.patch('/:id/shortlist', authenticate, requireRole('admin'), submissionController.toggleShortlist);
+
 module.exports = router;

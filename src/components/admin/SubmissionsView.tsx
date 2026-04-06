@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import {
@@ -11,10 +12,18 @@ import {
 } from "@/components/ui/table";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { ScrollArea } from "@/components/ui/scroll-area";
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, Star } from "lucide-react";
+import { MCQ_CATEGORY_OPTIONS } from "@/lib/mcqRoles";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface Submission {
   id?: string;
@@ -54,9 +63,11 @@ interface Submission {
   role?: string;
   submittedAt?: string;
   createdAt?: string;
+  shortlisted?: boolean;
 }
 
 export const SubmissionsView = () => {
+  const navigate = useNavigate();
   const { toast } = useToast();
   const [submissions, setSubmissions] = useState<Submission[]>([]);
   const [loading, setLoading] = useState(true);
@@ -66,10 +77,12 @@ export const SubmissionsView = () => {
   const [totalPages, setTotalPages] = useState(1);
   const [totalSubmissions, setTotalSubmissions] = useState(0);
   const [limit] = useState(10);
+  const [selectedRole, setSelectedRole] = useState<string>("All");
+  const [shortlistedFilter, setShortlistedFilter] = useState<string>("all");
 
   useEffect(() => {
     fetchSubmissions(currentPage);
-  }, [currentPage]);
+  }, [currentPage, selectedRole, shortlistedFilter]);
 
   const handlePageChange = (page: number) => {
     if (page >= 1 && page <= totalPages) {
@@ -88,12 +101,26 @@ export const SubmissionsView = () => {
         throw new Error('Admin session not found');
       }
 
-      const response = await fetch(`${apiUrl}/api/submissions?page=${page}&limit=${limit}`, {
+      let queryParams = `page=${page}&limit=${limit}`;
+      if (selectedRole !== "All") queryParams += `&role=${encodeURIComponent(selectedRole)}`;
+      if (shortlistedFilter !== "all") queryParams += `&shortlisted=${shortlistedFilter === "shortlisted"}`;
+
+      const response = await fetch(`${apiUrl}/api/submissions?${queryParams}`, {
         headers: {
           Authorization: `Bearer ${accessToken}`,
         },
       });
       
+      if (response.status === 401) {
+        toast({
+          title: "Session Expired",
+          description: "Your session has expired. Please log in again.",
+          variant: "destructive",
+        });
+        navigate("/auth");
+        return;
+      }
+
       if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
       
       const result = await response.json();
@@ -113,6 +140,50 @@ export const SubmissionsView = () => {
     }
   };
 
+  const handleToggleShortlist = async (id: string) => {
+    try {
+      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5112';
+      const { data: { session } } = await supabase.auth.getSession();
+      const accessToken = (session as any)?.accessToken || (session as any)?.access_token;
+
+      if (!accessToken) throw new Error('Admin session not found');
+
+      const response = await fetch(`${apiUrl}/api/submissions/${id}/shortlist`, {
+        method: 'PATCH',
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
+
+      if (response.status === 401) {
+        toast({
+          title: "Session Expired",
+          description: "Your session has expired. Please log in again.",
+          variant: "destructive",
+        });
+        navigate("/auth");
+        return;
+      }
+
+      if (!response.ok) throw new Error('Failed to toggle shortlist');
+
+      const result = await response.json();
+      if (result.success) {
+        setSubmissions(prev => prev.map(s => (s._id === id || s.id === id) ? { ...s, shortlisted: !s.shortlisted } : s));
+        toast({
+          title: "Success",
+          description: "Shortlist status updated",
+        });
+      }
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  };
+
   if (loading) {
     return <div className="text-center py-8">Loading submissions...</div>;
   }
@@ -120,25 +191,56 @@ export const SubmissionsView = () => {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>All Submissions</CardTitle>
-        <CardDescription>
-          Total submissions: {totalSubmissions} | Page {currentPage} of {totalPages}
-        </CardDescription>
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div>
+            <CardTitle>All Submissions</CardTitle>
+            <CardDescription>
+              Total submissions: {totalSubmissions} | Page {currentPage} of {totalPages}
+            </CardDescription>
+          </div>
+          <div className="flex flex-wrap items-center gap-4">
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-medium whitespace-nowrap">Filter Role:</span>
+              <Select value={selectedRole} onValueChange={(val) => { setSelectedRole(val); setCurrentPage(1); }}>
+                <SelectTrigger className="w-[180px]">
+                  <SelectValue placeholder="All Roles" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="All">All Roles</SelectItem>
+                  {MCQ_CATEGORY_OPTIONS.map((role) => (
+                    <SelectItem key={role} value={role}>{role}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-medium whitespace-nowrap">Shortlisted:</span>
+              <Select value={shortlistedFilter} onValueChange={(val) => { setShortlistedFilter(val); setCurrentPage(1); }}>
+                <SelectTrigger className="w-[150px]">
+                  <SelectValue placeholder="All" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All</SelectItem>
+                  <SelectItem value="shortlisted">Shortlisted</SelectItem>
+                  <SelectItem value="unshortlisted">Not Shortlisted</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+        </div>
       </CardHeader>
       <CardContent>
-        <ScrollArea className="h-[600px]">
+        <ScrollArea className="h-[600px] w-full">
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Name</TableHead>
-                <TableHead>Email</TableHead>
-                <TableHead>College</TableHead>
-                <TableHead>Department</TableHead>
-                <TableHead>Role</TableHead>
-                <TableHead>Project Title</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Date</TableHead>
-                <TableHead>Actions</TableHead>
+                <TableHead className="min-w-[150px]">Email</TableHead>
+                <TableHead className="min-w-[150px]">College</TableHead>
+                <TableHead className="min-w-[120px]">Department</TableHead>
+                <TableHead className="min-w-[100px]">Role</TableHead>
+                <TableHead className="min-w-[200px]">Project Title</TableHead>
+                <TableHead className="min-w-[150px]">Date</TableHead>
+                <TableHead className="sticky right-0 bg-background text-right z-10 border-l shadow-[[-4px_0_4px_-2px_rgba(0,0,0,0.1)]]">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -161,28 +263,53 @@ export const SubmissionsView = () => {
 
                 return (
                   <TableRow key={id}>
-                    <TableCell className="font-medium">{fullName || <span className="text-muted-foreground">-</span>}</TableCell>
-                    <TableCell>{email || <span className="text-muted-foreground">-</span>}</TableCell>
-                    <TableCell>{college || <span className="text-muted-foreground">-</span>}</TableCell>
-                    <TableCell>{department || <span className="text-muted-foreground">-</span>}</TableCell>
-                    <TableCell>{submission.personalInfo?.role || submission.role || <span className="text-muted-foreground">-</span>}</TableCell>
-                    <TableCell>{projectTitle || <span className="text-muted-foreground">-</span>}</TableCell>
-                    <TableCell>
-                      <Badge variant={status === "pending" ? "secondary" : "default"}>
-                        {status}
-                      </Badge>
+                    <TableCell className="max-w-[150px] truncate" title={email}>
+                      {email || <span className="text-muted-foreground">-</span>}
                     </TableCell>
-                    <TableCell>{dateStr || <span className="text-muted-foreground">-</span>}</TableCell>
-                    <TableCell>
-                      <Button size="sm" variant="ghost" onClick={() => { setSelected(submission); setOpen(true); }}>
-                        View
-                      </Button>
+                    <TableCell className="max-w-[150px] truncate" title={college}>
+                      {college || <span className="text-muted-foreground">-</span>}
+                    </TableCell>
+                    <TableCell className="max-w-[120px] truncate" title={department}>
+                      {department || <span className="text-muted-foreground">-</span>}
+                    </TableCell>
+                    <TableCell className="max-w-[100px] truncate" title={submission.personalInfo?.role || submission.role || ''}>
+                      {submission.personalInfo?.role || submission.role || <span className="text-muted-foreground">-</span>}
+                    </TableCell>
+                    <TableCell className="max-w-[200px] truncate" title={projectTitle}>
+                      {projectTitle || <span className="text-muted-foreground">-</span>}
+                    </TableCell>
+                    <TableCell className="whitespace-nowrap text-xs">{dateStr || <span className="text-muted-foreground">-</span>}</TableCell>
+                    <TableCell className="sticky right-0 bg-background text-right z-10 border-l shadow-[[-4px_0_4px_-2px_rgba(0,0,0,0.1)]]">
+                      <div className="flex justify-end gap-1">
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => { setSelected(submission); setOpen(true); }}
+                          title="View Details"
+                        >
+                          View
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => handleToggleShortlist(id)}
+                          className={submission.shortlisted ? "text-yellow-500 hover:text-yellow-600" : "text-muted-foreground hover:text-yellow-500"}
+                          title={submission.shortlisted ? "Unshortlist" : "Shortlist"}
+                        >
+                          {submission.shortlisted ? (
+                            <Star className="h-4 w-4 fill-current" />
+                          ) : (
+                            <Star className="h-4 w-4" />
+                          )}
+                        </Button>
+                      </div>
                     </TableCell>
                   </TableRow>
                 );
               })}
             </TableBody>
           </Table>
+          <ScrollBar orientation="horizontal" />
         </ScrollArea>
         
         {totalPages > 1 && (

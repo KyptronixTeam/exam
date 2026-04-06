@@ -10,8 +10,6 @@ const userSchema = new mongoose.Schema({
   lastLogin: { type: Date }
 }, { timestamps: true });
 
-// Indexes
-userSchema.index({ email: 1 }, { unique: true });
-userSchema.index({ phone: 1 }, { unique: true, sparse: true });
+// Indexes - (Note: email and phone unique indexes are already created in the field definitions above)
 
 module.exports = mongoose.model('User', userSchema);

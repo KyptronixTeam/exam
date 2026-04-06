@@ -85,9 +85,13 @@ const listSubmissions = async ({ page = 1, limit = 50, filter = {}, actor = {} }
     // non-admins only see their own
     query.userId = mongoose.Types.ObjectId(actor.id);
   }
-  // apply filters (status, date range, userId)
+  // apply filters (status, date range, userId, role, shortlisted)
   if (filter.status) query.status = filter.status;
   if (filter.userId && (actor.roles || []).includes('admin')) query.userId = mongoose.Types.ObjectId(filter.userId);
+  if (filter.role) query['personalInfo.role'] = filter.role;
+  if (filter.shortlisted !== undefined) {
+    query.shortlisted = filter.shortlisted === 'true' || filter.shortlisted === true;
+  }
 
   const skip = (page - 1) * limit;
   const [items, total] = await Promise.all([
@@ -107,11 +111,20 @@ const setSubmissionStatus = async (id, status, reviewerId) => {
   return submission;
 };
 
+const toggleShortlist = async (id) => {
+  const submission = await Submission.findById(id);
+  if (!submission) return null;
+  submission.shortlisted = !submission.shortlisted;
+  await submission.save();
+  return submission;
+};
+
 module.exports = {
   createSubmission,
   getSubmissionById,
   updateSubmission,
   deleteSubmission,
   listSubmissions,
-  setSubmissionStatus
+  setSubmissionStatus,
+  toggleShortlist
 };

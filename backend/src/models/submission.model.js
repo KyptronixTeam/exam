@@ -40,6 +40,7 @@ const submissionSchema = new mongoose.Schema({
   mcqScore: { type: mcqScoreSchema, default: () => ({}) },
   fileIds: [{ type: mongoose.Schema.Types.ObjectId, ref: 'File' }],
   status: { type: String, enum: ['draft', 'submitted', 'under_review', 'approved', 'rejected'], default: 'draft' },
+  shortlisted: { type: Boolean, default: false },
   submittedAt: { type: Date },
   reviewedAt: { type: Date },
   reviewedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }

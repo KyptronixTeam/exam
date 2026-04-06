@@ -77,6 +77,8 @@ const listSubmissions = async (req, res) => {
     const filter = {};
     if (req.query.status) filter.status = req.query.status;
     if (req.query.userId) filter.userId = req.query.userId;
+    if (req.query.role) filter.role = req.query.role;
+    if (req.query.shortlisted !== undefined) filter.shortlisted = req.query.shortlisted;
     const actor = { id: req.user.id, roles: req.user.roles };
     const result = await submissionService.listSubmissions({ page, limit, filter, actor });
     res.json({ success: true, data: result });
@@ -99,4 +101,16 @@ const setStatus = async (req, res) => {
   }
 };
 
-module.exports = { createSubmission, getSubmission, updateSubmission, deleteSubmission, listSubmissions, setStatus };
+const toggleShortlist = async (req, res) => {
+  try {
+    const id = req.params.id;
+    const submission = await submissionService.toggleShortlist(id);
+    if (!submission) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Submission not found' } });
+    res.json({ success: true, data: { submission } });
+  } catch (err) {
+    logger.error('Toggle shortlist error', err);
+    res.status(500).json({ success: false, error: { code: 'SERVER_ERROR', message: 'Failed to toggle shortlist' } });
+  }
+};
+
+module.exports = { createSubmission, getSubmission, updateSubmission, deleteSubmission, listSubmissions, setStatus, toggleShortlist };

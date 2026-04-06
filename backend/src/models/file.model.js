@@ -12,6 +12,6 @@ const fileSchema = new mongoose.Schema({
   uploadedAt: { type: Date, default: Date.now }
 }, { timestamps: false });
 
-fileSchema.index({ filename: 1 }, { unique: true });
+// Index (already handled by unique: true in field definition)
 
 module.exports = mongoose.model('File', fileSchema);

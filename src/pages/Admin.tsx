@@ -83,7 +83,7 @@ const Admin = () => {
                 Home
               </Button>
             </Link>
-            <h1 className="text-2xl font-bold">Admin Panel</h1>
+            <h1 className="text-xl sm:text-2xl font-bold">Admin Panel</h1>
           </div>
           <Button variant="outline" onClick={handleLogout}>
             <LogOut className="mr-2 h-4 w-4" />
@@ -94,11 +94,11 @@ const Admin = () => {
 
       <main className="container mx-auto px-4 py-8">
         <Tabs defaultValue="submissions" className="w-full">
-            <TabsList className="grid w-full max-w-2xl grid-cols-4">
-              <TabsTrigger value="submissions">Submissions</TabsTrigger>
-              <TabsTrigger value="questions">MCQ Questions</TabsTrigger>
-              <TabsTrigger value="demo">Demo Data</TabsTrigger>
-              <TabsTrigger value="settings">Settings</TabsTrigger>
+            <TabsList className="grid w-full max-w-2xl grid-cols-2 md:grid-cols-4 h-auto">
+              <TabsTrigger value="submissions" className="py-2">Submissions</TabsTrigger>
+              <TabsTrigger value="questions" className="py-2">MCQ Questions</TabsTrigger>
+              <TabsTrigger value="demo" className="py-2">Demo Data</TabsTrigger>
+              <TabsTrigger value="settings" className="py-2">Settings</TabsTrigger>
             </TabsList>
 
           <TabsContent value="submissions" className="mt-6">
