@@ -48,5 +48,6 @@ const submissionSchema = new mongoose.Schema({
 
 // Index to help find submissions by user and status
 submissionSchema.index({ userId: 1, status: 1 });
+submissionSchema.index({ 'personalInfo.email': 1, 'personalInfo.phone': 1 });
 
 module.exports = mongoose.model('Submission', submissionSchema);

@@ -79,6 +79,6 @@ const examSessionSchema = new mongoose.Schema({
 examSessionSchema.index({ email: 1, phone: 1 }, { unique: true });
 
 // Passing threshold percentage (can be changed)
-examSessionSchema.statics.PASSING_PERCENTAGE = 50;
+examSessionSchema.statics.PASSING_PERCENTAGE = 70;
 
 module.exports = mongoose.model('ExamSession', examSessionSchema);

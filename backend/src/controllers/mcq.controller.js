@@ -97,9 +97,9 @@ const getConfig = async (req, res) => {
     logger.debug('Fetched setting value for mcq_passing_percentage:', v);
 
     if (v === null) {
-      logger.warn('MCQ passing percentage not set, applying default value (90)');
-      await settingService.setSetting('mcq_passing_percentage', 90);
-      v = 90;
+      logger.warn('MCQ passing percentage not set, applying default value (70)');
+      await settingService.setSetting('mcq_passing_percentage', 70);
+      v = 70;
     }
 
     const passingPercentage =
