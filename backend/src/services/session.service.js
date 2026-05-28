@@ -101,8 +101,25 @@ const submitExam = async (sessionId, finalFormData, mcqAnswersForDb, mcqScore) =
         logger.warn('Failed to fetch passing percentage from settings, using default', { error: err.message });
     }
 
-    const isPassing = mcqScore.percentage >= passingPercentage;
-    logger.info('Evaluating pass/fail', { percentage: mcqScore.percentage, passingPercentage, isPassing });
+    const role = (finalFormData.role || session.formData.role || '').toUpperCase();
+    const isAutoGraded = ['HR', 'SEO'].includes(role);
+    
+    let isPassing = false;
+    let reviewStatus = 'pending_review';
+    let submissionStatus = 'under_review';
+
+    if (isAutoGraded) {
+        isPassing = mcqScore.percentage >= passingPercentage;
+        reviewStatus = isPassing ? 'auto_passed' : 'auto_failed';
+        submissionStatus = isPassing ? 'submitted' : 'rejected';
+    } else {
+        // SMO, Content Creator, etc. go to manual review
+        isPassing = true; // Always save the submission for review
+        reviewStatus = 'pending_review';
+        submissionStatus = 'under_review';
+    }
+
+    logger.info('Evaluating pass/fail', { role, percentage: mcqScore.percentage, passingPercentage, isPassing, isAutoGraded });
 
     // Update session with final data
     session.formData = { ...session.formData.toObject(), ...finalFormData };
@@ -110,7 +127,7 @@ const submitExam = async (sessionId, finalFormData, mcqAnswersForDb, mcqScore) =
     session.status = isPassing ? 'passed' : 'failed';
     session.completedAt = new Date();
 
-    // If passing, create a Submission record
+    // If passing or goes to manual review, create a Submission record
     if (isPassing) {
         const submissionPayload = {
             personalInfo: {
@@ -129,9 +146,13 @@ const submitExam = async (sessionId, finalFormData, mcqAnswersForDb, mcqScore) =
                 websiteUrl: session.formData.websiteUrl,
                 githubRepo: session.formData.githubRepo
             },
+            essayText: session.formData.essayText,
+            driveLink: session.formData.driveLink,
+            tabSwitchCount: session.formData.tabSwitchCount || 0,
             mcqAnswers: mcqAnswersForDb,
             mcqScore: mcqScore,
-            status: 'submitted',
+            status: submissionStatus,
+            reviewStatus: reviewStatus,
             submittedAt: new Date()
         };
 
@@ -142,7 +163,9 @@ const submitExam = async (sessionId, finalFormData, mcqAnswersForDb, mcqScore) =
         logger.info('Passing submission created', {
             sessionId,
             submissionId: submission._id,
-            score: mcqScore.percentage
+            score: mcqScore.percentage,
+            role,
+            reviewStatus
         });
     } else {
         logger.info('Failed submission - not saved to Submission collection', {

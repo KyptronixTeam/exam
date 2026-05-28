@@ -6,9 +6,11 @@ import { PersonalInfoStep } from "./form-steps/PersonalInfoStep";
 import { ProjectDetailsStep } from "./form-steps/ProjectDetailsStep";
 import { MCQStep } from "./form-steps/MCQStep";
 import { ReviewStep } from "./form-steps/ReviewStep";
+import { ContentCreatorStep } from "./form-steps/ContentCreatorStep";
 import { SuccessModal } from "./SuccessModal";
 import { FailureModal } from "./FailureModal";
 import { SubmitConfirmModal } from "./SubmitConfirmModal";
+import { PendingReviewModal } from "./PendingReviewModal";
 
 
 interface FormData {
@@ -34,6 +36,12 @@ interface FormData {
   assessmentScore?: number;
   // File Upload
   files: File[];
+  // Essay Text for SMO
+  essayText?: string;
+  // Drive Link for Content Creator
+  driveLink?: string;
+  // Tab Switch Count
+  tabSwitchCount?: number;
 }
 
 const initialFormData: FormData = {
@@ -67,6 +75,7 @@ export const SubmissionForm = ({ onBack }: SubmissionFormProps) => {
   const [showSuccess, setShowSuccess] = useState(false);
   const [showFailure, setShowFailure] = useState(false);
   const [showSubmitConfirm, setShowSubmitConfirm] = useState(false);
+  const [showPendingReview, setShowPendingReview] = useState(false);
   const [failureMessage, setFailureMessage] = useState("");
 
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -107,6 +116,8 @@ export const SubmissionForm = ({ onBack }: SubmissionFormProps) => {
           mcqCurrentPage: savedData.mcqCurrentPage || prev.mcqCurrentPage,
           assessmentPassed: savedData.assessmentPassed ?? prev.assessmentPassed,
           assessmentScore: savedData.assessmentScore ?? prev.assessmentScore,
+          essayText: savedData.essayText || prev.essayText,
+          driveLink: savedData.driveLink || prev.driveLink,
         }));
         setCurrentStep(localSession.currentStep || 1);
         setSessionStarted(true);
@@ -144,9 +155,13 @@ export const SubmissionForm = ({ onBack }: SubmissionFormProps) => {
     }
   }, [formData.mcqAnswers, formData.mcqCurrentPage, sessionStarted, currentStep]);
 
-  const TOTAL_STEPS = 4;
+  const TOTAL_STEPS = 2;
 
   const nextStep = () => {
+    if (currentStep === 2) {
+      handleSubmit();
+      return;
+    }
     const newStep = Math.min(currentStep + 1, TOTAL_STEPS);
     setCurrentStep(newStep);
     if (sessionStarted) {
@@ -212,14 +227,23 @@ export const SubmissionForm = ({ onBack }: SubmissionFormProps) => {
       // If the user reached step 4 (ReviewStep), they have already passed the MCQ
       // Use the stored assessment result instead of re-validating
       const isPassing = formData.assessmentPassed === true;
-      const storedScore = formData.assessmentScore || 0;
-
       // Build mcqScore from stored data
-      const mcqScore = {
-        totalQuestions: Object.keys(formData.mcqAnswers || {}).length,
-        correctAnswers: Math.round((storedScore / 100) * Object.keys(formData.mcqAnswers || {}).length),
-        percentage: storedScore
-      };
+      let mcqScore = { totalQuestions: 0, correctAnswers: 0, percentage: 0 };
+      if (typeof formData.assessmentScore === 'object' && formData.assessmentScore !== null) {
+          const scoreObj = formData.assessmentScore as any;
+          mcqScore = {
+              totalQuestions: scoreObj.totalQuestions || Object.keys(formData.mcqAnswers || {}).length,
+              correctAnswers: scoreObj.correctCount || 0,
+              percentage: scoreObj.percentage || 0
+          };
+      } else {
+          const scoreNum = typeof formData.assessmentScore === 'number' ? formData.assessmentScore : 0;
+          mcqScore = {
+            totalQuestions: Object.keys(formData.mcqAnswers || {}).length,
+            correctAnswers: Math.round((scoreNum / 100) * Object.keys(formData.mcqAnswers || {}).length),
+            percentage: scoreNum
+          };
+      }
 
       // Build mcqAnswersForDb (simplified format for storage)
       const mcqAnswersForDb = Object.entries(formData.mcqAnswers || {}).map(([questionId, selected]) => ({
@@ -239,10 +263,9 @@ export const SubmissionForm = ({ onBack }: SubmissionFormProps) => {
           role: formData.role,
           year: formData.year,
           semester: formData.semester,
-          projectTitle: formData.projectTitle,
-          projectDescription: formData.projectDescription,
-          websiteUrl: formData.websiteUrl,
-          githubRepo: formData.githubRepo
+          essayText: formData.essayText,
+          driveLink: formData.driveLink,
+          tabSwitchCount: formData.tabSwitchCount
         },
         mcqAnswersForDb,
         mcqScore
@@ -256,8 +279,11 @@ export const SubmissionForm = ({ onBack }: SubmissionFormProps) => {
       clearLocalSession();
 
       // Use the stored assessmentPassed for determining success/failure
-      if (isPassing) {
-        setShowSuccess(true);
+      if (['SMO', 'Content Creator'].includes(formData.role)) {
+          setShowPendingReview(true);
+      } else if (isPassing) {
+        // Automatically close and go home since they already saw the MCQ modal
+        handleSuccessClose();
       } else {
         setFailureMessage(submitResult.message || "Unfortunately, you did not pass the exam.");
         setShowFailure(true);
@@ -274,6 +300,7 @@ export const SubmissionForm = ({ onBack }: SubmissionFormProps) => {
 
   const handleSuccessClose = () => {
     setShowSuccess(false);
+    setShowPendingReview(false);
     setFormData(initialFormData);
     setCurrentStep(1);
     setSessionStarted(false);
@@ -282,6 +309,7 @@ export const SubmissionForm = ({ onBack }: SubmissionFormProps) => {
 
   const handleFailureClose = () => {
     setShowFailure(false);
+    setShowPendingReview(false);
     setFormData(initialFormData);
     setCurrentStep(1);
     setSessionStarted(false);
@@ -292,31 +320,29 @@ export const SubmissionForm = ({ onBack }: SubmissionFormProps) => {
     <div className="min-h-screen py-12 px-4 relative">
       {/* Progress Indicator */}
       <div className="max-w-4xl mx-auto mb-8">
-        <div className="flex items-center justify-between">
-          {[1, 2, 3, 4].map((step) => (
-            <div key={step} className="flex items-center">
+        <div className="flex items-center justify-between px-16">
+          {[1, 2].map((step) => (
+            <div key={step} className="flex items-center w-full justify-between">
               <div
-                className={`w-10 h-10 rounded-full flex items-center justify-center font-semibold transition-all duration-300 ${step <= currentStep
+                className={`w-10 h-10 rounded-full flex items-center justify-center font-semibold transition-all duration-300 z-10 ${step <= currentStep
                   ? "bg-primary text-primary-foreground shadow-[0_0_20px_hsl(var(--primary)/0.5)]"
                   : "bg-muted text-muted-foreground"
                   }`}
               >
                 {step}
               </div>
-              {step < 4 && (
+              {step < 2 && (
                 <div
-                  className={`h-1 w-16 mx-1 transition-all duration-300 ${step < currentStep ? "bg-primary" : "bg-muted"
+                  className={`h-1 flex-1 mx-2 transition-all duration-300 ${step < currentStep ? "bg-primary" : "bg-muted"
                     }`}
                 />
               )}
             </div>
           ))}
         </div>
-        <div className="flex justify-between mt-2 text-xs">
-          <span className={currentStep === 1 ? "text-primary font-semibold" : "text-muted-foreground"}>Personal</span>
+        <div className="flex justify-between mt-2 text-xs px-14">
+          <span className={currentStep === 1 ? "text-primary font-semibold" : "text-muted-foreground"}>Personal Details</span>
           <span className={currentStep === 2 ? "text-primary font-semibold" : "text-muted-foreground"}>Assessment</span>
-          <span className={currentStep === 3 ? "text-primary font-semibold" : "text-muted-foreground"}>Project</span>
-          <span className={currentStep === 4 ? "text-primary font-semibold" : "text-muted-foreground"}>Review</span>
         </div>
       </div>
 
@@ -330,28 +356,22 @@ export const SubmissionForm = ({ onBack }: SubmissionFormProps) => {
             onBack={onBack}
           />
         )}
-        {currentStep === 2 && (
+        {currentStep === 2 && formData.role === "Content Creator" && (
+          <ContentCreatorStep
+            formData={formData}
+            updateFormData={updateFormData}
+            onSubmit={nextStep}
+            onBack={prevStep}
+            isSubmitting={isSubmitting}
+          />
+        )}
+        {currentStep === 2 && formData.role !== "Content Creator" && (
           <MCQStep
             formData={formData}
             updateFormData={updateFormData}
             onNext={nextStep}
             onBack={prevStep}
             onFail={(score) => failAssessment(score)}
-          />
-        )}
-        {currentStep === 3 && (
-          <ProjectDetailsStep
-            formData={formData}
-            updateFormData={updateFormData}
-            onNext={nextStep}
-            onBack={prevStep}
-          />
-        )}
-        {currentStep === 4 && (
-          <ReviewStep
-            formData={formData}
-            onSubmit={() => setShowSubmitConfirm(true)}
-            onBack={prevStep}
             isSubmitting={isSubmitting}
           />
         )}
@@ -367,6 +387,7 @@ export const SubmissionForm = ({ onBack }: SubmissionFormProps) => {
 
       {/* Success Modal */}
       <SuccessModal isOpen={showSuccess} onClose={handleSuccessClose} />
+      <PendingReviewModal isOpen={showPendingReview} onClose={handleSuccessClose} />
 
       {/* Failure Modal */}
       <FailureModal

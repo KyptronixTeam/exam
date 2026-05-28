@@ -3,8 +3,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { User, Mail, Phone, GraduationCap, BookOpen, Calendar, Briefcase, AlertTriangle } from "lucide-react";
-import { STUDENT_ROLE_OPTIONS } from "@/lib/mcqRoles";
+import { User, Mail, Phone, GraduationCap, BookOpen, Calendar, Briefcase, AlertTriangle, Lock } from "lucide-react";
+import { STUDENT_ROLE_OPTIONS, isRoleEnabled } from "@/lib/mcqRoles";
 
 interface PersonalInfoStepProps {
   formData: any;
@@ -176,16 +176,29 @@ export const PersonalInfoStep = ({ formData, updateFormData, onNext, onBack }: P
               <Briefcase className="w-4 h-4 text-primary" />
               Role
             </Label>
-            <Select value={formData.role} onValueChange={(value) => updateFormData({ role: value })}>
+            <Select value={formData.role} onValueChange={(value) => {
+              if (isRoleEnabled(value)) updateFormData({ role: value });
+            }}>
               <SelectTrigger className="bg-background/50 border-primary/20 focus:border-primary">
                 <SelectValue placeholder="Select your role" />
               </SelectTrigger>
               <SelectContent>
-                {STUDENT_ROLE_OPTIONS.map((role) => (
-                  <SelectItem key={role} value={role}>
-                    {role}
-                  </SelectItem>
-                ))}
+                {STUDENT_ROLE_OPTIONS.map((role) => {
+                  const enabled = isRoleEnabled(role);
+                  return (
+                    <SelectItem 
+                      key={role} 
+                      value={role}
+                      disabled={!enabled}
+                      className={!enabled ? "opacity-50 pointer-events-none" : ""}
+                    >
+                      <div className="flex items-center justify-between w-full pr-2">
+                        <span>{role}</span>
+                        {!enabled && <Lock className="w-3 h-3 ml-2" />}
+                      </div>
+                    </SelectItem>
+                  );
+                })}
               </SelectContent>
             </Select>
           </div>

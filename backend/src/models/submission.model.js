@@ -8,13 +8,13 @@ const personalInfoSchema = new mongoose.Schema({
   department: { type: String, required: true },
   // role: the applied job role (e.g., 'Frontend Developer')
   role: { type: String },
-  year: { type: String, required: true },
-  semester: { type: String, required: true }
+  year: { type: String },
+  semester: { type: String }
 }, { _id: false });
 
 const projectDetailsSchema = new mongoose.Schema({
-  title: { type: String, required: true },
-  description: { type: String, required: true },
+  title: { type: String },
+  description: { type: String },
   websiteUrl: { type: String },
   githubRepo: { type: String }
 }, { _id: false });
@@ -35,11 +35,15 @@ const submissionSchema = new mongoose.Schema({
   // userId is optional to allow anonymous submissions (students may not need to log in)
   userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
   personalInfo: { type: personalInfoSchema, required: true },
-  projectDetails: { type: projectDetailsSchema, required: true },
+  projectDetails: { type: projectDetailsSchema },
   mcqAnswers: { type: [mcqAnswerSchema], default: [] },
   mcqScore: { type: mcqScoreSchema, default: () => ({}) },
   fileIds: [{ type: mongoose.Schema.Types.ObjectId, ref: 'File' }],
+  essayText: { type: String },
+  driveLink: { type: String },
+  tabSwitchCount: { type: Number, default: 0 },
   status: { type: String, enum: ['draft', 'submitted', 'under_review', 'approved', 'rejected'], default: 'draft' },
+  reviewStatus: { type: String, enum: ['auto_passed', 'auto_failed', 'pending_review', 'reviewed_passed', 'reviewed_failed'] },
   shortlisted: { type: Boolean, default: false },
   submittedAt: { type: Date },
   reviewedAt: { type: Date },

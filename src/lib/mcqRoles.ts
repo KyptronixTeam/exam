@@ -1,4 +1,5 @@
 export const STUDENT_ROLE_OPTIONS = [
+  "HR",
   "UI/UX",
   "Frontend Developer",
   "Backend Developer",
@@ -15,6 +16,7 @@ export const STUDENT_ROLE_OPTIONS = [
 ];
 
 export const MCQ_CATEGORY_OPTIONS = [
+  "HR",
   "Full Stack Developer",
   "Python Developer",
   "Backend Developer",
@@ -30,7 +32,16 @@ export const MCQ_CATEGORY_OPTIONS = [
   "Content Creator",
 ];
 
+export const ENABLED_ROLES = ["HR", "SEO", "SMO", "Content Creator"];
+
+export const isRoleEnabled = (role: string) => {
+  return ENABLED_ROLES.includes(role);
+};
+
 const ROLE_ALIASES: Record<string, string> = {
+  hr: "HR",
+  "hr executive": "HR",
+  "human resources": "HR",
   "full stack developer": "Full Stack Developer",
   "full-stack developer": "Full Stack Developer",
   fullstack: "Full Stack Developer",

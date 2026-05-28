@@ -7,8 +7,10 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2 } from "lucide-react";
-import { SubmitConfirmModal } from "../SubmitConfirmModal";
 import { normalizeMcqRole } from "@/lib/mcqRoles";
+import { SubmitConfirmModal } from "../SubmitConfirmModal";
+import { useExamSecurity } from "@/hooks/useExamSecurity";
+import { Textarea } from "@/components/ui/textarea";
 
 interface MCQStepProps {
   formData: any;
@@ -16,6 +18,7 @@ interface MCQStepProps {
   onNext: () => void;
   onBack: () => void;
   onFail?: (score: any) => void;
+  isSubmitting?: boolean;
 }
 
 interface Question {
@@ -26,7 +29,7 @@ interface Question {
   correct_answer: string;
 }
 
-export const MCQStep = ({ formData, updateFormData, onNext, onBack, onFail }: MCQStepProps) => {
+export const MCQStep = ({ formData, updateFormData, onNext, onBack, onFail, isSubmitting }: MCQStepProps) => {
   const { toast } = useToast();
   const [questions, setQuestions] = useState<Question[]>([]);
   const [answers, setAnswers] = useState<Record<string, string>>(formData.mcqAnswers || {});
@@ -36,6 +39,11 @@ export const MCQStep = ({ formData, updateFormData, onNext, onBack, onFail }: MC
   const [checking, setChecking] = useState(false);
   const [showResult, setShowResult] = useState(false);
   const [result, setResult] = useState<any>(null);
+  const [essayText, setEssayText] = useState(formData.essayText || "");
+  const { violations } = useExamSecurity({ isActive: true, maxViolations: 3, onViolationThresholdReached: () => {
+      // Auto fail if threshold reached
+      if (onFail) onFail({ percentage: 0, correctAnswers: 0, totalQuestions: questions.length });
+  }});
   const [showConfirm, setShowConfirm] = useState(false);
   const [showCorrectAnswers, setShowCorrectAnswers] = useState(false);
   const [passingPercentage, setPassingPercentage] = useState<number | null>(null);
@@ -66,14 +74,23 @@ export const MCQStep = ({ formData, updateFormData, onNext, onBack, onFail }: MC
       setResult(data);
       setShowResult(true);
 
-      // Update form data with assessment results (persist role not department)
       updateFormData({
         role: formData.role,
         mcqAnswers: answers,
-        assessmentScore: data.percentage,
+        assessmentScore: data,
         assessmentPassed: data.passed,
-        assessmentAttempts: currentAttempt
+        assessmentAttempts: currentAttempt,
+        essayText: essayText,
+        tabSwitchCount: violations
       });
+
+      if (formData.role === "SMO") {
+          // SMO goes straight to submission without showing result dialog
+          onNext();
+      } else {
+          setResult(data);
+          setShowResult(true);
+      }
     } catch (error: any) {
       console.error('Assessment check error:', error);
       toast({
@@ -186,7 +203,12 @@ export const MCQStep = ({ formData, updateFormData, onNext, onBack, onFail }: MC
 
       console.log(`Filtered to ${uniqueQuestions.length} unique questions from ${data.length} total`);
 
-      setQuestions(uniqueQuestions as Question[]);
+      let finalQuestions = uniqueQuestions;
+      if (formData.role === "SMO") {
+          finalQuestions = uniqueQuestions.slice(0, 20);
+      }
+
+      setQuestions(finalQuestions as Question[]);
 
       // Only reset answers if we don't already have some (e.g., from restoration)
       if (Object.keys(formData.mcqAnswers || {}).length === 0) {
@@ -272,10 +294,13 @@ export const MCQStep = ({ formData, updateFormData, onNext, onBack, onFail }: MC
       <Card className="border-primary/20 bg-card/50 backdrop-blur-sm">
         <CardHeader>
           <CardTitle className="text-2xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-            Department Assessment (1 Attempt Only)
+            {formData.role} Assessment (1 Attempt Only)
           </CardTitle>
           <CardDescription>
-            Complete the assessment for {formData.role} ({passingPercentage !== null ? `${passingPercentage}%` : 'config error'} required to proceed)
+            Complete the assessment for {formData.role} 
+            {formData.role !== 'SMO' && passingPercentage !== null ? ` (${passingPercentage}% required to pass)` : ''}
+            <br/>
+            <span className="text-red-500 font-semibold mt-2 block">Security Warning: Do not switch tabs. Violations: {violations}/3</span>
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
@@ -337,6 +362,34 @@ export const MCQStep = ({ formData, updateFormData, onNext, onBack, onFail }: MC
                 );
               })}
 
+              {/* SMO Essay Section */}
+              {formData.role === "SMO" && currentPage === Math.ceil(questions.length / 5) - 1 && (
+                  <div className="mt-8 space-y-4 pt-6 border-t border-primary/20">
+                    <Label className="text-lg font-semibold text-primary">
+                      Strategy Essay (Required)
+                    </Label>
+                    <p className="text-sm text-muted-foreground">
+                      Outline a 30-day Social Media Strategy for a newly launched startup brand.
+                    </p>
+                    <Textarea 
+                      rows={8} 
+                      placeholder="Type your strategy here..." 
+                      value={essayText}
+                      onChange={(e) => {
+                          setEssayText(e.target.value);
+                          updateFormData({ essayText: e.target.value });
+                      }}
+                      onPaste={(e) => {
+                          e.preventDefault();
+                      }}
+                      className="resize-none"
+                    />
+                    <p className="text-xs text-muted-foreground">
+                      {essayText.length} characters (Paste is disabled)
+                    </p>
+                  </div>
+              )}
+
               {/* Pagination Controls */}
               <div className="flex justify-between items-center pt-4">
                 <Button
@@ -375,7 +428,7 @@ export const MCQStep = ({ formData, updateFormData, onNext, onBack, onFail }: MC
                     type="button"
                     onClick={handleSubmit}
                     className="flex-1"
-                    disabled={checking || showCorrectAnswers || showResult}
+                    disabled={checking || showCorrectAnswers || showResult || (formData.role === 'SMO' && essayText.length < 50)}
                   >
                     {checking ? (
                       <>
@@ -407,7 +460,7 @@ export const MCQStep = ({ formData, updateFormData, onNext, onBack, onFail }: MC
       </Card>
 
       <Dialog open={showResult} onOpenChange={(open) => {
-        if (!open) handleResultClose();
+        if (!open && !isSubmitting) handleResultClose();
       }}>
         <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
@@ -455,7 +508,7 @@ export const MCQStep = ({ formData, updateFormData, onNext, onBack, onFail }: MC
             {result?.passed ? (
               <div className="bg-green-50 dark:bg-green-950 p-4 rounded-lg border-2 border-green-200 dark:border-green-800">
                 <p className="text-center font-semibold text-green-700 dark:text-green-300">
-                  ✅ Outstanding! You scored above {passingPercentage ?? 'required'}%. Proceeding to project submission...
+                  ✅ Outstanding! You scored above {passingPercentage ?? 'required'}%. Assessment Complete!
                 </p>
               </div>
             ) : (
@@ -479,8 +532,11 @@ export const MCQStep = ({ formData, updateFormData, onNext, onBack, onFail }: MC
               className="w-full"
               size="lg"
               variant={result?.passed ? "default" : "destructive"}
+              disabled={isSubmitting}
             >
-              {result?.passed ? "Continue to Project Submission →" : "Close"}
+              {isSubmitting ? (
+                 <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Saving...</>
+              ) : result?.passed ? "Finish & Go Home" : "Close"}
             </Button>
           </div>
         </DialogContent>

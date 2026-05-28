@@ -28,10 +28,10 @@ export const SuccessModal = ({ isOpen, onClose }: SuccessModalProps) => {
 
           {/* Success Message */}
           <h2 className="text-3xl font-bold mb-3 bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-            🎉 Submission Successful!
+            🎉 Assessment Passed!
           </h2>
           <p className="text-muted-foreground mb-2">
-            Your project has been submitted successfully.
+            Your assessment has been submitted successfully and you have passed.
           </p>
           <p className="text-sm text-muted-foreground mb-8">
             You'll receive a confirmation email shortly.

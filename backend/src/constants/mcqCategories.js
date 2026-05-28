@@ -1,4 +1,5 @@
 const MCQ_CATEGORIES = [
+  'HR',
   'Full Stack Developer',
   'Python Developer',
   'Backend Developer',
@@ -15,6 +16,9 @@ const MCQ_CATEGORIES = [
 ];
 
 const CATEGORY_ALIASES = {
+  hr: 'HR',
+  'hr executive': 'HR',
+  'human resources': 'HR',
   'full stack developer': 'Full Stack Developer',
   'full-stack developer': 'Full Stack Developer',
   fullstack: 'Full Stack Developer',
