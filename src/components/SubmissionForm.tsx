@@ -265,7 +265,11 @@ export const SubmissionForm = ({ onBack }: SubmissionFormProps) => {
           semester: formData.semester,
           essayText: formData.essayText,
           driveLink: formData.driveLink,
-          tabSwitchCount: formData.tabSwitchCount
+          tabSwitchCount: formData.tabSwitchCount,
+          projectTitle: formData.projectTitle,
+          projectDescription: formData.projectDescription,
+          websiteUrl: formData.websiteUrl,
+          githubRepo: formData.githubRepo
         },
         mcqAnswersForDb,
         mcqScore

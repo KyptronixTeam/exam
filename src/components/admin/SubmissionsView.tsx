@@ -64,6 +64,8 @@ interface Submission {
   submittedAt?: string;
   createdAt?: string;
   shortlisted?: boolean;
+  essayText?: string;
+  driveLink?: string;
 }
 
 export const SubmissionsView = () => {
@@ -395,6 +397,12 @@ export const SubmissionsView = () => {
                     <p className="break-words"><strong>Description:</strong> {selected.projectDetails?.description || selected.project_description || '-'}</p>
                     <p><strong>Website:</strong> {selected.projectDetails?.websiteUrl || selected.website_url || '-'}</p>
                     <p><strong>GitHub Repo:</strong> {selected.projectDetails?.githubRepo || selected.github_repo || '-'}</p>
+                    {(selected.driveLink || (selected as any).drive_link) && (
+                      <p><strong>Drive Link:</strong> <a href={selected.driveLink || (selected as any).drive_link} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">{selected.driveLink || (selected as any).drive_link}</a></p>
+                    )}
+                    {(selected.essayText || (selected as any).essay_text) && (
+                      <p className="mt-2 whitespace-pre-wrap break-words"><strong>Essay / Strategy:</strong><br/>{selected.essayText || (selected as any).essay_text}</p>
+                    )}
                   </div>
 
                   <div className="p-4 border rounded md:col-span-2">
