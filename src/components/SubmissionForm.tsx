@@ -319,30 +319,32 @@ export const SubmissionForm = ({ onBack }: SubmissionFormProps) => {
   return (
     <div className="min-h-screen py-12 px-4 relative">
       {/* Progress Indicator */}
-      <div className="max-w-5xl mx-auto mb-8">
-        <div className="flex items-center justify-between px-16">
-          {[1, 2].map((step) => (
-            <div key={step} className="flex items-center w-full justify-between">
-              <div
-                className={`w-10 h-10 rounded-full flex items-center justify-center font-semibold transition-all duration-300 z-10 ${step <= currentStep
-                  ? "bg-primary text-primary-foreground shadow-[0_0_20px_hsl(var(--primary)/0.5)]"
-                  : "bg-muted text-muted-foreground"
-                  }`}
-              >
-                {step}
-              </div>
-              {step < 2 && (
-                <div
-                  className={`h-1 flex-1 mx-2 transition-all duration-300 ${step < currentStep ? "bg-primary" : "bg-muted"
-                    }`}
-                />
-              )}
+      <div className="max-w-3xl mx-auto mb-10 px-4 sm:px-12">
+        <div className="flex items-center justify-between relative">
+          {/* Background Line */}
+          <div className="absolute left-[10%] right-[10%] h-1.5 bg-muted top-5 -translate-y-1/2 z-0 rounded-full">
+            <div className="h-full bg-primary transition-all duration-500 ease-in-out rounded-full" style={{ width: currentStep === 2 ? '100%' : '0%' }}></div>
+          </div>
+          
+          {/* Step 1 */}
+          <div className="flex flex-col items-center gap-3 relative z-10 w-28 sm:w-36">
+            <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold transition-all duration-300 ring-4 ${currentStep >= 1 ? "bg-primary text-primary-foreground ring-primary/20 shadow-[0_0_20px_hsl(var(--primary)/0.5)]" : "bg-muted text-muted-foreground ring-transparent"}`}>
+              1
             </div>
-          ))}
-        </div>
-        <div className="flex justify-between mt-2 text-xs px-14">
-          <span className={currentStep === 1 ? "text-primary font-semibold" : "text-muted-foreground"}>Personal Details</span>
-          <span className={currentStep === 2 ? "text-primary font-semibold" : "text-muted-foreground"}>Assessment</span>
+            <span className={`text-xs sm:text-sm whitespace-nowrap ${currentStep >= 1 ? "text-primary font-bold drop-shadow-sm" : "text-muted-foreground font-medium"}`}>
+              Personal Details
+            </span>
+          </div>
+
+          {/* Step 2 */}
+          <div className="flex flex-col items-center gap-3 relative z-10 w-28 sm:w-36">
+            <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold transition-all duration-300 ring-4 ${currentStep >= 2 ? "bg-primary text-primary-foreground ring-primary/20 shadow-[0_0_20px_hsl(var(--primary)/0.5)]" : "bg-card border-2 border-muted text-muted-foreground ring-transparent"}`}>
+              2
+            </div>
+            <span className={`text-xs sm:text-sm whitespace-nowrap ${currentStep >= 2 ? "text-primary font-bold drop-shadow-sm" : "text-muted-foreground font-medium"}`}>
+              Assessment
+            </span>
+          </div>
         </div>
       </div>
 

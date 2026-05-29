@@ -298,6 +298,7 @@ export const MCQStep = ({ formData, updateFormData, onNext, onBack, onFail, isSu
   const syncCurrentPage = (page: number) => {
     setCurrentPage(page);
     updateFormData({ mcqCurrentPage: page });
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
 
