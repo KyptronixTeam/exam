@@ -319,7 +319,7 @@ export const SubmissionForm = ({ onBack }: SubmissionFormProps) => {
   return (
     <div className="min-h-screen py-12 px-4 relative">
       {/* Progress Indicator */}
-      <div className="max-w-4xl mx-auto mb-8">
+      <div className="max-w-5xl mx-auto mb-8">
         <div className="flex items-center justify-between px-16">
           {[1, 2].map((step) => (
             <div key={step} className="flex items-center w-full justify-between">
@@ -347,7 +347,7 @@ export const SubmissionForm = ({ onBack }: SubmissionFormProps) => {
       </div>
 
       {/* Form Steps */}
-      <div className="max-w-4xl mx-auto">
+      <div className="max-w-5xl mx-auto">
         {currentStep === 1 && (
           <PersonalInfoStep
             formData={formData}

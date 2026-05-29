@@ -6,7 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2 } from "lucide-react";
+import { Loader2, AlertTriangle, Clock, BarChart } from "lucide-react";
 import { normalizeMcqRole } from "@/lib/mcqRoles";
 import { SubmitConfirmModal } from "../SubmitConfirmModal";
 import { useExamSecurity } from "@/hooks/useExamSecurity";
@@ -29,6 +29,28 @@ interface Question {
   correct_answer: string;
 }
 
+const AnimatedCounter = ({ end, duration = 1500 }: { end: number, duration?: number }) => {
+  const [count, setCount] = useState(0);
+
+  useEffect(() => {
+    let startTimestamp: number | null = null;
+    const step = (timestamp: number) => {
+      if (!startTimestamp) startTimestamp = timestamp;
+      const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+      const ease = progress === 1 ? 1 : 1 - Math.pow(2, -10 * progress);
+      setCount(Math.floor(ease * end));
+      if (progress < 1) {
+        window.requestAnimationFrame(step);
+      } else {
+        setCount(end);
+      }
+    };
+    window.requestAnimationFrame(step);
+  }, [end, duration]);
+
+  return <>{count}</>;
+};
+
 export const MCQStep = ({ formData, updateFormData, onNext, onBack, onFail, isSubmitting }: MCQStepProps) => {
   const { toast } = useToast();
   const [questions, setQuestions] = useState<Question[]>([]);
@@ -47,6 +69,21 @@ export const MCQStep = ({ formData, updateFormData, onNext, onBack, onFail, isSu
   const [showConfirm, setShowConfirm] = useState(false);
   const [showCorrectAnswers, setShowCorrectAnswers] = useState(false);
   const [passingPercentage, setPassingPercentage] = useState<number | null>(null);
+  const [elapsedTime, setElapsedTime] = useState(0);
+
+  useEffect(() => {
+    if (loading || checking || showResult || showCorrectAnswers || questions.length === 0) return;
+    const interval = setInterval(() => {
+      setElapsedTime(prev => prev + 1);
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [loading, checking, showResult, showCorrectAnswers, questions.length]);
+
+  const formatTime = (seconds: number) => {
+    const m = Math.floor(seconds / 60);
+    const s = seconds % 60;
+    return `${m.toString().padStart(2, '0')} : ${s.toString().padStart(2, '0')}`;
+  };
 
   const handleSubmit = () => {
     setShowConfirm(true);
@@ -251,6 +288,13 @@ export const MCQStep = ({ formData, updateFormData, onNext, onBack, onFail, isSu
     updateFormData({ mcqAnswers: newAnswers });
   };
 
+  const handleUnskipQuestion = (questionId: string) => {
+    const newAnswers = { ...answers };
+    delete newAnswers[questionId];
+    setAnswers(newAnswers);
+    updateFormData({ mcqAnswers: newAnswers });
+  };
+
   const syncCurrentPage = (page: number) => {
     setCurrentPage(page);
     updateFormData({ mcqCurrentPage: page });
@@ -292,15 +336,25 @@ export const MCQStep = ({ formData, updateFormData, onNext, onBack, onFail, isSu
   return (
     <>
       <Card className="border-primary/20 bg-card/50 backdrop-blur-sm">
-        <CardHeader>
-          <CardTitle className="text-2xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+        <CardHeader className="text-center space-y-2">
+          <CardTitle className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
             {formData.role} Assessment (1 Attempt Only)
           </CardTitle>
-          <CardDescription>
+          <CardDescription className="text-base">
             Complete the assessment for {formData.role} 
             {formData.role !== 'SMO' && passingPercentage !== null ? ` (${passingPercentage}% required to pass)` : ''}
             <br/>
-            <span className="text-red-500 font-semibold mt-2 block">Security Warning: Do not switch tabs. Violations: {violations}/3</span>
+            <div className="flex items-center justify-center gap-2 mt-4 text-sm font-medium text-red-500 dark:text-red-400 bg-muted/70 dark:bg-muted/30 px-4 py-2 rounded-full border shadow-sm w-fit mx-auto">
+              <AlertTriangle className="h-4 w-4" />
+              <span>Security Warning: Do not switch tabs. Violations: {violations}/3</span>
+            </div>
+            
+            {!loading && questions.length > 0 && (
+              <div className="flex items-center justify-center gap-2 mt-4 text-sm font-bold text-foreground bg-accent/30 dark:bg-accent/10 px-6 py-2.5 rounded-xl border-2 border-border shadow-sm w-fit mx-auto tracking-widest">
+                <Clock className="h-4 w-4 text-primary" />
+                <span>{formatTime(elapsedTime)}</span>
+              </div>
+            )}
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
@@ -312,7 +366,7 @@ export const MCQStep = ({ formData, updateFormData, onNext, onBack, onFail, isSu
 
           {!loading && questions.length > 0 && (
             <>
-              <div className="text-center mb-4">
+              <div className="hidden">
                 <p className="text-sm text-muted-foreground">
                   Page {currentPage + 1} of {Math.ceil(questions.length / 5)}
                 </p>
@@ -320,17 +374,22 @@ export const MCQStep = ({ formData, updateFormData, onNext, onBack, onFail, isSu
 
               {questions.slice(currentPage * 5, (currentPage + 1) * 5).map((q, index) => {
                 const globalIndex = currentPage * 5 + index;
+                const hasAnswer = !!answers[q.id] && answers[q.id] !== '__SKIPPED__';
+
                 return (
-                  <div key={q.id} className="space-y-3 select-none" onCopy={(e) => e.preventDefault()} onCut={(e) => e.preventDefault()}>
-                    <div className="flex items-start justify-between">
-                      <Label className="text-base font-semibold select-none">
+                  <div key={q.id} className="space-y-6 select-none bg-background/80 dark:bg-muted/10 p-5 sm:p-8 rounded-2xl border shadow-sm transition-all duration-300 hover:shadow-md" onCopy={(e) => e.preventDefault()} onCut={(e) => e.preventDefault()}>
+                    <div className="flex items-start justify-between gap-4">
+                      <Label className="text-xl sm:text-2xl font-semibold select-none leading-relaxed text-foreground">
                         {globalIndex + 1}. {q.question}
                       </Label>
-                      <div className="ml-4">
+                      <div className="shrink-0 mt-1">
                         {answers[q.id] === '__SKIPPED__' ? (
-                          <span className="text-sm text-muted-foreground">Skipped</span>
+                          <div className="flex items-center gap-2">
+                            <span className="text-sm px-3 py-1 bg-muted text-muted-foreground rounded-full font-medium border hidden sm:block">Skipped</span>
+                            <Button size="sm" variant="outline" className="rounded-lg shadow-sm text-primary hover:bg-primary/10 hover:text-primary transition-colors border-primary/20" onClick={() => handleUnskipQuestion(q.id)}>Unskip</Button>
+                          </div>
                         ) : (
-                          <Button size="sm" variant="outline" onClick={() => handleSkipQuestion(q.id)}>Skip</Button>
+                          <Button size="sm" variant="outline" className="rounded-lg shadow-sm hover:bg-destructive/10 hover:text-destructive hover:border-destructive/30 transition-colors" onClick={() => handleSkipQuestion(q.id)}>Skip</Button>
                         )}
                       </div>
                     </div>
@@ -338,21 +397,45 @@ export const MCQStep = ({ formData, updateFormData, onNext, onBack, onFail, isSu
                     <RadioGroup
                       value={answers[q.id] === '__SKIPPED__' ? "" : (answers[q.id] || "")}
                       onValueChange={(value) => handleAnswerChange(q.id, value)}
-                      className="space-y-2 pl-4 select-none"
+                      className="grid grid-cols-1 sm:grid-cols-2 auto-rows-fr gap-4 pt-2 select-none"
                       disabled={showCorrectAnswers || answers[q.id] === '__SKIPPED__' || showResult}
                     >
                       {q.options.map((option) => {
                         const isCorrect = showCorrectAnswers && option === q.correct_answer;
                         const isWrong = showCorrectAnswers && answers[q.id] === option && option !== q.correct_answer;
+                        const isSelected = answers[q.id] === option;
+                        
+                        let optionClasses = "flex items-center p-4 sm:p-5 rounded-xl border-2 cursor-pointer transition-all duration-300 select-none text-base sm:text-lg font-medium h-full min-h-[4.5rem]";
+
+                        if (showCorrectAnswers) {
+                          if (isCorrect) {
+                            optionClasses += " bg-green-100 border-green-500 text-green-900 dark:bg-green-900/40 dark:border-green-500 dark:text-green-100 shadow-sm";
+                          } else if (isWrong) {
+                            optionClasses += " bg-red-100 border-red-500 text-red-900 dark:bg-red-900/40 dark:border-red-500 dark:text-red-100 shadow-sm";
+                          } else {
+                            optionClasses += " opacity-50 grayscale bg-muted border-transparent";
+                          }
+                        } else {
+                          if (hasAnswer) {
+                            if (isSelected) {
+                              optionClasses += " bg-green-100 border-white text-black dark:bg-green-100 dark:border-white dark:text-black";
+                            } else {
+                              optionClasses += " opacity-50 bg-muted/60 border-transparent text-muted-foreground hover:opacity-70";
+                            }
+                          } else {
+                            optionClasses += " bg-card border-border hover:border-primary/40 hover:bg-accent/50";
+                          }
+                        }
 
                         return (
-                          <div key={option} className={`flex items-center space-x-2 select-none ${isCorrect ? 'bg-green-100 dark:bg-green-900/30 p-2 rounded' : isWrong ? 'bg-red-100 dark:bg-red-900/30 p-2 rounded' : ''}`}>
-                            <RadioGroupItem value={option} id={`${q.id}-${option}`} />
+                          <div key={option} className="relative w-full h-full">
+                            <RadioGroupItem value={option} id={`${q.id}-${option}`} className="peer sr-only" />
                             <Label
                               htmlFor={`${q.id}-${option}`}
-                              className={`font-normal cursor-pointer flex-1 select-none ${isCorrect ? 'font-bold text-green-700 dark:text-green-300' : isWrong ? 'text-red-700 dark:text-red-300' : ''}`}
+                              className={optionClasses}
                             >
-                              {option} {isCorrect && "✓ Correct Answer"}
+                              <span className="flex-1">{option}</span>
+                              {isCorrect && <span className="ml-2 text-green-600 dark:text-green-400 font-bold shrink-0">✓ Correct</span>}
                             </Label>
                           </div>
                         );
@@ -390,22 +473,25 @@ export const MCQStep = ({ formData, updateFormData, onNext, onBack, onFail, isSu
                   </div>
               )}
 
-              {/* Pagination Controls */}
               <div className="flex justify-between items-center pt-4">
                 <Button
                   type="button"
                   variant="outline"
+                  size="lg"
+                  className="px-6 sm:px-10 text-base shadow-sm"
                   onClick={() => syncCurrentPage(Math.max(0, currentPage - 1))}
                   disabled={currentPage === 0 || checking || showCorrectAnswers}
                 >
                   Previous
                 </Button>
-                <span className="text-sm text-muted-foreground">
+                <span className="text-sm font-medium text-muted-foreground">
                   {Object.keys(answers).length} / {questions.length} answered
                 </span>
                 <Button
                   type="button"
                   variant="outline"
+                  size="lg"
+                  className="px-6 sm:px-10 text-base shadow-sm"
                   onClick={() => syncCurrentPage(Math.min(Math.ceil(questions.length / 5) - 1, currentPage + 1))}
                   disabled={currentPage >= Math.ceil(questions.length / 5) - 1 || checking || showCorrectAnswers}
                 >
@@ -413,43 +499,38 @@ export const MCQStep = ({ formData, updateFormData, onNext, onBack, onFail, isSu
                 </Button>
               </div>
 
-              <div className="flex gap-4 pt-6">
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={onBack}
-                  className="flex-1"
-                  disabled={checking || showCorrectAnswers}
-                >
-                  Previous
-                </Button>
-                {!showCorrectAnswers ? (
-                  <Button
-                    type="button"
-                    onClick={handleSubmit}
-                    className="flex-1"
-                    disabled={checking || showCorrectAnswers || showResult || (formData.role === 'SMO' && essayText.length < 50)}
-                  >
-                    {checking ? (
-                      <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Checking...
-                      </>
-                    ) : (
-                      "Submit Assessment"
-                    )}
-                  </Button>
-                ) : (
-                  <Button
-                    type="button"
-                    onClick={handleResultClose}
-                    className="flex-1"
-                    variant="destructive"
-                  >
-                    End Submission
-                  </Button>
-                )}
-              </div>
+              {currentPage === Math.ceil(questions.length / 5) - 1 && (
+                <div className="flex pt-8 pb-4">
+                  {!showCorrectAnswers ? (
+                    <Button
+                      type="button"
+                      onClick={handleSubmit}
+                      className="w-full text-lg py-6 sm:py-8 shadow-md hover:shadow-lg transition-all rounded-xl"
+                      size="lg"
+                      disabled={checking || showCorrectAnswers || showResult || (formData.role === 'SMO' && essayText.length < 50)}
+                    >
+                      {checking ? (
+                        <>
+                          <Loader2 className="mr-2 h-6 w-6 animate-spin" />
+                          Checking...
+                        </>
+                      ) : (
+                        "Submit Assessment"
+                      )}
+                    </Button>
+                  ) : (
+                    <Button
+                      type="button"
+                      onClick={handleResultClose}
+                      className="w-full text-lg py-6 sm:py-8 shadow-md hover:shadow-lg transition-all rounded-xl"
+                      size="lg"
+                      variant="destructive"
+                    >
+                      End Submission
+                    </Button>
+                  )}
+                </div>
+              )}
             </>
           )}          {!loading && formData.role && questions.length === 0 && (
             <p className="text-center text-muted-foreground py-8">
@@ -462,80 +543,64 @@ export const MCQStep = ({ formData, updateFormData, onNext, onBack, onFail, isSu
       <Dialog open={showResult} onOpenChange={(open) => {
         if (!open && !isSubmitting) handleResultClose();
       }}>
-        <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle className={`text-2xl ${result?.passed ? "text-green-600" : "text-orange-600"}`}>
-              {result?.passed ? "🎉 Excellent Performance!" : "📚 Review Required"}
+        <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] border-primary/20 bg-card/95 backdrop-blur-xl p-8 rounded-3xl shadow-2xl shadow-primary/10">
+          <DialogHeader className="text-center space-y-2">
+            <DialogTitle className={`flex items-center justify-center text-3xl font-extrabold bg-gradient-to-r ${result ? (result.percentage < 30 ? "from-red-600 to-rose-400 dark:from-red-400 dark:to-rose-300" : result.percentage < 70 ? "from-amber-600 to-yellow-500 dark:from-amber-400 dark:to-yellow-300" : "from-green-600 to-emerald-400 dark:from-green-400 dark:to-emerald-300") : ""} bg-clip-text text-transparent`}>
+              <BarChart className={`w-8 h-8 mr-3 ${result ? (result.percentage < 30 ? "text-red-500" : result.percentage < 70 ? "text-amber-500" : "text-green-500") : ""}`} />
+              Your Result
             </DialogTitle>
-            <DialogDescription>
-              {result?.passed ? "Congratulations! You have passed the assessment." : "Please review your answers below."}
-            </DialogDescription>
           </DialogHeader>
           <div className="space-y-6 pt-4">
-            {/* Score Summary */}
-            <div className="bg-gradient-to-br from-primary/10 to-accent/10 p-6 rounded-lg border-2 border-primary/20">
-              <div className="text-center">
-                <p className="text-5xl font-bold mb-3 bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-                  {result?.percentage}%
+            {/* Score Summary Card */}
+            <div className={`bg-gradient-to-br ${result ? (result.percentage < 30 ? "from-red-500/20 to-red-600/10 dark:from-red-900/40 dark:to-red-950/20 border-red-500/30" : result.percentage < 70 ? "from-amber-500/20 to-amber-600/10 dark:from-amber-900/40 dark:to-amber-950/20 border-amber-500/30" : "from-green-500/20 to-emerald-600/10 dark:from-green-900/40 dark:to-emerald-950/20 border-green-500/30") : ""} p-8 rounded-3xl border-2 shadow-inner relative overflow-hidden`}>
+              <div className="text-center relative z-10">
+                <p className={`text-7xl font-black mb-6 bg-gradient-to-r ${result ? (result.percentage < 30 ? "from-red-600 to-rose-400 dark:from-red-400 dark:to-rose-300" : result.percentage < 70 ? "from-amber-600 to-yellow-500 dark:from-amber-400 dark:to-yellow-300" : "from-green-600 to-emerald-400 dark:from-green-400 dark:to-emerald-300") : ""} bg-clip-text text-transparent drop-shadow-sm`}>
+                  {showResult && <AnimatedCounter end={result?.percentage || 0} />}%
                 </p>
-                <div className="flex justify-center items-center gap-4 text-sm">
-                  <div className="flex items-center gap-2">
-                    <span className="text-green-600 font-bold text-lg">✓ {result?.correctCount}</span>
-                    <span className="text-muted-foreground">Correct</span>
+                <div className="flex justify-center items-center gap-6 text-sm mb-8 font-medium">
+                  <div className="flex flex-col items-center gap-1 bg-background/50 px-4 py-2 rounded-xl border border-border/50">
+                    <span className="text-green-600 font-bold text-xl">✓ {result?.correctCount}</span>
+                    <span className="text-muted-foreground text-xs uppercase tracking-wider">Correct</span>
                   </div>
-                  <div className="h-4 w-px bg-border"></div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-red-600 font-bold text-lg">✗ {result?.totalQuestions - result?.correctCount}</span>
-                    <span className="text-muted-foreground">Wrong</span>
+                  <div className="flex flex-col items-center gap-1 bg-background/50 px-4 py-2 rounded-xl border border-border/50">
+                    <span className="text-red-600 font-bold text-xl">✗ {result?.totalQuestions ? result.totalQuestions - result.correctCount : 0}</span>
+                    <span className="text-muted-foreground text-xs uppercase tracking-wider">Wrong</span>
                   </div>
-                  <div className="h-4 w-px bg-border"></div>
-                  <div className="flex items-center gap-2">
-                    <span className="font-bold text-lg">{result?.totalQuestions}</span>
-                    <span className="text-muted-foreground">Total</span>
+                  <div className="flex flex-col items-center gap-1 bg-background/50 px-4 py-2 rounded-xl border border-border/50">
+                    <span className="font-bold text-xl text-foreground">{result?.totalQuestions}</span>
+                    <span className="text-muted-foreground text-xs uppercase tracking-wider">Total</span>
                   </div>
+                </div>
+
+                <div className="bg-background/80 dark:bg-background/40 backdrop-blur-md p-5 rounded-2xl border border-border/50 shadow-sm">
+                  {result?.passed ? (
+                    <div className="space-y-2">
+                      <p className="text-lg font-bold text-green-700 dark:text-green-400">
+                        ✅ Outstanding! You scored above {passingPercentage ?? 'required'}%.
+                      </p>
+                      <p className="text-sm text-green-600/80 dark:text-green-400/80">{result?.feedback || "Assessment Complete! We appreciate your participation."}</p>
+                    </div>
+                  ) : (
+                    <div className="space-y-2">
+                      <p className="text-lg font-bold text-red-700 dark:text-red-400">
+                        ❌ Assessment not passed.
+                      </p>
+                      <p className="text-sm text-red-600/80 dark:text-red-400/80">The passing score is {passingPercentage ?? 70}%. {result?.feedback || "Please review your answers and try again."}</p>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
-
-            {/* Feedback Message */}
-            <div className="bg-muted/50 p-4 rounded-lg border">
-              <p className="text-sm leading-relaxed">{result?.feedback}</p>
-            </div>
-
-            {/* Wrong Answers Section removed per request: do not show student mistakes after submission */}
-
-            {/* Status Message */}
-            {result?.passed ? (
-              <div className="bg-green-50 dark:bg-green-950 p-4 rounded-lg border-2 border-green-200 dark:border-green-800">
-                <p className="text-center font-semibold text-green-700 dark:text-green-300">
-                  ✅ Outstanding! You scored above {passingPercentage ?? 'required'}%. Assessment Complete!
-                </p>
-              </div>
-            ) : (
-              <div className="space-y-3">
-                <div className="bg-orange-50 dark:bg-orange-950 p-4 rounded-lg border-2 border-orange-200 dark:border-orange-800">
-                  <p className="text-center font-semibold text-orange-700 dark:text-orange-300">
-                    ❌ Assessment not passed. Review your answers above.
-                  </p>
-                </div>
-                <div className="text-center py-4 bg-muted/30 rounded-lg">
-                  <p className="text-2xl font-bold mb-2">👋 Thank You!</p>
-                  <p className="text-sm text-muted-foreground">
-                    We appreciate your participation. Redirecting to home...
-                  </p>
-                </div>
-              </div>
-            )}
 
             <Button
               onClick={handleResultClose}
-              className="w-full"
+              className="w-full text-lg py-6 sm:py-8 shadow-md hover:shadow-lg transition-all rounded-xl"
               size="lg"
               variant={result?.passed ? "default" : "destructive"}
               disabled={isSubmitting}
             >
               {isSubmitting ? (
-                 <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Saving...</>
+                 <><Loader2 className="mr-2 h-6 w-6 animate-spin" /> Saving...</>
               ) : result?.passed ? "Finish & Go Home" : "Close"}
             </Button>
           </div>
@@ -547,6 +612,8 @@ export const MCQStep = ({ formData, updateFormData, onNext, onBack, onFail, isSu
         onClose={() => setShowConfirm(false)}
         onConfirm={handleFinalSubmit}
         isSubmitting={checking}
+        answeredCount={Object.keys(answers).filter(k => answers[k] !== '__SKIPPED__').length}
+        totalQuestions={questions.length}
       />
     </>
 
