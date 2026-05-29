@@ -12,14 +12,30 @@ const app = express();
 
 // Security middleware (must run before routes to properly respond to preflight requests)
 app.use(helmet());
-// Configure CORS to allow all origins
+const allowedOrigins = [
+  'https://exam.kyptronix.us',
+  'http://exam.kyptronix.us',
+  'https://www.exam.kyptronix.us',
+  'http://localhost:5173', // For local development
+  'http://localhost:3000'
+];
+
+// Configure CORS to allow specific origins
 app.use(cors({
-  origin: '*',
-  credentials: false
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.indexOf(origin) === -1) {
+      const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
+      return callback(new Error(msg), false);
+    }
+    return callback(null, true);
+  },
+  credentials: true
 }));
 
 // Ensure preflight OPTIONS requests always receive CORS headers
-app.options('*', cors({ origin: '*', credentials: false }));
+app.options('*', cors());
 
 
 
