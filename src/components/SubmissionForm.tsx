@@ -44,6 +44,7 @@ interface FormData {
   // Graphic Designer links
   graphicDesignLink1?: string;
   graphicDesignLink2?: string;
+  graphicDesignLink3?: string;
   // Tab Switch Count
   tabSwitchCount?: number;
 }
@@ -124,6 +125,7 @@ export const SubmissionForm = ({ onBack }: SubmissionFormProps) => {
           driveLink: savedData.driveLink || prev.driveLink,
           graphicDesignLink1: savedData.graphicDesignLink1 || prev.graphicDesignLink1,
           graphicDesignLink2: savedData.graphicDesignLink2 || prev.graphicDesignLink2,
+          graphicDesignLink3: savedData.graphicDesignLink3 || prev.graphicDesignLink3,
         }));
         setCurrentStep(localSession.currentStep || 1);
         setSessionStarted(true);
@@ -273,6 +275,7 @@ export const SubmissionForm = ({ onBack }: SubmissionFormProps) => {
           driveLink: formData.driveLink,
           graphicDesignLink1: formData.graphicDesignLink1,
           graphicDesignLink2: formData.graphicDesignLink2,
+          graphicDesignLink3: formData.graphicDesignLink3,
           tabSwitchCount: formData.tabSwitchCount,
           projectTitle: formData.projectTitle,
           projectDescription: formData.projectDescription,
