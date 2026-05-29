@@ -17,7 +17,7 @@ export const Hero = ({ onStartSubmission }: HeroProps) => {
       <div className="absolute bottom-20 right-20 w-96 h-96 bg-secondary/20 rounded-full blur-[100px] animate-float pointer-events-none" style={{ animationDelay: "1s" }} />
 
       {/* Main Hero Card */}
-      <div className="relative z-10 max-w-2xl w-full animate-scale-in">
+      <div className="relative z-10 max-w-2xl w-full animate-slide-in-left">
         <div className="w-full flex flex-col items-center">
           {/* Logo */}
           <div className="flex justify-center mb-8">
