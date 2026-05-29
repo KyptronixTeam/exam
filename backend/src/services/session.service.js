@@ -127,52 +127,45 @@ const submitExam = async (sessionId, finalFormData, mcqAnswersForDb, mcqScore) =
     session.status = isPassing ? 'passed' : 'failed';
     session.completedAt = new Date();
 
-    // If passing or goes to manual review, create a Submission record
-    if (isPassing) {
-        const submissionPayload = {
-            personalInfo: {
-                fullName: session.formData.fullName,
-                email: session.formData.email,
-                phone: session.formData.phone,
-                collegeName: session.formData.collegeName,
-                department: session.formData.department,
-                role: session.formData.role,
-                year: session.formData.year,
-                semester: session.formData.semester
-            },
-            projectDetails: {
-                title: session.formData.projectTitle,
-                description: session.formData.projectDescription,
-                websiteUrl: session.formData.websiteUrl,
-                githubRepo: session.formData.githubRepo
-            },
-            essayText: session.formData.essayText,
-            driveLink: session.formData.driveLink,
-            tabSwitchCount: session.formData.tabSwitchCount || 0,
-            mcqAnswers: mcqAnswersForDb,
-            mcqScore: mcqScore,
-            status: submissionStatus,
-            reviewStatus: reviewStatus,
-            submittedAt: new Date()
-        };
+    const submissionPayload = {
+        personalInfo: {
+            fullName: session.formData.fullName,
+            email: session.formData.email,
+            phone: session.formData.phone,
+            collegeName: session.formData.collegeName,
+            department: session.formData.department,
+            role: session.formData.role,
+            year: session.formData.year,
+            semester: session.formData.semester
+        },
+        projectDetails: {
+            title: session.formData.projectTitle,
+            description: session.formData.projectDescription,
+            websiteUrl: session.formData.websiteUrl,
+            githubRepo: session.formData.githubRepo
+        },
+        essayText: session.formData.essayText,
+        driveLink: session.formData.driveLink,
+        tabSwitchCount: session.formData.tabSwitchCount || 0,
+        mcqAnswers: mcqAnswersForDb,
+        mcqScore: mcqScore,
+        status: submissionStatus,
+        reviewStatus: reviewStatus,
+        submittedAt: new Date()
+    };
 
-        const submission = new Submission(submissionPayload);
-        await submission.save();
-        session.submissionId = submission._id;
+    const submission = new Submission(submissionPayload);
+    await submission.save();
+    session.submissionId = submission._id;
 
-        logger.info('Passing submission created', {
-            sessionId,
-            submissionId: submission._id,
-            score: mcqScore.percentage,
-            role,
-            reviewStatus
-        });
-    } else {
-        logger.info('Failed submission - not saved to Submission collection', {
-            sessionId,
-            score: mcqScore.percentage
-        });
-    }
+    logger.info('Submission created', {
+        sessionId,
+        submissionId: submission._id,
+        score: mcqScore.percentage,
+        role,
+        reviewStatus,
+        isPassing
+    });
 
     await session.save();
 
@@ -229,10 +222,44 @@ const markAssessmentFailed = async (sessionId, mcqScore) => {
     session.status = 'failed';
     session.mcqScore = mcqScore;
     session.completedAt = new Date();
+    
+    // Create Submission record for the failed assessment
+    const submissionPayload = {
+        personalInfo: {
+            fullName: session.formData.fullName,
+            email: session.formData.email,
+            phone: session.formData.phone,
+            collegeName: session.formData.collegeName,
+            department: session.formData.department,
+            role: session.formData.role,
+            year: session.formData.year,
+            semester: session.formData.semester
+        },
+        projectDetails: {
+            title: session.formData.projectTitle,
+            description: session.formData.projectDescription,
+            websiteUrl: session.formData.websiteUrl,
+            githubRepo: session.formData.githubRepo
+        },
+        essayText: session.formData.essayText,
+        driveLink: session.formData.driveLink,
+        tabSwitchCount: session.formData.tabSwitchCount || 0,
+        mcqAnswers: session.formData.mcqAnswers ? Object.entries(session.formData.mcqAnswers).map(([q, a]) => ({ questionId: q, selectedAnswer: a })) : [],
+        mcqScore: mcqScore,
+        status: 'rejected',
+        reviewStatus: 'auto_failed',
+        submittedAt: new Date()
+    };
+
+    const submission = new Submission(submissionPayload);
+    await submission.save();
+    
+    session.submissionId = submission._id;
     await session.save();
 
-    logger.info('Assessment failed - session marked as failed', {
+    logger.info('Assessment failed - session and submission marked as failed', {
         sessionId,
+        submissionId: submission._id,
         score: mcqScore.percentage
     });
 
