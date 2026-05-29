@@ -1,3 +1,16 @@
 # Logs
+logs
+*.log
+
+# Dependencies
+node_modules/
+node_modules
+
+# Env files
+.env
+.env.*
 
 # Editor directories and files
+.vscode
+.idea
+.DS_Store

@@ -8,57 +8,55 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    /* Futuristic Deep Space Theme */
-    --background: 225 71% 8%;
-    --foreground: 180 100% 95%;
+    /* Premium Solid Dark Theme (High Readability, No Glass) */
+    --background: 222.2 84% 4.9%; /* Slate-950 */
+    --foreground: 210 40% 98%; /* Slate-50 */
 
-    --card: 225 50% 12%;
-    --card-foreground: 180 100% 95%;
+    --card: 222.2 47.4% 11.2%; /* Slate-900 */
+    --card-foreground: 210 40% 98%;
 
-    --popover: 225 50% 12%;
-    --popover-foreground: 180 100% 95%;
+    --popover: 222.2 47.4% 11.2%;
+    --popover-foreground: 210 40% 98%;
 
-    /* Electric Blue Primary */
-    --primary: 191 100% 50%;
-    --primary-foreground: 225 71% 8%;
+    /* Keep some accent colors but make them highly readable against dark slate */
+    --primary: 217.2 91.2% 59.8%; /* Blue-500 for a solid professional look */
+    --primary-foreground: 222.2 47.4% 1.2%; /* Almost black */
 
-    /* Purple Accent */
-    --secondary: 271 76% 53%;
-    --secondary-foreground: 0 0% 100%;
+    --secondary: 217.2 32.6% 17.5%; /* Slate-800 */
+    --secondary-foreground: 210 40% 98%;
 
-    --muted: 225 30% 20%;
-    --muted-foreground: 180 20% 70%;
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%; /* Slate-400 */
 
-    /* Cyan Accent */
-    --accent: 191 100% 50%;
-    --accent-foreground: 225 71% 8%;
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 98%;
 
-    --destructive: 0 84% 60%;
-    --destructive-foreground: 0 0% 100%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
 
-    --border: 225 30% 18%;
-    --input: 225 30% 18%;
-    --ring: 191 100% 50%;
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 224.3 76.3% 48%; /* Blue-600 */
 
-    --radius: 1rem;
+    --radius: 0.75rem;
 
-    /* Custom Gradients */
-    --gradient-primary: linear-gradient(135deg, hsl(225 71% 8%) 0%, hsl(225 50% 15%) 100%);
-    --gradient-hero: linear-gradient(135deg, hsl(191 100% 50%) 0%, hsl(271 76% 53%) 100%);
-    --gradient-glow: radial-gradient(circle at center, hsl(191 100% 50% / 0.2) 0%, transparent 70%);
+    /* Custom Gradients - Solid instead of transparent */
+    --gradient-primary: linear-gradient(135deg, hsl(222.2 84% 4.9%) 0%, hsl(222.2 47.4% 11.2%) 100%);
+    --gradient-hero: linear-gradient(135deg, hsl(217.2 91.2% 59.8%) 0%, hsl(224.3 76.3% 48%) 100%);
+    --gradient-glow: radial-gradient(circle at center, hsl(217.2 91.2% 59.8% / 0.15) 0%, transparent 70%);
     
-    /* Glass Effects */
-    --glass-bg: hsl(225 50% 12% / 0.4);
-    --glass-border: hsl(191 100% 50% / 0.2);
+    /* Solid Effects (Replacing Glass) */
+    --glass-bg: hsl(222.2 47.4% 11.2%); /* Solid Card Color */
+    --glass-border: hsl(217.2 32.6% 17.5%); /* Solid Border Color */
     
     /* Shadows & Glow */
-    --shadow-glow: 0 0 40px hsl(191 100% 50% / 0.3);
-    --shadow-depth: 0 20px 60px hsl(225 71% 8% / 0.8);
-    --shadow-card: 0 8px 32px hsl(225 71% 8% / 0.5);
+    --shadow-glow: 0 0 40px hsl(217.2 91.2% 59.8% / 0.2);
+    --shadow-depth: 0 10px 40px hsl(0 0% 0% / 0.5);
+    --shadow-card: 0 8px 24px hsl(0 0% 0% / 0.4);
     
     /* Animations */
-    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    --transition-bounce: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    --transition-smooth: all 0.2s ease-in-out;
+    --transition-bounce: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   }
 }
 

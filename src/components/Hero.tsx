@@ -1,7 +1,6 @@
 import { Button } from "@/components/ui/button";
-import { Rocket, Shield } from "lucide-react";
+import { Rocket } from "lucide-react";
 import kyptronixLogo from "@/assets/kyptronix-logo.png";
-import { Link } from "react-router-dom";
 
 interface HeroProps {
   onStartSubmission: () => void;
@@ -9,75 +8,57 @@ interface HeroProps {
 
 export const Hero = ({ onStartSubmission }: HeroProps) => {
   return (
-    <div className="min-h-screen flex items-center justify-center relative overflow-hidden px-4">
-      {/* Admin Button - Top Right */}
-      <Link to="/auth" className="absolute top-4 right-4 z-20">
-        <Button variant="outline" size="sm">
-          <Shield className="mr-2 h-4 w-4" />
-          Admin Login
-        </Button>
-      </Link>
-      
+    <div className="min-h-screen flex items-center justify-center relative overflow-hidden px-4 backdrop-blur-sm bg-background/40">
       {/* Gradient Glow Background */}
       <div className="absolute inset-0 bg-[var(--gradient-glow)] opacity-30" />
       
       {/* Floating Orbs */}
-      <div className="absolute top-20 left-20 w-64 h-64 bg-primary/20 rounded-full blur-3xl animate-float" />
-      <div className="absolute bottom-20 right-20 w-96 h-96 bg-secondary/20 rounded-full blur-3xl animate-float" style={{ animationDelay: "1s" }} />
+      <div className="absolute top-20 left-20 w-64 h-64 bg-primary/20 rounded-full blur-[100px] animate-float pointer-events-none" />
+      <div className="absolute bottom-20 right-20 w-96 h-96 bg-secondary/20 rounded-full blur-[100px] animate-float pointer-events-none" style={{ animationDelay: "1s" }} />
 
       {/* Main Hero Card */}
       <div className="relative z-10 max-w-2xl w-full animate-scale-in">
-        <div className="backdrop-blur-xl bg-[var(--glass-bg)] border border-[var(--glass-border)] rounded-3xl p-12 shadow-[var(--shadow-card)] hover:shadow-[var(--shadow-glow)] transition-all duration-500">
+        <div className="w-full flex flex-col items-center">
           {/* Logo */}
-          <div className="flex justify-center mb-8 animate-float">
+          <div className="flex justify-center mb-8">
             <div className="relative">
               <img 
                 src={kyptronixLogo} 
                 alt="Kyptronix Logo" 
-                className="w-24 h-24 object-contain"
+                className="w-24 h-24 object-contain drop-shadow-md"
               />
-              <div className="absolute inset-0 bg-primary/20 blur-2xl rounded-full animate-glow" />
             </div>
           </div>
 
           {/* Title */}
-          <h1 className="text-5xl font-bold text-center mb-4 bg-gradient-to-r from-primary via-accent to-secondary bg-clip-text text-transparent animate-fade-in">
-            College Project Submission Portal
+          <h1 className="text-5xl md:text-6xl font-extrabold text-center mb-6 text-white tracking-tight drop-shadow-[0_0_20px_rgba(255,255,255,0.4)] animate-fade-in">
+            Are You Ready ?
           </h1>
 
-          {/* Subtitle */}
-          <p className="text-xl text-center text-muted-foreground mb-2 animate-fade-in" style={{ animationDelay: "0.2s" }}>
-            Powered by <span className="text-primary font-semibold">Kyptronix LLP</span>
-          </p>
-          
-          <p className="text-lg text-center text-accent mb-10 font-medium animate-fade-in" style={{ animationDelay: "0.3s" }}>
-            Submit. Track. Grow.
+          {/* Description */}
+          <p className="text-xl md:text-2xl text-center text-zinc-300 font-light mb-12 max-w-xl animate-fade-in drop-shadow-md" style={{ animationDelay: "0.2s" }}>
+            Prepare to submit your college project securely and efficiently. Track your progress every step of the way.
           </p>
 
           {/* CTA Button */}
           <div className="flex justify-center animate-fade-in" style={{ animationDelay: "0.4s" }}>
             <Button 
-              variant="hero" 
               size="xl"
               onClick={onStartSubmission}
-              className="group"
+              className="group relative overflow-hidden bg-white/10 backdrop-blur-md border border-white/20 text-white transition-all duration-500 hover:scale-110 hover:shadow-[0_0_50px_rgba(34,197,94,0.6)] rounded-full px-10 py-8"
             >
-              <Rocket className="mr-2 h-5 w-5 group-hover:rotate-12 transition-transform" />
-              Start Submission
+              {/* Green Hover Animation Background */}
+              <div className="absolute inset-0 bg-gradient-to-r from-green-500 to-emerald-400 translate-y-[100%] group-hover:translate-y-0 transition-transform duration-500 ease-in-out" />
+              
+              {/* Button Content */}
+              <div className="relative z-10 flex items-center">
+                <Rocket className="mr-3 h-6 w-6 group-hover:-translate-y-1 group-hover:rotate-12 transition-all duration-300" />
+                <span className="font-semibold tracking-wide">I'M READY</span>
+              </div>
             </Button>
           </div>
 
-          {/* Feature Pills */}
-          <div className="flex flex-wrap justify-center gap-3 mt-8 animate-fade-in" style={{ animationDelay: "0.5s" }}>
-            {["Auto-Sync", "File Upload", "Track Progress"].map((feature) => (
-              <div
-                key={feature}
-                className="px-4 py-2 rounded-full bg-primary/10 border border-primary/20 text-sm text-primary backdrop-blur-sm"
-              >
-                {feature}
-              </div>
-            ))}
-          </div>
+
         </div>
 
         {/* Floating Elements */}
