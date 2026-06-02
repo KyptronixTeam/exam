@@ -1272,3 +1272,5 @@
 {"isAutoGraded":false,"isPassing":true,"level":"info","message":"Evaluating pass/fail","passingPercentage":70,"percentage":0,"role":"GRAPHIC DESIGNER","service":"node-express-backend","timestamp":"2026-05-29 18:32:29"}
 {"isPassing":true,"level":"info","message":"Submission created","reviewStatus":"pending_review","role":"GRAPHIC DESIGNER","score":0,"service":"node-express-backend","sessionId":"d0cf3916-5757-4e38-9973-8ed6baa351a8","submissionId":"6a198e65b07f559608597131","timestamp":"2026-05-29 18:32:29"}
 >>>>>>> 310c28f700dc528a442ccfa605faee440a7a14c1
+{"level":"info","message":"MCQ routes registered:","routes":["GET /categories","GET /","GET /config","POST /validate","GET /:id","POST /","POST /bulk","PUT /:id","DELETE /:id"],"service":"node-express-backend","timestamp":"2026-06-02 15:36:04"}
+{"level":"info","message":"MongoDB connected successfully to development database","service":"node-express-backend","timestamp":"2026-06-02 15:36:05"}
