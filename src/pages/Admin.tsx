@@ -11,7 +11,8 @@ import { QuestionsManager } from "@/components/admin/QuestionsManager";
 import { DemoDataLoader } from "@/components/admin/DemoDataLoader";
 import { SettingsManager } from "@/components/admin/SettingsManager";
 import { PasswordManager } from "@/components/admin/PasswordManager";
-import { ShieldCheck } from "lucide-react";
+import { DashboardManager } from "@/components/admin/DashboardManager";
+import { ShieldCheck, LayoutDashboard } from "lucide-react";
 
 const Admin = () => {
   const navigate = useNavigate();
@@ -25,15 +26,28 @@ const Admin = () => {
 
   const checkAdminAccess = async () => {
     try {
-      const { data: { session } } = await supabase.auth.getSession();
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
       
-      if (!session || !session.user) {
+      if (sessionError || !session || !session.user) {
+        await supabase.auth.signOut();
         navigate("/auth");
         return;
       }
 
       // Check if user has admin role
-      const userRoles = session.user.roles || [];
+      // We can also fetch getUser() here to be absolutely sure, but since we just
+      // clear the session on error in Auth and Admin, this is generally sufficient.
+      // However, a token could be expired locally. So let's use getUser():
+      const { data: { user }, error: userError } = await supabase.auth.getUser();
+
+      if (userError || !user) {
+        await supabase.auth.signOut();
+        navigate("/auth");
+        return;
+      }
+
+      // Check if user has admin role from the fresh user object
+      const userRoles = user.roles || session.user.roles || [];
       if (!userRoles.includes('admin')) {
         toast({
           title: "Access Denied",
@@ -91,13 +105,20 @@ const Admin = () => {
       </header>
 
       <main className="flex-1 flex overflow-hidden">
-        <Tabs defaultValue="submissions" className="flex flex-col md:flex-row w-full h-full">
+        <Tabs defaultValue="dashboard" className="flex flex-col md:flex-row w-full h-full">
           {/* Sidebar Navigation */}
           <div className="w-full md:w-64 border-r bg-muted/10 p-4 shrink-0 overflow-y-auto">
             <div className="mb-6 px-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider hidden md:block">
               Administration
             </div>
             <TabsList className="flex flex-row md:flex-col h-auto w-full bg-transparent justify-start space-x-2 md:space-x-0 md:space-y-1 p-0 overflow-x-auto">
+              <TabsTrigger 
+                value="dashboard" 
+                className="w-full justify-start text-left data-[state=active]:bg-primary/10 data-[state=active]:text-primary data-[state=active]:shadow-none px-4 py-2.5 rounded-md transition-colors whitespace-nowrap"
+              >
+                <LayoutDashboard className="mr-3 h-4 w-4" />
+                Dashboard
+              </TabsTrigger>
               <TabsTrigger 
                 value="submissions" 
                 className="w-full justify-start text-left data-[state=active]:bg-primary/10 data-[state=active]:text-primary data-[state=active]:shadow-none px-4 py-2.5 rounded-md transition-colors whitespace-nowrap"
@@ -139,6 +160,10 @@ const Admin = () => {
           {/* Main Content Area */}
           <div className="flex-1 overflow-auto bg-muted/5 relative">
             <div className="p-4 md:p-8 w-full mx-auto">
+              <TabsContent value="dashboard" className="mt-0 h-full border-none p-0 outline-none">
+                <DashboardManager />
+              </TabsContent>
+
               <TabsContent value="submissions" className="mt-0 h-full border-none p-0 outline-none">
                 <SubmissionsView />
               </TabsContent>

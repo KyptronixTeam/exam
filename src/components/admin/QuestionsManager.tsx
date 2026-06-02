@@ -410,8 +410,9 @@ export const QuestionsManager = () => {
         </Button>
       </div>
 
-      <div className={showQuestions ? "grid gap-6 lg:grid-cols-3 xl:grid-cols-4" : "flex flex-col items-center"}>
-        <div className={`space-y-6 w-full ${showQuestions ? "lg:col-span-1 xl:col-span-1" : "max-w-2xl"}`}>
+      <div className={showQuestions ? "w-full" : "flex flex-col items-center"}>
+        {!showQuestions && (
+          <div className="space-y-6 w-full max-w-2xl">
           <Card>
             <CardHeader>
               <CardTitle>Add New Question</CardTitle>
@@ -542,10 +543,11 @@ export const QuestionsManager = () => {
               </div>
             </CardContent>
           </Card>
-        </div>
+          </div>
+        )}
 
         {showQuestions && (
-          <div className="lg:col-span-2 xl:col-span-3">
+          <div className="w-full">
             <Card className="h-full flex flex-col border-primary/20 shadow-md">
               <CardHeader>
                 <div className="w-full flex items-center justify-between gap-4">

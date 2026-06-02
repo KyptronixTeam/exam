@@ -123,6 +123,10 @@ const rpc = async (name: string, params?: any) => {
     const res = await request('/api/admin/exists', { method: 'GET' });
     return { data: res.data };
   }
+  if (name === 'get_statistics') {
+    const res = await request('/api/admin/statistics', { method: 'GET' });
+    return { data: res.data };
+  }
   if (name === 'validate-answers') {
     const res = await request('/api/mcq/validate', { method: 'POST', body: JSON.stringify(params) });
     return { data: res.data };
@@ -350,6 +354,18 @@ const auth = {
   getSession() {
     const sess = loadSession();
     return Promise.resolve({ data: { session: sess } });
+  },
+  async getUser() {
+    try {
+      const sess = loadSession();
+      if (!sess || !sess.accessToken) {
+        return { data: { user: null }, error: new Error('No session') };
+      }
+      const res = await request('/api/users/me', { method: 'GET' });
+      return { data: { user: res.data.user }, error: null };
+    } catch (err) {
+      return { data: { user: null }, error: err };
+    }
   },
   onAuthStateChange(cb: (event: any, session: any) => void) {
     const listener = (e: any) => cb('SIGNED_IN', e.detail);

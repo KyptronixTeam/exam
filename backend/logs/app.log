@@ -960,3 +960,293 @@
 {"filter":{},"level":"info","message":"listSubmissions query","query":"{}","service":"node-express-backend","timestamp":"2026-06-02 13:41:56"}
 {"filter":{},"level":"info","message":"listSubmissions query","query":"{}","service":"node-express-backend","timestamp":"2026-06-02 13:42:00"}
 {"filter":{},"level":"info","message":"listSubmissions query","query":"{}","service":"node-express-backend","timestamp":"2026-06-02 13:45:14"}
+{"filter":{},"level":"info","message":"listSubmissions query","query":"{}","service":"node-express-backend","timestamp":"2026-06-02 13:46:50"}
+{"filter":{},"level":"info","message":"listSubmissions query","query":"{}","service":"node-express-backend","timestamp":"2026-06-02 13:47:46"}
+{"filter":{},"level":"info","message":"listSubmissions query","query":"{}","service":"node-express-backend","timestamp":"2026-06-02 13:48:02"}
+{"filter":{},"level":"info","message":"listSubmissions query","query":"{}","service":"node-express-backend","timestamp":"2026-06-02 13:49:22"}
+{"filter":{},"level":"info","message":"listSubmissions query","query":"{}","service":"node-express-backend","timestamp":"2026-06-02 13:49:24"}
+{"filter":{},"level":"info","message":"listSubmissions query","query":"{}","service":"node-express-backend","timestamp":"2026-06-02 13:49:37"}
+{"filter":{},"level":"info","message":"listSubmissions query","query":"{}","service":"node-express-backend","timestamp":"2026-06-02 13:51:04"}
+{"filter":{},"level":"info","message":"listSubmissions query","query":"{}","service":"node-express-backend","timestamp":"2026-06-02 13:51:12"}
+{"filter":{"college":"itahar"},"level":"info","message":"listSubmissions query","query":"{\"personalInfo.collegeName\":{\"$regex\":\"itahar\",\"$options\":\"i\"}}","service":"node-express-backend","timestamp":"2026-06-02 13:52:24"}
+{"filter":{},"level":"info","message":"listSubmissions query","query":"{}","service":"node-express-backend","timestamp":"2026-06-02 13:52:27"}
+{"filter":{},"level":"info","message":"listSubmissions query","query":"{}","service":"node-express-backend","timestamp":"2026-06-02 13:52:29"}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:52:43","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:52:43","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:52:43","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:52:43","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:52:43","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:52:44","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:52:44","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:52:44","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:52:44","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:52:44","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:52:44","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:52:44","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:52:44","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:52:44","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:52:44","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:52:44","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:52:45","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:52:45","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:52:45","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:52:45","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:52:45","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:52:45","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:52:45","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:52:45","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:52:45","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:52:46","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:52:46","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:52:46","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:52:46","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:52:46","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:52:46","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:52:46","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:52:46","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:52:46","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:52:46","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:52:46","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:52:46","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:52:47","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:52:47","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:52:47","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:52:47","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:52:47","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:52:47","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:52:47","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:52:47","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:52:47","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:52:47","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:52:47","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:52:47","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:52:48","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:52:48","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:52:48","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:52:48","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:52:48","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:52:48","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:52:48","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:52:48","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:52:48","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:52:48","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:52:48","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:52:48","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:52:48","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:52:49","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:52:49","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:52:49","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:52:49","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:52:49","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:52:49","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:52:49","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:52:49","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:52:49","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:52:49","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:52:49","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:52:50","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:52:50","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:52:50","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:52:50","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:52:50","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:52:50","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:52:50","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:52:50","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:52:50","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:52:50","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:52:50","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:52:51","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:52:51","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:52:51","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:52:51","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:52:51","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:52:51","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:52:51","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:52:51","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:52:51","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:52:51","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:52:51","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:52:52","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:52:52","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:52:52","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:52:52","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:52:52","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:52:52","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:52:52","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:52:52","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:52:52","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:52:52","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:52:52","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:52:52","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:52:53","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:52:53","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:52:53","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:52:53","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:52:53","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:52:53","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:52:53","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:52:53","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:52:53","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:52:53","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:52:53","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:52:54","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:52:54","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:52:54","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:52:54","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:52:54","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:52:54","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:52:54","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:52:54","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:52:54","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:52:54","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:52:54","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:52:54","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:52:55","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:52:55","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:52:55","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:52:55","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:52:55","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:52:55","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:52:55","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:52:55","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:52:55","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:52:55","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:52:55","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:52:55","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:52:56","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:52:56","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:52:56","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:52:56","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:52:56","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:52:56","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:52:56","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:52:56","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:52:56","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:52:56","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:52:56","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:52:56","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:52:57","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:52:57","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:52:57","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:52:57","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:52:57","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:52:57","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:52:57","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:52:57","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:52:57","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:52:57","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:52:57","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:52:57","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:52:57","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:52:58","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:52:58","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:52:58","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:52:58","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:52:58","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:52:58","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:52:58","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:52:58","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:52:58","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:52:58","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:52:58","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:52:58","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:52:59","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:52:59","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:52:59","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:52:59","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:52:59","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:52:59","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:52:59","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:52:59","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:53:00","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:53:00","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:53:00","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:53:00","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:53:01","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:53:01","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:53:01","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:53:01","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:53:01","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:53:01","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:53:02","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:53:02","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:53:02","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:53:02","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:53:02","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:53:02","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:53:02","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:53:02","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:53:03","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:53:03","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:53:03","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:53:03","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:53:03","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:53:04","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:53:04","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:53:04","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:53:04","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:53:04","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:53:04","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:53:05","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:53:05","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:53:05","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:53:05","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:53:05","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:53:05","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:53:06","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:53:06","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:53:06","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:53:06","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:53:06","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:53:06","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:53:06","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:53:06","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:53:06","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:53:06","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:53:06","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:53:06","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:53:07","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:53:07","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:53:07","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:53:07","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:53:07","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:53:07","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:53:07","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:53:07","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:53:07","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:53:07","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:53:07","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:53:07","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:53:08","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:53:08","token":"eyJhbGci..."}
+{"err":"jwt expired","level":"warn","message":"Invalid access token","path":"/api/submissions?page=1&limit=20","service":"node-express-backend","timestamp":"2026-06-02 13:53:08","token":"eyJhbGci..."}
+{"level":"info","message":"MongoDB connected successfully to development database","service":"node-express-backend","timestamp":"2026-06-02 13:57:18"}
+{"level":"info","message":"MongoDB connected successfully to development database","service":"node-express-backend","timestamp":"2026-06-02 13:58:47"}
+{"level":"info","message":"MongoDB connected successfully to development database","service":"node-express-backend","timestamp":"2026-06-02 13:59:57"}
+{"filter":{},"level":"info","message":"listSubmissions query","query":"{}","service":"node-express-backend","timestamp":"2026-06-02 14:43:21"}
+{"filter":{},"level":"info","message":"listSubmissions query","query":"{}","service":"node-express-backend","timestamp":"2026-06-02 14:43:38"}
+{"filter":{},"level":"info","message":"listSubmissions query","query":"{}","service":"node-express-backend","timestamp":"2026-06-02 14:44:14"}
+{"filter":{},"level":"info","message":"listSubmissions query","query":"{}","service":"node-express-backend","timestamp":"2026-06-02 14:46:34"}
+{"level":"info","message":"MCQ routes registered:","routes":["GET /categories","GET /","GET /config","POST /validate","GET /:id","POST /","POST /bulk","PUT /:id","DELETE /:id"],"service":"node-express-backend","timestamp":"2026-06-02 14:47:18"}
+{"level":"info","message":"MongoDB connected successfully to development database","service":"node-express-backend","timestamp":"2026-06-02 14:47:20"}
+{"level":"info","message":"Server running on port 5112 in development mode","service":"node-express-backend","timestamp":"2026-06-02 14:47:20"}
+{"level":"info","message":"API documentation available at http://localhost:5112/api-docs","service":"node-express-backend","timestamp":"2026-06-02 14:47:20"}
+{"filter":{},"level":"info","message":"listSubmissions query","query":"{}","service":"node-express-backend","timestamp":"2026-06-02 14:49:53"}
+{"level":"info","message":"MCQ routes registered:","routes":["GET /categories","GET /","GET /config","POST /validate","GET /:id","POST /","POST /bulk","PUT /:id","DELETE /:id"],"service":"node-express-backend","timestamp":"2026-06-02 14:50:40"}
+{"level":"info","message":"MongoDB connected successfully to development database","service":"node-express-backend","timestamp":"2026-06-02 14:50:41"}
+{"level":"info","message":"Server running on port 5112 in development mode","service":"node-express-backend","timestamp":"2026-06-02 14:50:41"}
+{"level":"info","message":"API documentation available at http://localhost:5112/api-docs","service":"node-express-backend","timestamp":"2026-06-02 14:50:41"}
+{"filter":{},"level":"info","message":"listSubmissions query","query":"{}","service":"node-express-backend","timestamp":"2026-06-02 14:51:11"}
+{"level":"info","message":"MCQ routes registered:","routes":["GET /categories","GET /","GET /config","POST /validate","GET /:id","POST /","POST /bulk","PUT /:id","DELETE /:id"],"service":"node-express-backend","timestamp":"2026-06-02 14:53:14"}
+{"level":"info","message":"MongoDB connected successfully to development database","service":"node-express-backend","timestamp":"2026-06-02 14:53:15"}
+{"level":"info","message":"Server running on port 5112 in development mode","service":"node-express-backend","timestamp":"2026-06-02 14:53:15"}
+{"level":"info","message":"API documentation available at http://localhost:5112/api-docs","service":"node-express-backend","timestamp":"2026-06-02 14:53:15"}
+{"filter":{},"level":"info","message":"listSubmissions query","query":"{}","service":"node-express-backend","timestamp":"2026-06-02 14:53:30"}
+{"filter":{},"level":"info","message":"listSubmissions query","query":"{}","service":"node-express-backend","timestamp":"2026-06-02 14:53:34"}
+{"filter":{},"level":"info","message":"listSubmissions query","query":"{}","service":"node-express-backend","timestamp":"2026-06-02 14:53:39"}
+{"filter":{},"level":"info","message":"listSubmissions query","query":"{}","service":"node-express-backend","timestamp":"2026-06-02 14:54:35"}
+{"filter":{},"level":"info","message":"listSubmissions query","query":"{}","service":"node-express-backend","timestamp":"2026-06-02 14:54:39"}
+{"filter":{},"level":"info","message":"listSubmissions query","query":"{}","service":"node-express-backend","timestamp":"2026-06-02 14:54:41"}
+{"filter":{},"level":"info","message":"listSubmissions query","query":"{}","service":"node-express-backend","timestamp":"2026-06-02 14:54:50"}
+{"filter":{},"level":"info","message":"listSubmissions query","query":"{}","service":"node-express-backend","timestamp":"2026-06-02 14:57:35"}
+{"filter":{},"level":"info","message":"listSubmissions query","query":"{}","service":"node-express-backend","timestamp":"2026-06-02 14:57:41"}

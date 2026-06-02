@@ -25,10 +25,64 @@ const loadDemoData = async (req, res) => {
 
 const getStats = async (req, res) => {
   try {
-    const users = await User.countDocuments();
-    const submissions = await Submission.countDocuments();
+    // Calculate average score across all submissions that have a score
+    const avgScoreAggr = await Submission.aggregate([
+      { $match: { 'mcqScore.percentage': { $exists: true, $ne: null } } },
+      { $group: { _id: null, avgPercentage: { $avg: '$mcqScore.percentage' } } }
+    ]);
+    const averageScore = avgScoreAggr.length > 0 ? Math.round(avgScoreAggr[0].avgPercentage * 10) / 10 : 0;
+    const submissionsCount = await Submission.countDocuments();
     const mcqs = await MCQQuestion.countDocuments();
-    res.json({ success: true, data: { users, submissions, mcqs } });
+
+    // Aggregations
+    const rolesAggr = await Submission.aggregate([
+      { $match: { 'personalInfo.role': { $exists: true, $ne: null } } },
+      { $group: { _id: '$personalInfo.role', count: { $sum: 1 } } },
+      { $sort: { count: -1 } }
+    ]);
+
+    const statusAggr = await Submission.aggregate([
+      { $group: { _id: '$status', count: { $sum: 1 } } }
+    ]);
+
+    const collegeAggr = await Submission.aggregate([
+      { $match: { 'personalInfo.collegeName': { $exists: true, $ne: null } } },
+      { $group: { _id: '$personalInfo.collegeName', count: { $sum: 1 } } },
+      { $sort: { count: -1 } },
+      { $limit: 10 }
+    ]);
+
+    // Format for frontend Recharts
+    const rolesData = rolesAggr.map(r => ({ name: r._id || 'Unknown', value: r.count }));
+    const statusData = statusAggr.map(s => ({ name: s._id || 'Unknown', value: s.count }));
+    const collegeData = collegeAggr.map(c => ({ name: c._id || 'Unknown', value: c.count }));
+
+    // Mock trend data for last 7 days since createdAt might be sparse in demo
+    // In a real scenario, group by $dateToString format %Y-%m-%d of createdAt
+    const last7DaysAggr = await Submission.aggregate([
+      {
+        $group: {
+          _id: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } },
+          count: { $sum: 1 }
+        }
+      },
+      { $sort: { _id: 1 } },
+      { $limit: 7 }
+    ]);
+    const trendData = last7DaysAggr.map(t => ({ date: t._id, submissions: t.count }));
+
+    res.json({ 
+      success: true, 
+      data: { 
+        averageScore, 
+        submissions: submissionsCount, 
+        mcqs,
+        rolesData,
+        statusData,
+        collegeData,
+        trendData
+      } 
+    });
   } catch (err) {
     logger.error('Get stats error', err);
     res.status(500).json({ success: false, error: { code: 'SERVER_ERROR', message: 'Failed to fetch stats' } });
