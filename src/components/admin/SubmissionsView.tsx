@@ -460,71 +460,94 @@ export const SubmissionsView = () => {
                 Review full submission data below.
               </DialogDescription>
             </DialogHeader>
-            <div className="space-y-4 p-2">
+            <div className="space-y-6 p-2">
               {selected ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="p-4 border rounded">
-                    <h4 className="font-semibold mb-2">Personal Information</h4>
-                    <p><strong>Name:</strong> {selected.personalInfo?.fullName || selected.full_name || '-'}</p>
-                    <p><strong>Email:</strong> {selected.personalInfo?.email || selected.email || '-'}</p>
-                    <p><strong>Phone:</strong> {selected.personalInfo?.phone || selected.phone || '-'}</p>
-                    <p><strong>College:</strong> {selected.personalInfo?.collegeName || selected.college_name || '-'}</p>
-                    <p><strong>Department:</strong> {selected.personalInfo?.department || selected.course_department || '-'}</p>
-                    <p><strong>Role:</strong> {selected.personalInfo?.role || selected.role || '-'}</p>
-                    <p><strong>Year/Sem:</strong> {selected.personalInfo ? `${selected.personalInfo.year || '-'} / ${selected.personalInfo.semester || '-'}` : selected.year_semester || '-'}</p>
-                  </div>
-                  <div className="p-4 border rounded">
-                    <h4 className="font-semibold mb-2">Project Details</h4>
-                    <p><strong>Title:</strong> {selected.projectDetails?.title || selected.project_title || '-'}</p>
-                    <p className="break-words"><strong>Description:</strong> {selected.projectDetails?.description || selected.project_description || '-'}</p>
-                    <p><strong>Website:</strong> {selected.projectDetails?.websiteUrl || selected.website_url || '-'}</p>
-                    <p><strong>GitHub Repo:</strong> {selected.projectDetails?.githubRepo || selected.github_repo || '-'}</p>
-                    {(selected.driveLink || (selected as any).drive_link) && (
-                      <p><strong>Drive Link:</strong> <a href={selected.driveLink || (selected as any).drive_link} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">{selected.driveLink || (selected as any).drive_link}</a></p>
-                    )}
-                    {(selected.essayText || (selected as any).essay_text) && (
-                      <p className="mt-2 whitespace-pre-wrap break-words"><strong>Essay / Strategy:</strong><br/>{selected.essayText || (selected as any).essay_text}</p>
-                    )}
-                  </div>
-
-                  <div className="p-4 border rounded md:col-span-2">
-                    <h4 className="font-semibold mb-2">MCQ Score / Answers</h4>
-                    <div className="mb-2 text-sm">
-                      <strong>Total:</strong> {selected.mcqScore?.totalQuestions ?? selected.mcq_score?.totalQuestions ?? (selected.mcq_answers ? selected.mcq_answers.length : '-')}
-                      <span className="ml-4"><strong>Correct:</strong> {selected.mcqScore?.correctAnswers ?? selected.mcq_score?.correctAnswers ?? '-'}</span>
-                      <span className="ml-4"><strong>Percent:</strong> {selected.mcqScore?.percentage ?? selected.mcq_score?.percentage ?? '-'}%</span>
+                <>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {/* Personal Info */}
+                    <div className="space-y-3">
+                      <h4 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Candidate Profile</h4>
+                      <div className="bg-muted/30 p-4 rounded-lg space-y-2 border">
+                        <div className="flex justify-between items-center pb-2 border-b">
+                          <span className="font-medium text-lg truncate pr-2">{selected.personalInfo?.fullName || selected.full_name || '-'}</span>
+                          <Badge variant="secondary" className="whitespace-nowrap">{selected.personalInfo?.role || selected.role || '-'}</Badge>
+                        </div>
+                        <div className="grid grid-cols-3 gap-2 text-sm pt-2">
+                          <span className="text-muted-foreground">Email</span>
+                          <span className="col-span-2 font-medium break-words">{selected.personalInfo?.email || selected.email || '-'}</span>
+                          
+                          <span className="text-muted-foreground">Phone</span>
+                          <span className="col-span-2 font-medium">{selected.personalInfo?.phone || selected.phone || '-'}</span>
+                          
+                          <span className="text-muted-foreground">College</span>
+                          <span className="col-span-2 font-medium">{selected.personalInfo?.collegeName || selected.college_name || '-'}</span>
+                        </div>
+                      </div>
                     </div>
-                    <div className="max-h-40 overflow-y-auto">
-                      <table className="w-full text-sm">
-                        <thead>
-                          <tr className="text-left text-xs text-muted-foreground">
-                            <th className="pb-1">#</th>
-                            <th className="pb-1">Question ID</th>
-                            <th className="pb-1">Selected</th>
-                            <th className="pb-1">Correct</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {(selected.mcqAnswers || selected.mcq_answers || []).map((a: any, i: number) => (
-                            <tr key={i} className="border-t">
-                              <td className="py-1 align-top">{i + 1}</td>
-                              <td className="py-1 align-top break-words text-xs">{a.questionId}</td>
-                              <td className="py-1 align-top">{typeof a.selectedAnswer === 'number' ? `Option ${a.selectedAnswer}` : String(a.selectedAnswer)}</td>
-                              <td className="py-1 align-top">{a.isCorrect ? '✅' : '❌'}</td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
+
+                    {/* Score Info */}
+                    <div className="space-y-3">
+                      <h4 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Assessment Score</h4>
+                      <div className="bg-muted/30 p-4 rounded-lg border flex flex-col items-center justify-center h-[142px]">
+                        <div className="text-4xl font-bold text-primary mb-2">
+                          {selected.mcqScore?.percentage ?? selected.mcq_score?.percentage ?? '-'}%
+                        </div>
+                        <div className="text-sm text-muted-foreground">
+                          {selected.mcqScore?.correctAnswers ?? selected.mcq_score?.correctAnswers ?? '-'} correct out of {selected.mcqScore?.totalQuestions ?? selected.mcq_score?.totalQuestions ?? (selected.mcq_answers ? selected.mcq_answers.length : '-')} questions
+                        </div>
+                      </div>
                     </div>
                   </div>
 
-                  <div className="p-4 border rounded md:col-span-2">
-                    <h4 className="font-semibold mb-2">Raw Submission JSON</h4>
-                    <pre className="text-xs whitespace-pre-wrap overflow-x-auto bg-muted p-2 rounded">{JSON.stringify(selected, null, 2)}</pre>
+                  {/* Project & Essay */}
+                  <div className="space-y-3">
+                    <h4 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Project & Strategy</h4>
+                    <div className="bg-muted/30 p-4 rounded-lg space-y-4 border">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                          <p className="text-sm text-muted-foreground mb-1">Project Title</p>
+                          <p className="font-medium">{selected.projectDetails?.title || selected.project_title || 'N/A'}</p>
+                        </div>
+                        <div>
+                          <p className="text-sm text-muted-foreground mb-1">Important Links</p>
+                          <div className="flex flex-col gap-1 text-sm">
+                            {(selected.projectDetails?.websiteUrl || selected.website_url) ? (
+                              <a href={selected.projectDetails?.websiteUrl || selected.website_url} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline truncate">🔗 Live Website</a>
+                            ) : <span className="text-muted-foreground">No website provided</span>}
+                            
+                            {(selected.projectDetails?.githubRepo || selected.github_repo) ? (
+                              <a href={selected.projectDetails?.githubRepo || selected.github_repo} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline truncate">🔗 GitHub Repo</a>
+                            ) : null}
+
+                            {(selected.driveLink || (selected as any).drive_link) ? (
+                              <a href={selected.driveLink || (selected as any).drive_link} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline truncate">🔗 Drive Link</a>
+                            ) : null}
+                          </div>
+                        </div>
+                      </div>
+                      
+                      {(selected.projectDetails?.description || selected.project_description) && (
+                        <div>
+                          <p className="text-sm text-muted-foreground mb-1">Project Description</p>
+                          <p className="text-sm bg-background p-3 rounded border whitespace-pre-wrap">
+                            {selected.projectDetails?.description || selected.project_description}
+                          </p>
+                        </div>
+                      )}
+
+                      {(selected.essayText || (selected as any).essay_text) && (
+                        <div>
+                          <p className="text-sm text-muted-foreground mb-1">Essay / Strategy</p>
+                          <p className="text-sm bg-background p-3 rounded border whitespace-pre-wrap">
+                            {selected.essayText || (selected as any).essay_text}
+                          </p>
+                        </div>
+                      )}
+                    </div>
                   </div>
-                </div>
+                </>
               ) : (
-                <div>No submission selected.</div>
+                <div className="py-8 text-center text-muted-foreground">No submission selected.</div>
               )}
             </div>
           </DialogContent>
