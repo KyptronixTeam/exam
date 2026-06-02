@@ -9,6 +9,7 @@ const { runValidation } = require('../middleware/validation');
 // Profile routes
 router.get('/me', authenticate, userController.getProfile);
 router.put('/me', authenticate, userController.updateProfile);
+router.put('/me/security', authenticate, userController.updateSecurity);
 
 // Admin user management
 const createUserValidators = [

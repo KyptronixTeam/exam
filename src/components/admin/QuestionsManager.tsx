@@ -35,6 +35,7 @@ export const QuestionsManager = () => {
   const [isActive, setIsActive] = useState(true);
   const [loading, setLoading] = useState(false);
   const [csvFile, setCsvFile] = useState<File | null>(null);
+  const [showQuestions, setShowQuestions] = useState(false);
 
   useEffect(() => {
     // Load categories from predefined enum since RPC may not be available
@@ -398,204 +399,222 @@ export const QuestionsManager = () => {
   };
 
   return (
-    <div className="grid gap-6 lg:grid-cols-3">
-      <Card>
-        <CardHeader>
-          <CardTitle>Add New Question</CardTitle>
-          <CardDescription>Create assessment questions for different subjects</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleAddQuestion} className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="category">Category</Label>
-              <Select value={category} onValueChange={setCategory} required>
-                <SelectTrigger>
-                <SelectValue placeholder="Select category" />
-              </SelectTrigger>
-              <SelectContent>
-                {MCQ_CATEGORY_OPTIONS.map((categoryOption) => (
-                  <SelectItem key={categoryOption} value={categoryOption}>
-                    {categoryOption}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            </div>
+    <div className="space-y-6">
+      <div className="flex justify-end">
+        <Button
+          variant={showQuestions ? "secondary" : "default"}
+          onClick={() => setShowQuestions(!showQuestions)}
+          className="shadow-sm"
+        >
+          {showQuestions ? "Hide Questions" : "View Existing Questions"}
+        </Button>
+      </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="question">Question</Label>
-              <Textarea
-                id="question"
-                placeholder="Enter your question"
-                value={question}
-                onChange={(e) => setQuestion(e.target.value)}
-                required
-              />
-            </div>
+      <div className={showQuestions ? "grid gap-6 lg:grid-cols-3 xl:grid-cols-4" : "flex flex-col items-center"}>
+        <div className={`space-y-6 w-full ${showQuestions ? "lg:col-span-1 xl:col-span-1" : "max-w-2xl"}`}>
+          <Card>
+            <CardHeader>
+              <CardTitle>Add New Question</CardTitle>
+              <CardDescription>Create assessment questions for different subjects</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <form onSubmit={handleAddQuestion} className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="category">Category</Label>
+                  <Select value={category} onValueChange={setCategory} required>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select category" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {MCQ_CATEGORY_OPTIONS.map((categoryOption) => (
+                        <SelectItem key={categoryOption} value={categoryOption}>
+                          {categoryOption}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
 
-            <div className="space-y-2">
-              <Label>Options</Label>
-              {options.map((option, index) => (
-                <Input
-                  key={index}
-                  placeholder={`Option ${index + 1}`}
-                  value={option}
-                  onChange={(e) => {
-                    const newOptions = [...options];
-                    newOptions[index] = e.target.value;
-                    setOptions(newOptions);
-                  }}
-                  required
-                />
-              ))}
-            </div>
+                <div className="space-y-2">
+                  <Label htmlFor="question">Question</Label>
+                  <Textarea
+                    id="question"
+                    placeholder="Enter your question"
+                    value={question}
+                    onChange={(e) => setQuestion(e.target.value)}
+                    required
+                  />
+                </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="correct">Correct Answer</Label>
-              <Select value={correctAnswer} onValueChange={setCorrectAnswer} required>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select correct answer" />
-                </SelectTrigger>
-                <SelectContent>
-                  {options
-                    .filter((option) => option.trim() !== "")
-                    .map((option, index) => (
-                      <SelectItem key={index} value={option}>
-                        {option}
-                      </SelectItem>
-                    ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="difficulty">Difficulty</Label>
-              <Select value={difficulty} onValueChange={setDifficulty}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select difficulty" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="easy">Easy</SelectItem>
-                  <SelectItem value="medium">Medium</SelectItem>
-                  <SelectItem value="hard">Hard</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="flex items-center space-x-2">
-              <input
-                type="checkbox"
-                id="isActive"
-                checked={isActive}
-                onChange={(e) => setIsActive(e.target.checked)}
-              />
-              <Label htmlFor="isActive">Active</Label>
-            </div>
-
-            <Button type="submit" className="w-full" disabled={loading}>
-              <Plus className="mr-2 h-4 w-4" />
-              Add Question
-            </Button>
-          </form>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Bulk Upload CSV</CardTitle>
-          <CardDescription>Upload multiple questions from a CSV file</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="csv">CSV File</Label>
-              <Input
-                id="csv"
-                type="file"
-                accept=".csv"
-                onChange={(e) => setCsvFile(e.target.files?.[0] || null)}
-              />
-              <p className="text-xs text-muted-foreground">
-                CSV format: subject,question,option1,option2,option3,option4,correct_answer (0-3)
-              </p>
-            </div>
-            <Button
-              onClick={handleCsvUpload}
-              className="w-full"
-              disabled={loading || !csvFile}
-            >
-              Upload CSV
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <div className="w-full flex items-center justify-between gap-4">
-            <div>
-              <CardTitle>Existing Questions</CardTitle>
-              <CardDescription>Total: {questions.length} questions</CardDescription>
-            </div>
-            <div className="flex items-center gap-2">
-              <Label htmlFor="categoryFilter" className="text-sm">Filter</Label>
-              <Select value={selectedCategory} onValueChange={(v) => { setSelectedCategory(v); fetchQuestions(v); }}>
-                <SelectTrigger>
-                  <SelectValue placeholder="All categories" />
-                </SelectTrigger>
-                <SelectContent>
-                  {categories.map((c) => (
-                    <SelectItem key={c} value={c}>{c}</SelectItem>
+                <div className="space-y-2">
+                  <Label>Options</Label>
+                  {options.map((option, index) => (
+                    <Input
+                      key={index}
+                      placeholder={`Option ${index + 1}`}
+                      value={option}
+                      onChange={(e) => {
+                        const newOptions = [...options];
+                        newOptions[index] = e.target.value;
+                        setOptions(newOptions);
+                      }}
+                      required
+                    />
                   ))}
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4 max-h-[600px] overflow-y-auto">
-            {questions.map((q) => (
-              <Card key={q.id}>
-                <CardContent className="pt-6">
-                  <div className="space-y-2">
-                    <div className="flex justify-between items-start">
-                      <div className="flex-1">
-                        <p className="font-semibold text-sm text-muted-foreground">{q.category}</p>
-                        <p className="font-medium mt-1">{q.question}</p>
-                        <div className="text-xs text-muted-foreground mt-1">
-                          Difficulty: {q.difficulty || 'medium'}
-                        </div>
-                      </div>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => handleDeleteQuestion(q.id)}
-                      >
-                        <Trash2 className="h-4 w-4 text-destructive" />
-                      </Button>
-                    </div>
-                    <div className="space-y-1 text-sm">
-                      {q.options.map((opt, idx) => {
-                        const correctIndex = q.correctAnswer ?? q.correct_answer;
-                        const isCorrect = Number(correctIndex) === idx;
-                        return (
-                          <p
-                            key={idx}
-                            className={isCorrect ? "text-green-600 font-medium" : ""}
-                          >
-                            {idx + 1}. {opt}
-                            {isCorrect && " ✓"}
-                          </p>
-                        );
-                      })}
-                    </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="correct">Correct Answer</Label>
+                  <Select value={correctAnswer} onValueChange={setCorrectAnswer} required>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select correct answer" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {options
+                        .filter((option) => option.trim() !== "")
+                        .map((option, index) => (
+                          <SelectItem key={index} value={option}>
+                            {option}
+                          </SelectItem>
+                        ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="difficulty">Difficulty</Label>
+                  <Select value={difficulty} onValueChange={setDifficulty}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select difficulty" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="easy">Easy</SelectItem>
+                      <SelectItem value="medium">Medium</SelectItem>
+                      <SelectItem value="hard">Hard</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="flex items-center space-x-2">
+                  <input
+                    type="checkbox"
+                    id="isActive"
+                    checked={isActive}
+                    onChange={(e) => setIsActive(e.target.checked)}
+                  />
+                  <Label htmlFor="isActive">Active</Label>
+                </div>
+
+                <Button type="submit" className="w-full" disabled={loading}>
+                  <Plus className="mr-2 h-4 w-4" />
+                  Add Question
+                </Button>
+              </form>
+            </CardContent>
+          </Card>
+
+          <Card className="border-primary/20 shadow-sm">
+            <CardHeader>
+              <CardTitle>Bulk Upload CSV</CardTitle>
+              <CardDescription>Upload multiple questions from a CSV file</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="csv">CSV File</Label>
+                  <Input
+                    id="csv"
+                    type="file"
+                    accept=".csv"
+                    onChange={(e) => setCsvFile(e.target.files?.[0] || null)}
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    CSV format: subject,question,option1,option2,option3,option4,correct_answer (0-3)
+                  </p>
+                </div>
+                <Button
+                  onClick={handleCsvUpload}
+                  className="w-full"
+                  disabled={loading || !csvFile}
+                >
+                  Upload CSV
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {showQuestions && (
+          <div className="lg:col-span-2 xl:col-span-3">
+            <Card className="h-full flex flex-col border-primary/20 shadow-md">
+              <CardHeader>
+                <div className="w-full flex items-center justify-between gap-4">
+                  <div>
+                    <CardTitle>Existing Questions</CardTitle>
+                    <CardDescription>Total: {questions.length} questions</CardDescription>
                   </div>
-                </CardContent>
-              </Card>
-            ))}
+                  <div className="flex items-center gap-2">
+                    <Label htmlFor="categoryFilter" className="text-sm">Filter</Label>
+                    <Select value={selectedCategory} onValueChange={(v) => { setSelectedCategory(v); fetchQuestions(v); }}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="All categories" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {categories.map((c) => (
+                          <SelectItem key={c} value={c}>{c}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent className="flex-1 overflow-hidden p-0">
+                <div className="space-y-4 max-h-[calc(100vh-250px)] overflow-y-auto p-6 pt-0">
+                  {questions.map((q) => (
+                    <Card key={q.id}>
+                      <CardContent className="pt-6">
+                        <div className="space-y-2">
+                          <div className="flex justify-between items-start">
+                            <div className="flex-1">
+                              <p className="font-semibold text-sm text-muted-foreground">{q.category}</p>
+                              <p className="font-medium mt-1">{q.question}</p>
+                              <div className="text-xs text-muted-foreground mt-1">
+                                Difficulty: {q.difficulty || 'medium'}
+                              </div>
+                            </div>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => handleDeleteQuestion(q.id)}
+                            >
+                              <Trash2 className="h-4 w-4 text-destructive" />
+                            </Button>
+                          </div>
+                          <div className="space-y-1 text-sm">
+                            {q.options.map((opt, idx) => {
+                              const correctIndex = q.correctAnswer ?? q.correct_answer;
+                              const isCorrect = Number(correctIndex) === idx;
+                              return (
+                                <p
+                                  key={idx}
+                                  className={isCorrect ? "text-green-600 font-medium" : ""}
+                                >
+                                  {idx + 1}. {opt}
+                                  {isCorrect && " ✓"}
+                                </p>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
           </div>
-        </CardContent>
-      </Card>
+        )}
+      </div>
     </div>
   );
 };

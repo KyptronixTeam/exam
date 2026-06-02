@@ -79,6 +79,9 @@ const listSubmissions = async (req, res) => {
     if (req.query.userId) filter.userId = req.query.userId;
     if (req.query.role) filter.role = req.query.role;
     if (req.query.shortlisted !== undefined) filter.shortlisted = req.query.shortlisted;
+    if (req.query.startDate) filter.startDate = req.query.startDate;
+    if (req.query.endDate) filter.endDate = req.query.endDate;
+    if (req.query.college) filter.college = req.query.college;
     const actor = { id: req.user.id, roles: req.user.roles };
     const result = await submissionService.listSubmissions({ page, limit, filter, actor });
     res.json({ success: true, data: result });

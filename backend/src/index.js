@@ -17,7 +17,9 @@ const allowedOrigins = [
   'http://exam.kyptronix.us',
   'https://www.exam.kyptronix.us',
   'http://localhost:5173', // For local development
-  'http://localhost:3000'
+  'http://localhost:3000',
+  'http://localhost:5112',
+  'http://localhost:8080'
 ];
 
 // Configure CORS to allow specific origins

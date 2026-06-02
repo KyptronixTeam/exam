@@ -85,13 +85,29 @@ const listSubmissions = async ({ page = 1, limit = 50, filter = {}, actor = {} }
     // non-admins only see their own
     query.userId = mongoose.Types.ObjectId(actor.id);
   }
-  // apply filters (status, date range, userId, role, shortlisted)
+  // apply filters (status, userId, role, shortlisted)
   if (filter.status) query.status = filter.status;
   if (filter.userId && (actor.roles || []).includes('admin')) query.userId = mongoose.Types.ObjectId(filter.userId);
   if (filter.role) query['personalInfo.role'] = filter.role;
   if (filter.shortlisted !== undefined) {
     query.shortlisted = filter.shortlisted === 'true' || filter.shortlisted === true;
   }
+  // College filter — case-insensitive partial match
+  if (filter.college) {
+    query['personalInfo.collegeName'] = { $regex: filter.college, $options: 'i' };
+  }
+  // Date range filter — all docs have createdAt from timestamps: true
+  if (filter.startDate || filter.endDate) {
+    query.createdAt = {};
+    if (filter.startDate) {
+      query.createdAt.$gte = new Date(filter.startDate + 'T00:00:00.000Z');
+    }
+    if (filter.endDate) {
+      query.createdAt.$lte = new Date(filter.endDate + 'T23:59:59.999Z');
+    }
+  }
+
+  logger.info('listSubmissions query', { filter, query: JSON.stringify(query) });
 
   const skip = (page - 1) * limit;
   const [items, total] = await Promise.all([

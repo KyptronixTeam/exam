@@ -1,5 +1,7 @@
 const userService = require('../services/user.service');
 const { logger } = require('../utils/logger');
+const { hashPassword, comparePassword } = require('../services/password.service');
+const { User } = require('../models');
 
 const getProfile = async (req, res) => {
   try {
@@ -66,4 +68,39 @@ const assignRole = async (req, res) => {
   }
 };
 
-module.exports = { getProfile, updateProfile, listUsers, createUser, assignRole };
+const updateSecurity = async (req, res) => {
+  try {
+    const id = req.user && req.user.id;
+    const { email, newPassword } = req.body;
+    
+    if (!email && !newPassword) {
+      return res.status(400).json({ success: false, error: { code: 'INVALID_INPUT', message: 'Email or new password is required' } });
+    }
+
+    const user = await User.findById(id);
+    if (!user) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'User not found' } });
+
+    if (email) {
+      // Check if email is already taken by another user
+      const existingUser = await User.findOne({ email });
+      if (existingUser && existingUser._id.toString() !== id.toString()) {
+        return res.status(409).json({ success: false, error: { code: 'EMAIL_IN_USE', message: 'Email is already in use' } });
+      }
+      user.email = email;
+    }
+
+    if (newPassword) {
+      const hashed = await hashPassword(newPassword);
+      user.password = hashed;
+    }
+
+    await user.save();
+
+    res.json({ success: true, data: { message: 'Security settings updated successfully' } });
+  } catch (err) {
+    logger.error('Update security error', err);
+    res.status(500).json({ success: false, error: { code: 'SERVER_ERROR', message: 'Failed to update security settings' } });
+  }
+};
+
+module.exports = { getProfile, updateProfile, listUsers, createUser, assignRole, updateSecurity };

@@ -5,6 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
+import { Settings } from "lucide-react";
 
 export const SettingsManager = () => {
   const { toast } = useToast();
@@ -50,9 +51,12 @@ export const SettingsManager = () => {
   };
 
   return (
-    <Card>
+    <Card className="border-primary/20 shadow-sm max-w-2xl">
       <CardHeader>
-        <CardTitle>Settings</CardTitle>
+        <CardTitle className="flex items-center gap-2">
+          <Settings className="h-5 w-5 text-primary" />
+          Settings
+        </CardTitle>
         <CardDescription>Adjust application settings (admin only)</CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
