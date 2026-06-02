@@ -18,7 +18,10 @@ const allowedOrigins = [
   'https://www.exam.kyptronix.us',
   'http://localhost:5173', // For local development
   'http://localhost:3000',
+<<<<<<< HEAD
   'http://localhost:5112',
+=======
+>>>>>>> 310c28f700dc528a442ccfa605faee440a7a14c1
   'http://localhost:8080'
 ];
 

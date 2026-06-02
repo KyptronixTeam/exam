@@ -7,6 +7,7 @@ import { ProjectDetailsStep } from "./form-steps/ProjectDetailsStep";
 import { MCQStep } from "./form-steps/MCQStep";
 import { ReviewStep } from "./form-steps/ReviewStep";
 import { ContentCreatorStep } from "./form-steps/ContentCreatorStep";
+import { GraphicDesignerStep } from "./form-steps/GraphicDesignerStep";
 import { SuccessModal } from "./SuccessModal";
 import { FailureModal } from "./FailureModal";
 import { SubmitConfirmModal } from "./SubmitConfirmModal";
@@ -40,6 +41,10 @@ interface FormData {
   essayText?: string;
   // Drive Link for Content Creator
   driveLink?: string;
+  // Graphic Designer links
+  graphicDesignLink1?: string;
+  graphicDesignLink2?: string;
+  graphicDesignLink3?: string;
   // Tab Switch Count
   tabSwitchCount?: number;
 }
@@ -118,6 +123,9 @@ export const SubmissionForm = ({ onBack }: SubmissionFormProps) => {
           assessmentScore: savedData.assessmentScore ?? prev.assessmentScore,
           essayText: savedData.essayText || prev.essayText,
           driveLink: savedData.driveLink || prev.driveLink,
+          graphicDesignLink1: savedData.graphicDesignLink1 || prev.graphicDesignLink1,
+          graphicDesignLink2: savedData.graphicDesignLink2 || prev.graphicDesignLink2,
+          graphicDesignLink3: savedData.graphicDesignLink3 || prev.graphicDesignLink3,
         }));
         setCurrentStep(localSession.currentStep || 1);
         setSessionStarted(true);
@@ -265,6 +273,9 @@ export const SubmissionForm = ({ onBack }: SubmissionFormProps) => {
           semester: formData.semester,
           essayText: formData.essayText,
           driveLink: formData.driveLink,
+          graphicDesignLink1: formData.graphicDesignLink1,
+          graphicDesignLink2: formData.graphicDesignLink2,
+          graphicDesignLink3: formData.graphicDesignLink3,
           tabSwitchCount: formData.tabSwitchCount,
           projectTitle: formData.projectTitle,
           projectDescription: formData.projectDescription,
@@ -283,7 +294,7 @@ export const SubmissionForm = ({ onBack }: SubmissionFormProps) => {
       clearLocalSession();
 
       // Use the stored assessmentPassed for determining success/failure
-      if (['SMO', 'Content Creator'].includes(formData.role)) {
+      if (['SMO', 'Content Creator', 'Graphic Designer'].includes(formData.role)) {
           setShowPendingReview(true);
       } else if (isPassing) {
         // Automatically close and go home since they already saw the MCQ modal
@@ -371,7 +382,16 @@ export const SubmissionForm = ({ onBack }: SubmissionFormProps) => {
             isSubmitting={isSubmitting}
           />
         )}
-        {currentStep === 2 && formData.role !== "Content Creator" && (
+        {currentStep === 2 && formData.role === "Graphic Designer" && (
+          <GraphicDesignerStep
+            formData={formData}
+            updateFormData={updateFormData}
+            onSubmit={nextStep}
+            onBack={prevStep}
+            isSubmitting={isSubmitting}
+          />
+        )}
+        {currentStep === 2 && formData.role !== "Content Creator" && formData.role !== "Graphic Designer" && (
           <MCQStep
             formData={formData}
             updateFormData={updateFormData}
