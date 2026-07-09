@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { supabase } from "@/integrations/supabase/client";
+import { adminApi } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
 import { Users, ClipboardList, HelpCircle, Loader2 } from "lucide-react";
 import { 
@@ -21,8 +21,7 @@ export const DashboardManager = () => {
   const fetchStats = async () => {
     try {
       setLoading(true);
-      const { data, error } = await supabase.rpc('get_statistics');
-      if (error) throw error;
+      const data = await adminApi.statistics();
       setStats(data);
     } catch (error: any) {
       console.error("Error fetching stats:", error);

@@ -1,6 +1,43 @@
 const { ExamSession, Submission } = require('../models');
 const { logger } = require('../utils/logger');
 const mongoose = require('mongoose');
+const mcqService = require('./mcq.service');
+
+/**
+ * Re-validate MCQ answers on the server so stored submissions always carry
+ * an authoritative score and per-question isCorrect flags, regardless of
+ * what the client managed to send.
+ * @param {Array} mcqAnswers [{ questionId, selectedAnswer }]
+ * @returns {{ mcqAnswers: Array, mcqScore: Object } | null} null if validation not possible
+ */
+const gradeAnswersServerSide = async (mcqAnswers) => {
+    if (!Array.isArray(mcqAnswers) || mcqAnswers.length === 0) return null;
+    try {
+        const result = await mcqService.validateAnswers(
+            mcqAnswers.map(a => ({ questionId: a.questionId, selectedAnswer: a.selectedAnswer }))
+        );
+        const detailMap = new Map((result.details || []).map(d => [String(d.questionId), d]));
+        const graded = mcqAnswers.map(a => {
+            const d = detailMap.get(String(a.questionId));
+            return {
+                questionId: a.questionId,
+                selectedAnswer: a.selectedAnswer,
+                isCorrect: d ? !!d.isCorrect : null
+            };
+        });
+        return {
+            mcqAnswers: graded,
+            mcqScore: {
+                totalQuestions: result.totalQuestions,
+                correctAnswers: result.correctCount,
+                percentage: result.percentage
+            }
+        };
+    } catch (err) {
+        logger.warn('Server-side answer grading failed, falling back to client score', { error: err.message });
+        return null;
+    }
+};
 
 /**
  * Start or resume an exam session
@@ -101,29 +138,47 @@ const submitExam = async (sessionId, finalFormData, mcqAnswersForDb, mcqScore) =
         logger.warn('Failed to fetch passing percentage from settings, using default', { error: err.message });
     }
 
+    // Grade answers on the server: authoritative score + isCorrect per answer.
+    // Falls back to the client-provided score only if grading is impossible.
+    const graded = await gradeAnswersServerSide(mcqAnswersForDb);
+    const finalScore = graded ? graded.mcqScore : mcqScore;
+    const finalAnswers = graded ? graded.mcqAnswers : (mcqAnswersForDb || []);
+
     const role = (finalFormData.role || session.formData.role || '').toUpperCase();
-    const isAutoGraded = ['HR', 'SEO'].includes(role);
-    
+    // Roles whose MCQ decides pass/fail automatically. SMO passes/fails on the
+    // MCQ too, but its essay still goes to manual review below.
+    const isAutoGraded = ['HR', 'SEO', 'SMO', 'FULL STACK DEVELOPER'].includes(role);
+    // Roles whose submission needs a human review even after passing
+    const needsManualReview = ['SMO', 'CONTENT CREATOR', 'GRAPHIC DESIGNER'].includes(role);
+
     let isPassing = false;
     let reviewStatus = 'pending_review';
     let submissionStatus = 'under_review';
 
     if (isAutoGraded) {
-        isPassing = mcqScore.percentage >= passingPercentage;
-        reviewStatus = isPassing ? 'auto_passed' : 'auto_failed';
-        submissionStatus = isPassing ? 'submitted' : 'rejected';
+        isPassing = finalScore.percentage >= passingPercentage;
+        if (!isPassing) {
+            reviewStatus = 'auto_failed';
+            submissionStatus = 'rejected';
+        } else if (needsManualReview) {
+            reviewStatus = 'pending_review';
+            submissionStatus = 'under_review';
+        } else {
+            reviewStatus = 'auto_passed';
+            submissionStatus = 'submitted';
+        }
     } else {
-        // SMO, Content Creator, etc. go to manual review
+        // Content Creator, Graphic Designer, etc. go to manual review
         isPassing = true; // Always save the submission for review
         reviewStatus = 'pending_review';
         submissionStatus = 'under_review';
     }
 
-    logger.info('Evaluating pass/fail', { role, percentage: mcqScore.percentage, passingPercentage, isPassing, isAutoGraded });
+    logger.info('Evaluating pass/fail', { role, percentage: finalScore.percentage, passingPercentage, isPassing, isAutoGraded, serverGraded: !!graded });
 
     // Update session with final data
     session.formData = { ...session.formData.toObject(), ...finalFormData };
-    session.mcqScore = mcqScore;
+    session.mcqScore = finalScore;
     session.status = isPassing ? 'passed' : 'failed';
     session.completedAt = new Date();
 
@@ -146,9 +201,13 @@ const submitExam = async (sessionId, finalFormData, mcqAnswersForDb, mcqScore) =
         },
         essayText: session.formData.essayText,
         driveLink: session.formData.driveLink,
+        graphicDesignLink1: session.formData.graphicDesignLink1,
+        graphicDesignLink2: session.formData.graphicDesignLink2,
+        graphicDesignLink3: session.formData.graphicDesignLink3,
+        questionSet: session.formData.questionSet || 1,
         tabSwitchCount: session.formData.tabSwitchCount || 0,
-        mcqAnswers: mcqAnswersForDb,
-        mcqScore: mcqScore,
+        mcqAnswers: finalAnswers,
+        mcqScore: finalScore,
         status: submissionStatus,
         reviewStatus: reviewStatus,
         submittedAt: new Date()
@@ -161,7 +220,7 @@ const submitExam = async (sessionId, finalFormData, mcqAnswersForDb, mcqScore) =
     logger.info('Submission created', {
         sessionId,
         submissionId: submission._id,
-        score: mcqScore.percentage,
+        score: finalScore.percentage,
         role,
         reviewStatus,
         isPassing
@@ -173,7 +232,7 @@ const submitExam = async (sessionId, finalFormData, mcqAnswersForDb, mcqScore) =
         session,
         isPassing,
         submissionId: session.submissionId || null,
-        score: mcqScore
+        score: finalScore
     };
 };
 
@@ -218,11 +277,23 @@ const markAssessmentFailed = async (sessionId, mcqScore) => {
         return { session, alreadyCompleted: true };
     }
 
+    // Rebuild answers from the session and grade them server-side so failed
+    // attempts are stored with full per-question results too.
+    const rawAnswers = session.formData.mcqAnswers
+        ? Object.entries(session.formData.mcqAnswers).map(([q, a]) => ({
+            questionId: q,
+            selectedAnswer: a === '__SKIPPED__' ? null : a
+        }))
+        : [];
+    const graded = await gradeAnswersServerSide(rawAnswers);
+    const finalScore = graded ? graded.mcqScore : mcqScore;
+    const finalAnswers = graded ? graded.mcqAnswers : rawAnswers;
+
     // Mark as failed
     session.status = 'failed';
-    session.mcqScore = mcqScore;
+    session.mcqScore = finalScore;
     session.completedAt = new Date();
-    
+
     // Create Submission record for the failed assessment
     const submissionPayload = {
         personalInfo: {
@@ -243,9 +314,13 @@ const markAssessmentFailed = async (sessionId, mcqScore) => {
         },
         essayText: session.formData.essayText,
         driveLink: session.formData.driveLink,
+        graphicDesignLink1: session.formData.graphicDesignLink1,
+        graphicDesignLink2: session.formData.graphicDesignLink2,
+        graphicDesignLink3: session.formData.graphicDesignLink3,
+        questionSet: session.formData.questionSet || 1,
         tabSwitchCount: session.formData.tabSwitchCount || 0,
-        mcqAnswers: session.formData.mcqAnswers ? Object.entries(session.formData.mcqAnswers).map(([q, a]) => ({ questionId: q, selectedAnswer: a })) : [],
-        mcqScore: mcqScore,
+        mcqAnswers: finalAnswers,
+        mcqScore: finalScore,
         status: 'rejected',
         reviewStatus: 'auto_failed',
         submittedAt: new Date()
@@ -260,7 +335,7 @@ const markAssessmentFailed = async (sessionId, mcqScore) => {
     logger.info('Assessment failed - session and submission marked as failed', {
         sessionId,
         submissionId: submission._id,
-        score: mcqScore.percentage
+        score: finalScore && finalScore.percentage
     });
 
     return { session, alreadyCompleted: false };

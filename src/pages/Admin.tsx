@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
+import { authApi } from "@/lib/api";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { LogOut, Home, ClipboardList, HelpCircle, Database, Settings } from "lucide-react";
@@ -26,28 +26,16 @@ const Admin = () => {
 
   const checkAdminAccess = async () => {
     try {
-      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-      
-      if (sessionError || !session || !session.user) {
-        await supabase.auth.signOut();
-        navigate("/auth");
-        return;
-      }
+      const user = await authApi.getUser();
 
-      // Check if user has admin role
-      // We can also fetch getUser() here to be absolutely sure, but since we just
-      // clear the session on error in Auth and Admin, this is generally sufficient.
-      // However, a token could be expired locally. So let's use getUser():
-      const { data: { user }, error: userError } = await supabase.auth.getUser();
-
-      if (userError || !user) {
-        await supabase.auth.signOut();
+      if (!user) {
+        authApi.signOut();
         navigate("/auth");
         return;
       }
 
       // Check if user has admin role from the fresh user object
-      const userRoles = user.roles || session.user.roles || [];
+      const userRoles = user.roles || [];
       if (!userRoles.includes('admin')) {
         toast({
           title: "Access Denied",
@@ -73,7 +61,7 @@ const Admin = () => {
   };
 
   const handleLogout = async () => {
-    await supabase.auth.signOut();
+    authApi.signOut();
     navigate("/auth");
   };
 

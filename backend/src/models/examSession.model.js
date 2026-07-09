@@ -16,6 +16,16 @@ const formDataSchema = new mongoose.Schema({
   projectDescription: { type: String },
   websiteUrl: { type: String },
   githubRepo: { type: String },
+  // Role-specific submission fields (previously dropped by the strict schema,
+  // which is why SEO/SMO essays & links were missing from stored submissions)
+  essayText: { type: String },
+  driveLink: { type: String },
+  graphicDesignLink1: { type: String },
+  graphicDesignLink2: { type: String },
+  graphicDesignLink3: { type: String },
+  tabSwitchCount: { type: Number, default: 0 },
+  // Chosen question set (1/2/3)
+  questionSet: { type: Number, default: 1 },
   // MCQ Answers - stored as object with questionId -> answer
   mcqAnswers: { type: mongoose.Schema.Types.Mixed, default: {} }
 }, { _id: false });

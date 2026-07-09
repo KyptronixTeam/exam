@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { supabase } from "@/integrations/supabase/client";
+import { mcqApi } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
 import { Database, Loader2, Trash2, FileText } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
@@ -285,11 +285,7 @@ export const DemoDataLoader = () => {
   const loadDemoQuestions = async () => {
     setLoading(true);
     try {
-      const { error } = await supabase
-        .from('mcq_questions')
-        .insert(demoQuestions);
-
-      if (error) throw error;
+      await mcqApi.bulkCreateQuestions(demoQuestions);
 
       toast({
         title: "Success!",
@@ -313,21 +309,11 @@ export const DemoDataLoader = () => {
 
     setClearing(true);
     try {
-      const { error } = await supabase
-        .from('mcq_questions')
-        .delete()
-        .neq('id', '00000000-0000-0000-0000-000000000000'); // Delete all rows
-
-      if (error) throw error;
-
+      // Bulk delete is not exposed via the API. Delete questions individually
+      // from the "MCQ Questions" tab, or clear the collection directly in the DB.
       toast({
-        title: "Success!",
-        description: "All questions have been deleted.",
-      });
-    } catch (error: any) {
-      toast({
-        title: "Error",
-        description: error.message,
+        title: "Not available here",
+        description: "Bulk delete is disabled. Remove questions individually in the MCQ Questions tab.",
         variant: "destructive",
       });
     } finally {
@@ -338,38 +324,9 @@ export const DemoDataLoader = () => {
   const loadDemoSubmissions = async () => {
     setLoadingSubmissions(true);
     try {
-      // Get current user to use as user_id for demo submissions
-      const { data: { user } } = await supabase.auth.getUser();
-      
-      if (!user) {
-        toast({
-          title: "Error",
-          description: "You must be logged in to load demo submissions.",
-          variant: "destructive",
-        });
-        return;
-      }
-
-      // Add user_id to each submission
-      const submissionsWithUserId = demoSubmissions.map(sub => ({
-        ...sub,
-        user_id: user.id
-      }));
-
-      const { error } = await supabase
-        .from('submissions')
-        .insert(submissionsWithUserId);
-
-      if (error) throw error;
-
       toast({
-        title: "Success!",
-        description: `Added ${demoSubmissions.length} demo submissions to the database.`,
-      });
-    } catch (error: any) {
-      toast({
-        title: "Error",
-        description: error.message,
+        title: "Not available",
+        description: "Demo submissions must be created through the exam flow.",
         variant: "destructive",
       });
     } finally {
@@ -384,21 +341,9 @@ export const DemoDataLoader = () => {
 
     setClearingSubmissions(true);
     try {
-      const { error } = await supabase
-        .from('submissions')
-        .delete()
-        .neq('id', '00000000-0000-0000-0000-000000000000'); // Delete all rows
-
-      if (error) throw error;
-
       toast({
-        title: "Success!",
-        description: "All submissions have been deleted.",
-      });
-    } catch (error: any) {
-      toast({
-        title: "Error",
-        description: error.message,
+        title: "Not available here",
+        description: "Bulk delete is disabled. Manage submissions from the Submissions tab.",
         variant: "destructive",
       });
     } finally {

@@ -11,12 +11,16 @@ const mcqQuestionSchema = new mongoose.Schema({
   },
   difficulty: { type: String, enum: ['easy', 'medium', 'hard'], default: 'medium' },
   points: { type: Number, default: 1 },
+  // Question set number (Set 1, Set 2, Set 3, ...) so each role can have
+  // multiple alternative question papers the student picks from.
+  questionSet: { type: Number, default: 1, min: 1 },
   isActive: { type: Boolean, default: true },
   createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }
 }, { timestamps: true });
 
 // Indexes for efficient querying
 mcqQuestionSchema.index({ category: 1 });
+mcqQuestionSchema.index({ category: 1, questionSet: 1 });
 mcqQuestionSchema.index({ difficulty: 1 });
 
 module.exports = mongoose.model('MCQQuestion', mcqQuestionSchema);

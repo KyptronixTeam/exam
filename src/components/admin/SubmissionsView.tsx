@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
+import { submissionsApi, ApiError } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
 import {
   Table,
@@ -68,6 +68,11 @@ interface Submission {
   shortlisted?: boolean;
   essayText?: string;
   driveLink?: string;
+  graphicDesignLink1?: string;
+  graphicDesignLink2?: string;
+  graphicDesignLink3?: string;
+  questionSet?: number;
+  reviewStatus?: string;
 }
 
 export const SubmissionsView = () => {
@@ -111,6 +116,19 @@ export const SubmissionsView = () => {
     return () => observer.disconnect();
   }, [loading, loadingMore, currentPage, totalPages]);
 
+  const handleAuthError = (error: any) => {
+    if (error instanceof ApiError && error.status === 401) {
+      toast({
+        title: "Session Expired",
+        description: "Your session has expired. Please log in again.",
+        variant: "destructive",
+      });
+      navigate("/auth");
+      return true;
+    }
+    return false;
+  };
+
   const fetchSubmissions = async (page = 1) => {
     try {
       const isNewQuery = page === 1;
@@ -119,53 +137,31 @@ export const SubmissionsView = () => {
       } else {
         setLoadingMore(true);
       }
-      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5112';
-      const { data: { session } } = await supabase.auth.getSession();
-      const accessToken = (session as any)?.accessToken || (session as any)?.access_token;
 
-      if (!accessToken) {
-        throw new Error('Admin session not found');
-      }
-
-      let queryParams = `page=${page}&limit=${limit}`;
-      if (selectedRole !== "All") queryParams += `&role=${encodeURIComponent(selectedRole)}`;
-      if (shortlistedFilter !== "all") queryParams += `&shortlisted=${shortlistedFilter === "shortlisted"}`;
-      if (collegeFilter) queryParams += `&college=${encodeURIComponent(collegeFilter)}`;
-      if (startDate) queryParams += `&startDate=${encodeURIComponent(startDate)}`;
-      if (endDate) queryParams += `&endDate=${encodeURIComponent(endDate)}`;
-
-      const response = await fetch(`${apiUrl}/api/submissions?${queryParams}`, {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
+      const result = await submissionsApi.list({
+        page,
+        limit,
+        role: selectedRole !== "All" ? selectedRole : undefined,
+        shortlisted: shortlistedFilter !== "all" ? (shortlistedFilter === "shortlisted") : undefined,
+        college: collegeFilter || undefined,
+        startDate: startDate || undefined,
+        endDate: endDate || undefined,
       });
-      
-      if (response.status === 401) {
-        toast({
-          title: "Session Expired",
-          description: "Your session has expired. Please log in again.",
-          variant: "destructive",
-        });
-        navigate("/auth");
-        return;
-      }
 
-      if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-      
-      const result = await response.json();
-      if (result.success && result.data) {
+      if (result) {
         if (isNewQuery) {
-          setSubmissions(result.data.items || []);
+          setSubmissions(result.items || []);
         } else {
-          setSubmissions(prev => [...prev, ...(result.data.items || [])]);
+          setSubmissions(prev => [...prev, ...(result.items || [])]);
         }
-        setTotalSubmissions(result.data.total || 0);
-        setTotalPages(result.data.pages || 1);
+        setTotalSubmissions(result.total || 0);
+        setTotalPages(result.pages || 1);
       }
     } catch (error: any) {
+      if (handleAuthError(error)) return;
       toast({
         title: "Error",
-        description: "Failed to fetch submissions: " + error.message,
+        description: "Failed to fetch submissions: " + (error?.message || error),
         variant: "destructive",
       });
     } finally {
@@ -174,45 +170,35 @@ export const SubmissionsView = () => {
     }
   };
 
+  // Fetch the full submission (including enriched MCQ answers) when a row is opened.
+  const openSubmission = async (submission: Submission) => {
+    setSelected(submission);
+    setOpen(true);
+    const id = submission._id || submission.id;
+    if (!id) return;
+    try {
+      const full = await submissionsApi.getById(id);
+      if (full) setSelected(prev => (prev && (prev._id === id || prev.id === id) ? { ...prev, ...full } : prev));
+    } catch (error: any) {
+      if (handleAuthError(error)) return;
+      // Non-fatal: keep showing the list-level data we already have
+      console.warn("Failed to load full submission", error);
+    }
+  };
+
   const handleToggleShortlist = async (id: string) => {
     try {
-      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5112';
-      const { data: { session } } = await supabase.auth.getSession();
-      const accessToken = (session as any)?.accessToken || (session as any)?.access_token;
-
-      if (!accessToken) throw new Error('Admin session not found');
-
-      const response = await fetch(`${apiUrl}/api/submissions/${id}/shortlist`, {
-        method: 'PATCH',
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
+      await submissionsApi.toggleShortlist(id);
+      setSubmissions(prev => prev.map(s => (s._id === id || s.id === id) ? { ...s, shortlisted: !s.shortlisted } : s));
+      toast({
+        title: "Success",
+        description: "Shortlist status updated",
       });
-
-      if (response.status === 401) {
-        toast({
-          title: "Session Expired",
-          description: "Your session has expired. Please log in again.",
-          variant: "destructive",
-        });
-        navigate("/auth");
-        return;
-      }
-
-      if (!response.ok) throw new Error('Failed to toggle shortlist');
-
-      const result = await response.json();
-      if (result.success) {
-        setSubmissions(prev => prev.map(s => (s._id === id || s.id === id) ? { ...s, shortlisted: !s.shortlisted } : s));
-        toast({
-          title: "Success",
-          description: "Shortlist status updated",
-        });
-      }
     } catch (error: any) {
+      if (handleAuthError(error)) return;
       toast({
         title: "Error",
-        description: error.message,
+        description: error?.message || String(error),
         variant: "destructive",
       });
     }
@@ -410,7 +396,7 @@ export const SubmissionsView = () => {
                         <Button
                           size="sm"
                           variant="ghost"
-                          onClick={() => { setSelected(submission); setOpen(true); }}
+                          onClick={() => openSubmission(submission)}
                           title="View Details"
                         >
                           View
@@ -493,7 +479,10 @@ export const SubmissionsView = () => {
                           {selected.mcqScore?.percentage ?? selected.mcq_score?.percentage ?? '-'}%
                         </div>
                         <div className="text-sm text-muted-foreground">
-                          {selected.mcqScore?.correctAnswers ?? selected.mcq_score?.correctAnswers ?? '-'} correct out of {selected.mcqScore?.totalQuestions ?? selected.mcq_score?.totalQuestions ?? (selected.mcq_answers ? selected.mcq_answers.length : '-')} questions
+                          {selected.mcqScore?.correctAnswers ?? selected.mcq_score?.correctAnswers ?? '-'} correct out of {selected.mcqScore?.totalQuestions ?? selected.mcq_score?.totalQuestions ?? (selected.mcqAnswers ? selected.mcqAnswers.length : (selected.mcq_answers ? selected.mcq_answers.length : '-'))} questions
+                        </div>
+                        <div className="text-xs text-muted-foreground mt-2">
+                          Question Set: <span className="font-semibold text-foreground">{selected.questionSet ?? 1}</span>
                         </div>
                       </div>
                     </div>
@@ -543,8 +532,49 @@ export const SubmissionsView = () => {
                           </p>
                         </div>
                       )}
+
+                      {(selected.graphicDesignLink1 || selected.graphicDesignLink2 || selected.graphicDesignLink3) && (
+                        <div>
+                          <p className="text-sm text-muted-foreground mb-1">Design Links</p>
+                          <div className="flex flex-col gap-1 text-sm">
+                            {[selected.graphicDesignLink1, selected.graphicDesignLink2, selected.graphicDesignLink3]
+                              .filter(Boolean)
+                              .map((link, i) => (
+                                <a key={i} href={link as string} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline truncate">🔗 Design Link {i + 1}</a>
+                              ))}
+                          </div>
+                        </div>
+                      )}
                     </div>
                   </div>
+
+                  {/* Full MCQ Answers */}
+                  {Array.isArray(selected.mcqAnswers) && selected.mcqAnswers.length > 0 && (
+                    <div className="space-y-3">
+                      <h4 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">
+                        MCQ Answers ({selected.mcqAnswers.filter((a: any) => a.isCorrect).length}/{selected.mcqAnswers.length} correct)
+                      </h4>
+                      <div className="space-y-2 max-h-[320px] overflow-y-auto pr-1">
+                        {selected.mcqAnswers.map((a: any, idx: number) => {
+                          const answered = a.selectedAnswer !== null && a.selectedAnswer !== undefined && a.selectedAnswer !== '__SKIPPED__';
+                          return (
+                            <div key={idx} className={`p-3 rounded border text-sm ${a.isCorrect ? 'bg-green-500/10 border-green-500/30' : 'bg-red-500/10 border-red-500/30'}`}>
+                              <p className="font-medium mb-1">
+                                {idx + 1}. {a.question || <span className="text-muted-foreground italic">Question unavailable</span>}
+                              </p>
+                              <p className={a.isCorrect ? 'text-green-700 dark:text-green-400' : 'text-red-700 dark:text-red-400'}>
+                                {answered ? `Answered: ${a.selectedAnswer}` : 'Skipped / not answered'}
+                                {a.isCorrect ? ' ✓' : ' ✗'}
+                              </p>
+                              {!a.isCorrect && a.correctAnswer && (
+                                <p className="text-muted-foreground mt-0.5">Correct: {a.correctAnswer}</p>
+                              )}
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
                 </>
               ) : (
                 <div className="py-8 text-center text-muted-foreground">No submission selected.</div>

@@ -4,9 +4,9 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { supabase } from "@/integrations/supabase/client";
+import { mcqApi } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, AlertTriangle, Clock, BarChart } from "lucide-react";
+import { Loader2, AlertTriangle, Clock, BarChart, Layers } from "lucide-react";
 import { normalizeMcqRole } from "@/lib/mcqRoles";
 import { SubmitConfirmModal } from "../SubmitConfirmModal";
 import { useExamSecurity } from "@/hooks/useExamSecurity";
@@ -15,7 +15,7 @@ import { Textarea } from "@/components/ui/textarea";
 interface MCQStepProps {
   formData: any;
   updateFormData: (data: any) => void;
-  onNext: () => void;
+  onNext: (override?: Record<string, any>) => void;
   onBack: () => void;
   onFail?: (score: any) => void;
   isSubmitting?: boolean;
@@ -70,6 +70,10 @@ export const MCQStep = ({ formData, updateFormData, onNext, onBack, onFail, isSu
   const [showCorrectAnswers, setShowCorrectAnswers] = useState(false);
   const [passingPercentage, setPassingPercentage] = useState<number | null>(null);
   const [elapsedTime, setElapsedTime] = useState(0);
+  // Question set selection
+  const [availableSets, setAvailableSets] = useState<Array<{ set: number; count: number }>>([]);
+  const [selectedSet, setSelectedSet] = useState<number | null>(formData.questionSet || null);
+  const [loadingSets, setLoadingSets] = useState(true);
 
   useEffect(() => {
     if (loading || checking || showResult || showCorrectAnswers || questions.length === 0) return;
@@ -103,9 +107,7 @@ export const MCQStep = ({ formData, updateFormData, onNext, onBack, onFail, isSu
         selectedAnswer: (answers[q.id] && answers[q.id] !== '__SKIPPED__') ? answers[q.id] : null
       }));
 
-      // Use the supabase shim rpc which forwards to backend and handles auth
-      const rpcRes: any = await supabase.rpc('validate-answers', { answers: answersArray });
-      const data = rpcRes?.data;
+      const data = await mcqApi.validateAnswers(answersArray);
       if (!data) throw new Error('Validation failed');
       console.log('Assessment result:', data);
       setResult(data);
@@ -114,6 +116,7 @@ export const MCQStep = ({ formData, updateFormData, onNext, onBack, onFail, isSu
       updateFormData({
         role: formData.role,
         mcqAnswers: answers,
+        questionSet: selectedSet || 1,
         assessmentScore: data,
         assessmentPassed: data.passed,
         assessmentAttempts: currentAttempt,
@@ -122,8 +125,19 @@ export const MCQStep = ({ formData, updateFormData, onNext, onBack, onFail, isSu
       });
 
       if (formData.role === "SMO") {
-          // SMO goes straight to submission without showing result dialog
-          onNext();
+          // SMO goes straight to submission without showing the result dialog.
+          // Pass the freshly-computed values directly so submitExam doesn't rely
+          // on the not-yet-flushed formData state (previous cause of 0% scores
+          // and lost essays for SMO).
+          onNext({
+            role: formData.role,
+            mcqAnswers: answers,
+            questionSet: selectedSet || 1,
+            assessmentScore: data,
+            assessmentPassed: data.passed,
+            essayText: essayText,
+            tabSwitchCount: violations,
+          });
       } else {
           setResult(data);
           setShowResult(true);
@@ -147,15 +161,14 @@ export const MCQStep = ({ formData, updateFormData, onNext, onBack, onFail, isSu
     let mounted = true;
     const fetchConfig = async () => {
       try {
-        const res: any = await supabase.rpc('mcq_config');
-        const body = res?.data;
+        const body = await mcqApi.getConfig();
         if (body && typeof body.passingPercentage === 'number') {
           if (mounted) setPassingPercentage(body.passingPercentage);
         } else {
           if (mounted) setPassingPercentage(null); // no fallback
         }
       } catch (e) {
-        console.warn('Could not load MCQ config via supabase shim', e);
+        console.warn('Could not load MCQ config', e);
         if (mounted) setPassingPercentage(null); // no fallback
       }
     };
@@ -191,47 +204,60 @@ export const MCQStep = ({ formData, updateFormData, onNext, onBack, onFail, isSu
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Fetch questions on mount and whenever the selected role changes so students
-  // see questions immediately after choosing a role (or on initial load).
+  // Fetch the available question sets whenever the role changes so the student
+  // can choose which set (Set 1 / Set 2 / Set 3) to attempt.
   useEffect(() => {
-    // Only fetch if a role is selected
-    if (formData.role) {
-      fetchQuestions();
-    }
-    // Intentionally ignore exhaustive-deps warning: we want to call the
-    // fetchQuestions declared above whenever `formData.role` changes.
+    let mounted = true;
+    const loadSets = async () => {
+      if (!formData.role) return;
+      setLoadingSets(true);
+      try {
+        const category = normalizeMcqRole(formData.role);
+        const sets = await mcqApi.listSets(category);
+        if (!mounted) return;
+        const valid = (sets || []).filter(s => s.count > 0).sort((a, b) => a.set - b.set);
+        setAvailableSets(valid);
+        // If a set was already chosen (session restore) keep it; if only one set
+        // exists, auto-select it.
+        if (formData.questionSet && valid.some(s => s.set === formData.questionSet)) {
+          setSelectedSet(formData.questionSet);
+        } else if (valid.length === 1) {
+          setSelectedSet(valid[0].set);
+        }
+      } catch (e) {
+        console.warn('Could not load question sets', e);
+        if (mounted) setAvailableSets([]);
+      } finally {
+        if (mounted) setLoadingSets(false);
+      }
+    };
+    loadSets();
+    return () => { mounted = false; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [formData.role]);
 
-  const fetchQuestions = async () => {
+  // Fetch questions once a set has been chosen.
+  useEffect(() => {
+    if (formData.role && selectedSet) {
+      fetchQuestions(selectedSet);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [formData.role, selectedSet]);
+
+  const fetchQuestions = async (setNumber: number) => {
     setLoading(true);
     try {
-      console.log("Fetching questions for role:", formData.role);
-
-      // Fetch questions filtered by selected department/subject
-      // Normalize to canonical category names to maximize matching with backend
       const category = normalizeMcqRole(formData.role);
-      console.log("Normalized category for query:", category);
+      console.log("Fetching questions for role:", category, "set:", setNumber);
 
-      // Try server-side exact match first, then fallback to ilike (case-insensitive
-      // contains). If still empty, fetch all and do a client-side fuzzy match as a
-      // last resort — this handles inconsistent subject values in the DB.
-      let data: any[] | null = null;
+      let data = await mcqApi.listQuestions({ category, questionSet: setNumber, limit: 500 });
 
-      let res: any = await supabase.from("mcq_questions").select("*").eq("subject", category);
-      console.log("Server exact match result:", res?.data?.length, "rows", res?.error || null);
-      if (res.error) throw res.error;
-      data = res.data;
-
+      // Fallback: if the chosen set has no exact-category matches, fuzzy match
+      // against all questions in that set (handles legacy casing/spacing).
       if (!data || data.length === 0) {
-        const res2: any = await supabase.from("mcq_questions").select("*");
-        console.log("Server full fetch result:", res2?.data?.length, "rows", res2?.error || null);
-        if (res2.error) throw res2.error;
-        const all = res2.data || [];
+        const all = await mcqApi.listQuestions({ questionSet: setNumber, limit: 1000 });
         data = all.filter((q: any) => normalizeMcqRole(q.subject || q.category || "") === category);
       }
-
-      console.log("Query result - data:", data);
 
       // Remove duplicates based on question text
       const uniqueQuestions = data.filter((question, index, self) =>
@@ -245,7 +271,7 @@ export const MCQStep = ({ formData, updateFormData, onNext, onBack, onFail, isSu
           finalQuestions = uniqueQuestions.slice(0, 20);
       }
 
-      setQuestions(finalQuestions as Question[]);
+      setQuestions(finalQuestions as unknown as Question[]);
 
       // Only reset answers if we don't already have some (e.g., from restoration)
       if (Object.keys(formData.mcqAnswers || {}).length === 0) {
@@ -334,12 +360,63 @@ export const MCQStep = ({ formData, updateFormData, onNext, onBack, onFail, isSu
     }
   };
 
+  // ---- Question set selection screen ----
+  if (!selectedSet) {
+    return (
+      <Card className="border-primary/20 bg-card/50 backdrop-blur-sm max-w-3xl mx-auto">
+        <CardHeader className="text-center space-y-2">
+          <CardTitle className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+            Choose Your Question Set
+          </CardTitle>
+          <CardDescription className="text-base">
+            {formData.role} assessment — select the set your manager assigned you.
+            <br />Each set contains a different set of questions. You get 1 attempt only.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {loadingSets ? (
+            <div className="flex items-center justify-center py-8">
+              <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            </div>
+          ) : availableSets.length === 0 ? (
+            <p className="text-center text-muted-foreground py-8">
+              No question sets available for this role. Please contact the administrator.
+            </p>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2">
+              {availableSets.map(({ set, count }) => (
+                <button
+                  key={set}
+                  type="button"
+                  onClick={() => {
+                    setSelectedSet(set);
+                    updateFormData({ questionSet: set });
+                  }}
+                  className="flex flex-col items-center justify-center gap-2 p-6 rounded-2xl border-2 border-border bg-card hover:border-primary hover:bg-primary/5 transition-all shadow-sm hover:shadow-md"
+                >
+                  <Layers className="h-8 w-8 text-primary" />
+                  <span className="text-xl font-bold">Set {set}</span>
+                  <span className="text-sm text-muted-foreground">{count} questions</span>
+                </button>
+              ))}
+            </div>
+          )}
+          <div className="flex justify-start pt-4">
+            <Button type="button" variant="outline" size="lg" onClick={onBack}>
+              Previous
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
   return (
     <>
       <Card className="border-primary/20 bg-card/50 backdrop-blur-sm">
         <CardHeader className="text-center space-y-2">
           <CardTitle className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-            {formData.role} Assessment (1 Attempt Only)
+            {formData.role} Assessment — Set {selectedSet} (1 Attempt Only)
           </CardTitle>
           <CardDescription className="text-base">
             Complete the assessment for {formData.role} 

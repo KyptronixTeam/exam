@@ -38,6 +38,10 @@ const sanitizeQuestionPayload = (data) => {
   payload.category = normalizeCategory(data.category || data.subject || data.subject);
   payload.difficulty = data.difficulty || 'medium';
   payload.points = Number(data.points || data.points === 0 ? data.points : 1) || 1;
+  // question set: accept questionSet / question_set / set; default set 1
+  const rawSet = data.questionSet ?? data.question_set ?? data.set;
+  const parsedSet = parseInt(rawSet, 10);
+  payload.questionSet = Number.isFinite(parsedSet) && parsedSet >= 1 ? parsedSet : 1;
   if (data.isActive !== undefined) {
     const v = data.isActive;
     if (typeof v === 'boolean') payload.isActive = v;
@@ -80,6 +84,16 @@ const listQuestions = async ({ page = 1, limit = 50, filter = {} } = {}) => {
     query.category = new RegExp(`^${escapeRegExp(raw)}$`, 'i');
   }
   if (filter.difficulty) query.difficulty = filter.difficulty;
+  if (filter.questionSet !== undefined && filter.questionSet !== null && filter.questionSet !== '') {
+    const setNum = parseInt(filter.questionSet, 10);
+    if (Number.isFinite(setNum)) {
+      // Legacy documents created before sets existed have no questionSet field:
+      // treat them as set 1.
+      query.$or = setNum === 1
+        ? [{ questionSet: 1 }, { questionSet: { $exists: false } }]
+        : [{ questionSet: setNum }];
+    }
+  }
   const [items, total] = await Promise.all([
     MCQQuestion.find(query).skip(skip).limit(limit).lean(),
     MCQQuestion.countDocuments(query)
@@ -96,9 +110,29 @@ const listQuestions = async ({ page = 1, limit = 50, filter = {} } = {}) => {
     subject: item.category || 'General',
     category: item.category,
     difficulty: item.difficulty,
-    points: item.points
+    points: item.points,
+    questionSet: item.questionSet || 1
   }));
   return { items: transformed, total, page, limit, pages: Math.ceil(total / limit) };
+};
+
+/**
+ * List the question sets available for a category (e.g. [1, 2, 3]).
+ * Documents without a questionSet field count as set 1.
+ */
+const listSets = async (category) => {
+  const query = { isActive: true };
+  if (category) {
+    const escapeRegExp = (s) => String(s).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    const raw = normalizeCategory(category);
+    query.category = new RegExp(`^${escapeRegExp(raw)}$`, 'i');
+  }
+  const agg = await MCQQuestion.aggregate([
+    { $match: query },
+    { $group: { _id: { $ifNull: ['$questionSet', 1] }, count: { $sum: 1 } } },
+    { $sort: { _id: 1 } }
+  ]);
+  return agg.map(r => ({ set: r._id, count: r.count }));
 };
 
 const settingService = require('./setting.service');
@@ -170,4 +204,4 @@ const bulkCreateQuestions = async (questions = []) => {
   return created;
 };
 
-module.exports = { createQuestion, bulkCreateQuestions, updateQuestion, deleteQuestion, getQuestionById, listQuestions, validateAnswers };
+module.exports = { createQuestion, bulkCreateQuestions, updateQuestion, deleteQuestion, getQuestionById, listQuestions, listSets, validateAnswers };

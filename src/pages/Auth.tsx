@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
+import { authApi, onAuthStateChange } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -18,23 +18,20 @@ const Auth = () => {
 
   useEffect(() => {
     const checkUser = async () => {
-      const { data: { user }, error } = await supabase.auth.getUser();
-      if (user && !error) {
+      const user = await authApi.getUser();
+      if (user) {
         navigate("/admin");
-      } else if (error) {
-        // Clear invalid/expired session
-        await supabase.auth.signOut();
       }
     };
     checkUser();
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+    const unsubscribe = onAuthStateChange((session) => {
       if (session) {
         navigate("/admin");
       }
     });
 
-    return () => subscription.unsubscribe();
+    return unsubscribe;
   }, [navigate]);
 
 
@@ -43,28 +40,15 @@ const Auth = () => {
     setLoading(true);
 
     try {
-      const { error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
-
-      if (error) {
-        toast({
-          title: "Login Failed",
-          description: error.message === "Invalid login credentials" ? "Invalid email or password." : error.message,
-          variant: "destructive",
-        });
-        return;
-      }
-
+      await authApi.login(email, password);
       toast({
         title: "Welcome back!",
         description: "You've successfully logged in.",
       });
-    } catch (err) {
+    } catch (err: any) {
       toast({
         title: "Login Failed",
-        description: err instanceof Error ? err.message : "An unexpected error occurred during login.",
+        description: err?.message || "Invalid email or password.",
         variant: "destructive",
       });
     } finally {

@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { adminApi, getAuthSession } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -18,13 +18,10 @@ export const PasswordManager = () => {
 
   useEffect(() => {
     // Optionally pre-fill the email if available in session
-    const fetchUser = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session?.user?.email) {
-        setEmail(session.user.email);
-      }
-    };
-    fetchUser();
+    const session = getAuthSession();
+    if (session?.user?.email) {
+      setEmail(session.user.email);
+    }
   }, []);
 
   const handleUpdateSecurity = async (e: React.FormEvent) => {
@@ -60,33 +57,11 @@ export const PasswordManager = () => {
     setLoading(true);
 
     try {
-      const { data: { session } } = await supabase.auth.getSession();
-      const accessToken = (session as any)?.accessToken || (session as any)?.access_token;
-
-      if (!accessToken) {
-        throw new Error("You must be logged in to update security settings");
-      }
-
-      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5112';
-
-      const payload: any = {};
+      const payload: { email?: string; newPassword?: string } = {};
       if (email) payload.email = email;
       if (newPassword) payload.newPassword = newPassword;
 
-      const response = await fetch(`${apiUrl}/api/users/me/security`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${accessToken}`,
-        },
-        body: JSON.stringify(payload),
-      });
-
-      const result = await response.json();
-
-      if (!response.ok) {
-        throw new Error(result?.error?.message || "Failed to update security settings");
-      }
+      await adminApi.updateSecurity(payload);
 
       toast({
         title: "Success",

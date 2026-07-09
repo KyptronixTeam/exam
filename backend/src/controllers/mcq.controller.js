@@ -70,11 +70,23 @@ const listQuestions = async (req, res) => {
     const filter = {};
     if (req.query.category) filter.category = normalizeCategory(req.query.category);
     if (req.query.difficulty) filter.difficulty = req.query.difficulty;
+    if (req.query.questionSet || req.query.set) filter.questionSet = req.query.questionSet || req.query.set;
     const result = await mcqService.listQuestions({ page, limit, filter });
     res.json({ success: true, data: result });
   } catch (err) {
     logger.error('List MCQ error', err);
     res.status(500).json({ success: false, error: { code: 'SERVER_ERROR', message: 'Failed to list questions' } });
+  }
+};
+
+const listSets = async (req, res) => {
+  try {
+    const category = req.query.category ? normalizeCategory(req.query.category) : null;
+    const sets = await mcqService.listSets(category);
+    res.json({ success: true, data: { sets } });
+  } catch (err) {
+    logger.error('List MCQ sets error', err);
+    res.status(500).json({ success: false, error: { code: 'SERVER_ERROR', message: 'Failed to list question sets' } });
   }
 };
 
@@ -148,4 +160,4 @@ const validateAnswers = async (req, res) => {
   }
 };
 
-module.exports = { createQuestion, bulkCreateQuestions, updateQuestion, deleteQuestion, getQuestion, listQuestions, validateAnswers, listCategories, getConfig };
+module.exports = { createQuestion, bulkCreateQuestions, updateQuestion, deleteQuestion, getQuestion, listQuestions, listSets, validateAnswers, listCategories, getConfig };

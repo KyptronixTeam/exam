@@ -10,6 +10,8 @@ const { logger } = require('../utils/logger');
 // Public: list and get questions
 router.get('/categories', mcqController.listCategories);
 router.get('/', mcqController.listQuestions);
+// Public: list available question sets (optionally per category)
+router.get('/sets', mcqController.listSets);
 // Public config (e.g. passing percentage)
 router.get('/config', mcqController.getConfig);
 

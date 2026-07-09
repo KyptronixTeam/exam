@@ -41,6 +41,11 @@ const submissionSchema = new mongoose.Schema({
   fileIds: [{ type: mongoose.Schema.Types.ObjectId, ref: 'File' }],
   essayText: { type: String },
   driveLink: { type: String },
+  graphicDesignLink1: { type: String },
+  graphicDesignLink2: { type: String },
+  graphicDesignLink3: { type: String },
+  // Which question set (1/2/3...) the candidate answered
+  questionSet: { type: Number, default: 1 },
   tabSwitchCount: { type: Number, default: 0 },
   status: { type: String, enum: ['draft', 'submitted', 'under_review', 'approved', 'rejected'], default: 'draft' },
   reviewStatus: { type: String, enum: ['auto_passed', 'auto_failed', 'pending_review', 'reviewed_passed', 'reviewed_failed'] },

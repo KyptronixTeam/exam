@@ -32,7 +32,7 @@ export const MCQ_CATEGORY_OPTIONS = [
   "Content Creator",
 ];
 
-export const ENABLED_ROLES = ["HR", "SEO", "SMO", "Content Creator", "Graphic Designer"];
+export const ENABLED_ROLES = ["SEO", "SMO", "Full Stack Developer"];
 
 export const isRoleEnabled = (role: string) => {
   return ENABLED_ROLES.includes(role);

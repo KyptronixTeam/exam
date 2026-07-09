@@ -2,20 +2,32 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { FileText, Globe, Sparkles } from "lucide-react";
+import { FileText, Globe, Sparkles, Loader2 } from "lucide-react";
 
 interface ProjectDetailsStepProps {
   formData: any;
   updateFormData: (data: any) => void;
   onNext: () => void;
   onBack: () => void;
+  isSubmitting?: boolean;
 }
 
-export const ProjectDetailsStep = ({ formData, updateFormData, onNext, onBack }: ProjectDetailsStepProps) => {
+export const ProjectDetailsStep = ({ formData, updateFormData, onNext, onBack, isSubmitting }: ProjectDetailsStepProps) => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (isSubmitting) return;
     onNext();
   };
+
+  // Website URL is only relevant for developer roles (Full Stack). SEO/SMO
+  // don't submit a live site, so we hide it for them.
+  const showWebsiteUrl = formData.role === "Full Stack Developer";
+  const linkLabel = formData.role === "Full Stack Developer"
+    ? "GitHub Repo/Google Drive Link (Optional)"
+    : "Google Drive Link (Optional)";
+  const linkPlaceholder = formData.role === "Full Stack Developer"
+    ? "https://github.com/your-org/your-repo"
+    : "https://drive.google.com/...";
 
   return (
     <form onSubmit={handleSubmit} className="animate-scale-in">
@@ -61,40 +73,42 @@ export const ProjectDetailsStep = ({ formData, updateFormData, onNext, onBack }:
             </p>
           </div>
 
-          {/* Website URL */}
-          <div className="space-y-2">
-            <Label htmlFor="websiteUrl" className="flex items-center gap-2 text-foreground">
-              <Globe className="w-4 h-4 text-primary" />
-              Website URL (Optional)
-            </Label>
-            <Input
-              id="websiteUrl"
-              type="url"
-              value={formData.websiteUrl}
-              onChange={(e) => updateFormData({ websiteUrl: e.target.value })}
-              className="bg-background/50 border-primary/20 focus:border-primary transition-all"
-              placeholder="https://your-project-website.com"
-            />
-            {formData.websiteUrl && (
-              <div className="mt-4 p-4 bg-muted/20 rounded-lg border border-primary/10">
-                <p className="text-sm text-muted-foreground mb-2">Preview:</p>
-                <a
-                  href={formData.websiteUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-primary hover:underline text-sm break-all"
-                >
-                  {formData.websiteUrl}
-                </a>
-              </div>
-            )}
-          </div>
+          {/* Website URL — developer roles only */}
+          {showWebsiteUrl && (
+            <div className="space-y-2">
+              <Label htmlFor="websiteUrl" className="flex items-center gap-2 text-foreground">
+                <Globe className="w-4 h-4 text-primary" />
+                Website URL (Optional)
+              </Label>
+              <Input
+                id="websiteUrl"
+                type="url"
+                value={formData.websiteUrl}
+                onChange={(e) => updateFormData({ websiteUrl: e.target.value })}
+                className="bg-background/50 border-primary/20 focus:border-primary transition-all"
+                placeholder="https://your-project-website.com"
+              />
+              {formData.websiteUrl && (
+                <div className="mt-4 p-4 bg-muted/20 rounded-lg border border-primary/10">
+                  <p className="text-sm text-muted-foreground mb-2">Preview:</p>
+                  <a
+                    href={formData.websiteUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-primary hover:underline text-sm break-all"
+                  >
+                    {formData.websiteUrl}
+                  </a>
+                </div>
+              )}
+            </div>
+          )}
 
-          {/* GitHub Repo URL */}
+          {/* GitHub Repo / Drive Link */}
           <div className="space-y-2">
             <Label htmlFor="githubRepo" className="flex items-center gap-2 text-foreground">
               <FileText className="w-4 h-4 text-primary" />
-              GitHub Repo/Google Drive Link (Optional)
+              {linkLabel}
             </Label>
             <Input
               id="githubRepo"
@@ -102,7 +116,7 @@ export const ProjectDetailsStep = ({ formData, updateFormData, onNext, onBack }:
               value={formData.githubRepo}
               onChange={(e) => updateFormData({ githubRepo: e.target.value })}
               className="bg-background/50 border-primary/20 focus:border-primary transition-all"
-              placeholder="https://github.com/your-org/your-repo"
+              placeholder={linkPlaceholder}
             />
             {formData.githubRepo && (
               <div className="mt-4 p-4 bg-muted/20 rounded-lg border border-primary/10">
@@ -121,11 +135,18 @@ export const ProjectDetailsStep = ({ formData, updateFormData, onNext, onBack }:
         </div>
 
         <div className="flex justify-between mt-8">
-          <Button type="button" variant="glass" onClick={onBack}>
+          <Button type="button" variant="glass" onClick={onBack} disabled={isSubmitting}>
             Previous
           </Button>
-          <Button type="submit" variant="hero">
-            Next Step
+          <Button type="submit" variant="hero" disabled={isSubmitting}>
+            {isSubmitting ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Submitting...
+              </>
+            ) : (
+              "Submit Application"
+            )}
           </Button>
         </div>
       </div>

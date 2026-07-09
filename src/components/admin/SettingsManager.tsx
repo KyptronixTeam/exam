@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { adminApi } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -15,8 +15,7 @@ export const SettingsManager = () => {
   useEffect(() => {
     const load = async () => {
       try {
-        const rpc: any = await supabase.rpc('get_setting', { key: 'mcq_passing_percentage' });
-        const data = rpc?.data;
+        const data: any = await adminApi.getSetting('mcq_passing_percentage');
         if (data && typeof data.value === 'number') setValue(data.value);
         else if (data && typeof data.value === 'string' && data.value.trim() !== '' && !Number.isNaN(Number(data.value))) setValue(Number(data.value));
         else setValue(90);
@@ -40,7 +39,7 @@ export const SettingsManager = () => {
     }
     setLoading(true);
     try {
-      await supabase.rpc('update_setting', { key: 'mcq_passing_percentage', value: v });
+      await adminApi.updateSetting('mcq_passing_percentage', v);
       toast({ title: 'Saved', description: 'Passing percentage updated' });
     } catch (err: any) {
       console.error('Save setting error', err);

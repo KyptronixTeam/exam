@@ -1,4 +1,4 @@
-const { Submission, File: FileModel } = require('../models');
+const { Submission, File: FileModel, MCQQuestion } = require('../models');
 const { logger } = require('../utils/logger');
 const mongoose = require('mongoose');
 const { normalizeCategory } = require('../constants/mcqCategories');
@@ -37,7 +37,37 @@ const createSubmission = async (userId, data) => {
 
 const getSubmissionById = async (id) => {
   if (!mongoose.Types.ObjectId.isValid(id)) return null;
-  return Submission.findById(id).populate('fileIds').lean();
+  const submission = await Submission.findById(id).populate('fileIds').lean();
+  if (!submission) return null;
+
+  // Enrich MCQ answers with the question text, options and correctness so the
+  // admin can see exactly what the candidate answered.
+  if (Array.isArray(submission.mcqAnswers) && submission.mcqAnswers.length > 0) {
+    const ids = submission.mcqAnswers
+      .map(a => a.questionId)
+      .filter(qid => qid && mongoose.Types.ObjectId.isValid(String(qid)));
+    const questions = await MCQQuestion.find({ _id: { $in: ids } }).lean();
+    const qMap = new Map(questions.map(q => [q._id.toString(), q]));
+    submission.mcqAnswers = submission.mcqAnswers.map(a => {
+      const q = qMap.get(String(a.questionId));
+      if (!q) return { ...a, question: null };
+      const correctAnswerText = Array.isArray(q.options) ? q.options[q.correctAnswer] : undefined;
+      const skipped = a.selectedAnswer === null || a.selectedAnswer === undefined || a.selectedAnswer === '__SKIPPED__';
+      const isCorrect = typeof a.isCorrect === 'boolean'
+        ? a.isCorrect
+        : (skipped ? false : a.selectedAnswer === correctAnswerText);
+      return {
+        ...a,
+        isCorrect,
+        skipped,
+        question: q.question,
+        options: q.options,
+        correctAnswer: correctAnswerText,
+        questionSet: q.questionSet || 1
+      };
+    });
+  }
+  return submission;
 };
 
 const updateSubmission = async (id, updates, actor) => {

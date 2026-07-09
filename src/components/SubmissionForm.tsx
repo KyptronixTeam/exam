@@ -1,5 +1,4 @@
 import { useState, useEffect, useCallback } from "react";
-import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useExamSession } from "@/hooks/useExamSession";
 import { PersonalInfoStep } from "./form-steps/PersonalInfoStep";
@@ -32,6 +31,8 @@ interface FormData {
   // MCQ Answers
   mcqAnswers: Record<string, string>;
   mcqCurrentPage: number;
+  // Chosen question set (1/2/3)
+  questionSet?: number;
   // Assessment Results
   assessmentPassed?: boolean;
   assessmentScore?: number;
@@ -163,17 +164,42 @@ export const SubmissionForm = ({ onBack }: SubmissionFormProps) => {
     }
   }, [formData.mcqAnswers, formData.mcqCurrentPage, sessionStarted, currentStep]);
 
-  const TOTAL_STEPS = 2;
+  // Roles that fill a project/work submission form AFTER passing the MCQ,
+  // so managers can review what they actually submitted.
+  const ROLES_WITH_PROJECT_STEP = ["SEO", "SMO", "Full Stack Developer"];
+  const needsProjectStep = ROLES_WITH_PROJECT_STEP.includes(formData.role);
+  const TOTAL_STEPS = needsProjectStep ? 3 : 2;
 
-  const nextStep = () => {
+  // Advance the flow. `override` lets a child (MCQStep) hand us freshly-computed
+  // values so we don't depend on not-yet-flushed state.
+  const nextStep = (override?: Partial<FormData>) => {
+    const merged = override ? { ...formData, ...override } : formData;
+    if (override) {
+      setFormData(merged);
+    }
+
+    // From the assessment (step 2): passers of project-step roles go to the
+    // project form (step 3); everyone else submits directly.
     if (currentStep === 2) {
-      handleSubmit();
+      if (needsProjectStep) {
+        setCurrentStep(3);
+        if (sessionStarted) saveProgress(3, merged);
+        return;
+      }
+      handleSubmit(merged);
       return;
     }
+
+    // From the project form (step 3): submit.
+    if (currentStep === 3) {
+      handleSubmit(merged);
+      return;
+    }
+
     const newStep = Math.min(currentStep + 1, TOTAL_STEPS);
     setCurrentStep(newStep);
     if (sessionStarted) {
-      saveProgress(newStep, formData);
+      saveProgress(newStep, merged);
     }
   };
 
@@ -229,58 +255,60 @@ export const SubmissionForm = ({ onBack }: SubmissionFormProps) => {
     nextStep();
   };
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (dataOverride?: FormData) => {
+    const data = dataOverride || formData;
     setIsSubmitting(true);
     try {
-      // If the user reached step 4 (ReviewStep), they have already passed the MCQ
-      // Use the stored assessment result instead of re-validating
-      const isPassing = formData.assessmentPassed === true;
+      // The user has already passed the MCQ; use the stored assessment result.
+      const isPassing = data.assessmentPassed === true;
       // Build mcqScore from stored data
       let mcqScore = { totalQuestions: 0, correctAnswers: 0, percentage: 0 };
-      if (typeof formData.assessmentScore === 'object' && formData.assessmentScore !== null) {
-          const scoreObj = formData.assessmentScore as any;
+      if (typeof data.assessmentScore === 'object' && data.assessmentScore !== null) {
+          const scoreObj = data.assessmentScore as any;
           mcqScore = {
-              totalQuestions: scoreObj.totalQuestions || Object.keys(formData.mcqAnswers || {}).length,
+              totalQuestions: scoreObj.totalQuestions || Object.keys(data.mcqAnswers || {}).length,
               correctAnswers: scoreObj.correctCount || 0,
               percentage: scoreObj.percentage || 0
           };
       } else {
-          const scoreNum = typeof formData.assessmentScore === 'number' ? formData.assessmentScore : 0;
+          const scoreNum = typeof data.assessmentScore === 'number' ? data.assessmentScore : 0;
           mcqScore = {
-            totalQuestions: Object.keys(formData.mcqAnswers || {}).length,
-            correctAnswers: Math.round((scoreNum / 100) * Object.keys(formData.mcqAnswers || {}).length),
+            totalQuestions: Object.keys(data.mcqAnswers || {}).length,
+            correctAnswers: Math.round((scoreNum / 100) * Object.keys(data.mcqAnswers || {}).length),
             percentage: scoreNum
           };
       }
 
-      // Build mcqAnswersForDb (simplified format for storage)
-      const mcqAnswersForDb = Object.entries(formData.mcqAnswers || {}).map(([questionId, selected]) => ({
+      // Build mcqAnswersForDb. The server re-grades authoritatively, so isCorrect
+      // is left null here and computed backend-side.
+      const mcqAnswersForDb = Object.entries(data.mcqAnswers || {}).map(([questionId, selected]) => ({
         questionId,
-        selectedAnswer: selected,
-        isCorrect: null // We don't recalculate correctness here
+        selectedAnswer: selected === '__SKIPPED__' ? null : selected,
+        isCorrect: null
       }));
 
       // Submit exam through session API
       const submitResult = await submitExam(
         {
-          fullName: formData.fullName,
-          email: formData.email,
-          phone: formData.phone,
-          collegeName: formData.collegeName,
-          department: formData.department,
-          role: formData.role,
-          year: formData.year,
-          semester: formData.semester,
-          essayText: formData.essayText,
-          driveLink: formData.driveLink,
-          graphicDesignLink1: formData.graphicDesignLink1,
-          graphicDesignLink2: formData.graphicDesignLink2,
-          graphicDesignLink3: formData.graphicDesignLink3,
-          tabSwitchCount: formData.tabSwitchCount,
-          projectTitle: formData.projectTitle,
-          projectDescription: formData.projectDescription,
-          websiteUrl: formData.websiteUrl,
-          githubRepo: formData.githubRepo
+          fullName: data.fullName,
+          email: data.email,
+          phone: data.phone,
+          collegeName: data.collegeName,
+          department: data.department,
+          role: data.role,
+          year: data.year,
+          semester: data.semester,
+          essayText: data.essayText,
+          driveLink: data.driveLink,
+          graphicDesignLink1: data.graphicDesignLink1,
+          graphicDesignLink2: data.graphicDesignLink2,
+          graphicDesignLink3: data.graphicDesignLink3,
+          questionSet: data.questionSet,
+          tabSwitchCount: data.tabSwitchCount,
+          projectTitle: data.projectTitle,
+          projectDescription: data.projectDescription,
+          websiteUrl: data.websiteUrl,
+          githubRepo: data.githubRepo
         },
         mcqAnswersForDb,
         mcqScore
@@ -294,7 +322,7 @@ export const SubmissionForm = ({ onBack }: SubmissionFormProps) => {
       clearLocalSession();
 
       // Use the stored assessmentPassed for determining success/failure
-      if (['SMO', 'Content Creator', 'Graphic Designer'].includes(formData.role)) {
+      if (['SMO', 'Content Creator', 'Graphic Designer'].includes(data.role)) {
           setShowPendingReview(true);
       } else if (isPassing) {
         // Automatically close and go home since they already saw the MCQ modal
@@ -338,28 +366,22 @@ export const SubmissionForm = ({ onBack }: SubmissionFormProps) => {
         <div className="flex items-center justify-between relative">
           {/* Background Line */}
           <div className="absolute left-[10%] right-[10%] h-1.5 bg-muted top-5 -translate-y-1/2 z-0 rounded-full">
-            <div className="h-full bg-primary transition-all duration-500 ease-in-out rounded-full" style={{ width: currentStep === 2 ? '100%' : '0%' }}></div>
-          </div>
-          
-          {/* Step 1 */}
-          <div className="flex flex-col items-center gap-3 relative z-10 w-28 sm:w-36">
-            <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold transition-all duration-300 ring-4 ${currentStep >= 1 ? "bg-primary text-primary-foreground ring-primary/20 shadow-[0_0_20px_hsl(var(--primary)/0.5)]" : "bg-muted text-muted-foreground ring-transparent"}`}>
-              1
-            </div>
-            <span className={`text-xs sm:text-sm whitespace-nowrap ${currentStep >= 1 ? "text-primary font-bold drop-shadow-sm" : "text-muted-foreground font-medium"}`}>
-              Personal Details
-            </span>
+            <div className="h-full bg-primary transition-all duration-500 ease-in-out rounded-full" style={{ width: `${((currentStep - 1) / (TOTAL_STEPS - 1)) * 100}%` }}></div>
           </div>
 
-          {/* Step 2 */}
-          <div className="flex flex-col items-center gap-3 relative z-10 w-28 sm:w-36">
-            <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold transition-all duration-300 ring-4 ${currentStep >= 2 ? "bg-primary text-primary-foreground ring-primary/20 shadow-[0_0_20px_hsl(var(--primary)/0.5)]" : "bg-card border-2 border-muted text-muted-foreground ring-transparent"}`}>
-              2
+          {(needsProjectStep
+            ? [{ n: 1, label: "Personal Details" }, { n: 2, label: "Assessment" }, { n: 3, label: "Submission" }]
+            : [{ n: 1, label: "Personal Details" }, { n: 2, label: "Assessment" }]
+          ).map(({ n, label }) => (
+            <div key={n} className="flex flex-col items-center gap-3 relative z-10 w-28 sm:w-36">
+              <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold transition-all duration-300 ring-4 ${currentStep >= n ? "bg-primary text-primary-foreground ring-primary/20 shadow-[0_0_20px_hsl(var(--primary)/0.5)]" : "bg-card border-2 border-muted text-muted-foreground ring-transparent"}`}>
+                {n}
+              </div>
+              <span className={`text-xs sm:text-sm whitespace-nowrap ${currentStep >= n ? "text-primary font-bold drop-shadow-sm" : "text-muted-foreground font-medium"}`}>
+                {label}
+              </span>
             </div>
-            <span className={`text-xs sm:text-sm whitespace-nowrap ${currentStep >= 2 ? "text-primary font-bold drop-shadow-sm" : "text-muted-foreground font-medium"}`}>
-              Assessment
-            </span>
-          </div>
+          ))}
         </div>
       </div>
 
@@ -401,13 +423,22 @@ export const SubmissionForm = ({ onBack }: SubmissionFormProps) => {
             isSubmitting={isSubmitting}
           />
         )}
+        {currentStep === 3 && (
+          <ProjectDetailsStep
+            formData={formData}
+            updateFormData={updateFormData}
+            onNext={() => nextStep()}
+            onBack={prevStep}
+            isSubmitting={isSubmitting}
+          />
+        )}
       </div>
 
       {/* Confirmation Modal */}
       <SubmitConfirmModal
         isOpen={showSubmitConfirm}
         onClose={() => setShowSubmitConfirm(false)}
-        onConfirm={handleSubmit}
+        onConfirm={() => handleSubmit()}
         isSubmitting={isSubmitting}
       />
 

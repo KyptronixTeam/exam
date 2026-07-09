@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
+import { authApi, adminApi } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -22,11 +22,10 @@ const AdminBootstrap = () => {
 
   const checkIfAdminExists = async () => {
     try {
-      const { data, error } = await supabase.rpc('admin_exists');
-      if (error) throw error;
-      setAdminExists(data);
-      
-      if (data) {
+      const exists = await adminApi.adminExists();
+      setAdminExists(exists);
+
+      if (exists) {
         // Admin already exists, redirect to normal login
         navigate("/auth");
       }
@@ -41,26 +40,11 @@ const AdminBootstrap = () => {
 
     try {
       // 1. Create user account
-      const { data: authData, error: signUpError } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          emailRedirectTo: `${window.location.origin}/admin`
-        }
-      });
-
-      if (signUpError) throw signUpError;
-      if (!authData.user) throw new Error("User creation failed");
+      const user = await authApi.register(email, password);
+      if (!user) throw new Error("User creation failed");
 
       // 2. Assign admin role
-      const { error: roleError } = await supabase
-        .from("user_roles")
-        .insert({
-          user_id: authData.user.id,
-          role: "admin"
-        });
-
-      if (roleError) throw roleError;
+      await adminApi.assignRole(user.id || user._id, "admin");
 
       toast({
         title: "Success!",

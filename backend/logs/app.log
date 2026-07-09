@@ -1274,3 +1274,61 @@
 >>>>>>> 310c28f700dc528a442ccfa605faee440a7a14c1
 {"level":"info","message":"MCQ routes registered:","routes":["GET /categories","GET /","GET /config","POST /validate","GET /:id","POST /","POST /bulk","PUT /:id","DELETE /:id"],"service":"node-express-backend","timestamp":"2026-06-02 15:36:04"}
 {"level":"info","message":"MongoDB connected successfully to development database","service":"node-express-backend","timestamp":"2026-06-02 15:36:05"}
+{"level":"info","message":"MCQ routes registered:","routes":["GET /categories","GET /","GET /config","POST /validate","GET /:id","POST /","POST /bulk","PUT /:id","DELETE /:id"],"service":"node-express-backend","timestamp":"2026-07-09 15:34:35"}
+{"level":"info","message":"MongoDB connected successfully to development database","service":"node-express-backend","timestamp":"2026-07-09 15:34:36"}
+{"level":"info","message":"Server running on port 5112 in development mode","service":"node-express-backend","timestamp":"2026-07-09 15:34:36"}
+{"level":"info","message":"API documentation available at http://localhost:5112/api-docs","service":"node-express-backend","timestamp":"2026-07-09 15:34:36"}
+{"level":"info","message":"getConfig() called - Fetching MCQ passing percentage","service":"node-express-backend","timestamp":"2026-07-09 15:39:45"}
+{"level":"info","message":"Returning passingPercentage successfully:","service":"node-express-backend","timestamp":"2026-07-09 15:39:45"}
+{"level":"info","message":"Assessment failed - session and submission marked as failed","score":7,"service":"node-express-backend","sessionId":"c9b2f2cc-49dc-4826-82c4-8b0a2a3a0d90","submissionId":"6a4f739a8792d39532c64eb4","timestamp":"2026-07-09 15:40:34"}
+{"level":"info","message":"MongoDB reconnected","service":"node-express-backend","timestamp":"2026-07-09 16:30:02"}
+{"level":"info","message":"MongoDB reconnected","service":"node-express-backend","timestamp":"2026-07-09 16:30:02"}
+{"level":"warn","message":"MongoDB disconnected","service":"node-express-backend","timestamp":"2026-07-09 16:30:13"}
+{"level":"info","message":"MongoDB reconnected","service":"node-express-backend","timestamp":"2026-07-09 16:30:13"}
+{"level":"info","message":"MCQ routes registered:","routes":["GET /categories","GET /","GET /sets","GET /config","POST /validate","GET /:id","POST /","POST /bulk","PUT /:id","DELETE /:id"],"service":"node-express-backend","timestamp":"2026-07-09 16:49:32"}
+{"level":"info","message":"MCQ routes registered:","routes":["GET /categories","GET /","GET /sets","GET /config","POST /validate","GET /:id","POST /","POST /bulk","PUT /:id","DELETE /:id"],"service":"node-express-backend","timestamp":"2026-07-09 16:49:41"}
+{"level":"info","message":"MongoDB connected successfully to development database","service":"node-express-backend","timestamp":"2026-07-09 16:49:42"}
+{"ip":"::ffff:127.0.0.1","level":"warn","message":"Missing Authorization header for request","path":"/api/mcq/sets?category=SEO","service":"node-express-backend","timestamp":"2026-07-09 16:49:54"}
+{"ip":"::ffff:127.0.0.1","level":"warn","message":"Missing Authorization header for request","path":"/api/mcq/sets?category=Full%20Stack%20Developer","service":"node-express-backend","timestamp":"2026-07-09 16:49:54"}
+{"ip":"::ffff:127.0.0.1","level":"warn","message":"Missing Authorization header for request","path":"/api/mcq/sets","service":"node-express-backend","timestamp":"2026-07-09 16:49:54"}
+{"level":"info","message":"MCQ routes registered:","routes":["GET /categories","GET /","GET /sets","GET /config","POST /validate","GET /:id","POST /","POST /bulk","PUT /:id","DELETE /:id"],"service":"node-express-backend","timestamp":"2026-07-09 16:50:15"}
+{"level":"info","message":"MongoDB connected successfully to development database","service":"node-express-backend","timestamp":"2026-07-09 16:50:16"}
+{"level":"info","message":"Server running on port 5112 in development mode","service":"node-express-backend","timestamp":"2026-07-09 16:50:16"}
+{"level":"info","message":"API documentation available at http://localhost:5112/api-docs","service":"node-express-backend","timestamp":"2026-07-09 16:50:16"}
+{"level":"info","message":"MCQ routes registered:","routes":["GET /categories","GET /","GET /sets","GET /config","POST /validate","GET /:id","POST /","POST /bulk","PUT /:id","DELETE /:id"],"service":"node-express-backend","timestamp":"2026-07-09 16:51:14"}
+{"level":"info","message":"MongoDB connected successfully to development database","service":"node-express-backend","timestamp":"2026-07-09 16:51:14"}
+{"isAutoGraded":true,"isPassing":true,"level":"info","message":"Evaluating pass/fail","passingPercentage":70,"percentage":90,"role":"SEO","serverGraded":true,"service":"node-express-backend","timestamp":"2026-07-09 16:51:23"}
+{"isPassing":true,"level":"info","message":"Submission created","reviewStatus":"auto_passed","role":"SEO","score":90,"service":"node-express-backend","sessionId":"e2ef3595-7245-4b09-a60e-b8ab0e34cf19","submissionId":"6a4f843366dd012c4f53c5b1","timestamp":"2026-07-09 16:51:23"}
+{"level":"info","message":"MCQ routes registered:","routes":["GET /categories","GET /","GET /sets","GET /config","POST /validate","GET /:id","POST /","POST /bulk","PUT /:id","DELETE /:id"],"service":"node-express-backend","timestamp":"2026-07-09 16:52:37"}
+{"level":"info","message":"MongoDB connected successfully to development database","service":"node-express-backend","timestamp":"2026-07-09 16:52:37"}
+{"level":"info","message":"Server running on port 5112 in development mode","service":"node-express-backend","timestamp":"2026-07-09 16:52:37"}
+{"level":"info","message":"API documentation available at http://localhost:5112/api-docs","service":"node-express-backend","timestamp":"2026-07-09 16:52:37"}
+{"level":"info","message":"MCQ routes registered:","routes":["GET /categories","GET /","GET /sets","GET /config","POST /validate","GET /:id","POST /","POST /bulk","PUT /:id","DELETE /:id"],"service":"node-express-backend","timestamp":"2026-07-09 16:52:52"}
+{"level":"info","message":"MongoDB connected successfully to development database","service":"node-express-backend","timestamp":"2026-07-09 16:52:53"}
+{"isAutoGraded":true,"isPassing":true,"level":"info","message":"Evaluating pass/fail","passingPercentage":70,"percentage":90,"role":"SMO","serverGraded":true,"service":"node-express-backend","timestamp":"2026-07-09 16:53:22"}
+{"isPassing":true,"level":"info","message":"Submission created","reviewStatus":"pending_review","role":"SMO","score":90,"service":"node-express-backend","sessionId":"69919e82-c349-4aaf-ac1d-2ba4aeeced0c","submissionId":"6a4f84aace457ef50bcf5475","timestamp":"2026-07-09 16:53:23"}
+{"level":"info","message":"getConfig() called - Fetching MCQ passing percentage","service":"node-express-backend","timestamp":"2026-07-09 16:53:36"}
+{"level":"info","message":"Returning passingPercentage successfully:","service":"node-express-backend","timestamp":"2026-07-09 16:53:36"}
+{"level":"info","message":"MCQ routes registered:","routes":["GET /categories","GET /","GET /sets","GET /config","POST /validate","GET /:id","POST /","POST /bulk","PUT /:id","DELETE /:id"],"service":"node-express-backend","timestamp":"2026-07-09 16:54:46"}
+{"level":"info","message":"MongoDB connected successfully to development database","service":"node-express-backend","timestamp":"2026-07-09 16:54:47"}
+{"level":"info","message":"MCQ routes registered:","routes":["GET /categories","GET /","GET /sets","GET /config","POST /validate","GET /:id","POST /","POST /bulk","PUT /:id","DELETE /:id"],"service":"node-express-backend","timestamp":"2026-07-09 16:55:36"}
+{"level":"info","message":"MongoDB connected successfully to development database","service":"node-express-backend","timestamp":"2026-07-09 16:55:37"}
+{"level":"info","message":"Server running on port 5112 in development mode","service":"node-express-backend","timestamp":"2026-07-09 16:55:37"}
+{"level":"info","message":"API documentation available at http://localhost:5112/api-docs","service":"node-express-backend","timestamp":"2026-07-09 16:55:37"}
+{"level":"info","message":"getConfig() called - Fetching MCQ passing percentage","service":"node-express-backend","timestamp":"2026-07-09 16:56:13"}
+{"level":"info","message":"Returning passingPercentage successfully:","service":"node-express-backend","timestamp":"2026-07-09 16:56:13"}
+{"isAutoGraded":true,"isPassing":true,"level":"info","message":"Evaluating pass/fail","passingPercentage":70,"percentage":72,"role":"FULL STACK DEVELOPER","serverGraded":true,"service":"node-express-backend","timestamp":"2026-07-09 16:57:07"}
+{"isPassing":true,"level":"info","message":"Submission created","reviewStatus":"auto_passed","role":"FULL STACK DEVELOPER","score":72,"service":"node-express-backend","sessionId":"4045d422-5053-4725-84cb-68f32c63fec1","submissionId":"6a4f858b2b7f2d92b072f463","timestamp":"2026-07-09 16:57:07"}
+{"level":"info","message":"getConfig() called - Fetching MCQ passing percentage","service":"node-express-backend","timestamp":"2026-07-09 16:58:03"}
+{"level":"info","message":"Returning passingPercentage successfully:","service":"node-express-backend","timestamp":"2026-07-09 16:58:03"}
+{"level":"info","message":"MCQ routes registered:","routes":["GET /categories","GET /","GET /sets","GET /config","POST /validate","GET /:id","POST /","POST /bulk","PUT /:id","DELETE /:id"],"service":"node-express-backend","timestamp":"2026-07-09 17:04:14"}
+{"level":"info","message":"MongoDB connected successfully to development database","service":"node-express-backend","timestamp":"2026-07-09 17:04:14"}
+{"level":"info","message":"Server running on port 5112 in development mode","service":"node-express-backend","timestamp":"2026-07-09 17:04:14"}
+{"level":"info","message":"API documentation available at http://localhost:5112/api-docs","service":"node-express-backend","timestamp":"2026-07-09 17:04:14"}
+{"level":"info","message":"getConfig() called - Fetching MCQ passing percentage","service":"node-express-backend","timestamp":"2026-07-09 17:04:54"}
+{"level":"info","message":"Returning passingPercentage successfully:","service":"node-express-backend","timestamp":"2026-07-09 17:04:54"}
+{"isAutoGraded":true,"isPassing":true,"level":"info","message":"Evaluating pass/fail","passingPercentage":70,"percentage":70,"role":"SMO","serverGraded":true,"service":"node-express-backend","timestamp":"2026-07-09 17:06:06"}
+{"isPassing":true,"level":"info","message":"Submission created","reviewStatus":"pending_review","role":"SMO","score":70,"service":"node-express-backend","sessionId":"9570f204-d416-405d-ac1e-8f627405c0e1","submissionId":"6a4f87a642177c4a88f5bc3e","timestamp":"2026-07-09 17:06:06"}
+{"level":"info","message":"getConfig() called - Fetching MCQ passing percentage","service":"node-express-backend","timestamp":"2026-07-09 17:07:36"}
+{"level":"info","message":"Returning passingPercentage successfully:","service":"node-express-backend","timestamp":"2026-07-09 17:07:36"}
+{"level":"info","message":"Assessment failed - session and submission marked as failed","score":23,"service":"node-express-backend","sessionId":"cfa300b7-d022-42df-8de4-fd16edd40f36","submissionId":"6a4f882742177c4a88f5bc9b","timestamp":"2026-07-09 17:08:15"}

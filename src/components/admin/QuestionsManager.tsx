@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { mcqApi } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -20,6 +20,7 @@ interface Question {
   correct_answer?: string | number;
   difficulty?: string;
   isActive?: boolean;
+  questionSet?: number;
 }
 
 export const QuestionsManager = () => {
@@ -32,52 +33,47 @@ export const QuestionsManager = () => {
   const [options, setOptions] = useState(["", "", "", ""]);
   const [correctAnswer, setCorrectAnswer] = useState("");
   const [difficulty, setDifficulty] = useState("medium");
+  const [questionSet, setQuestionSet] = useState("1");
   const [isActive, setIsActive] = useState(true);
   const [loading, setLoading] = useState(false);
   const [csvFile, setCsvFile] = useState<File | null>(null);
   const [showQuestions, setShowQuestions] = useState(false);
+  const [selectedSet, setSelectedSet] = useState('All');
 
   useEffect(() => {
     // Load categories from predefined enum since RPC may not be available
     const predefinedCategories = MCQ_CATEGORY_OPTIONS;
     setCategories(['All', ...predefinedCategories]);
 
-    // Try to load additional categories from RPC if available
+    // Try to load additional categories from the backend if available
     const load = async () => {
       try {
-        const res = await supabase.rpc('mcq_categories');
-        const catsRaw = res?.data?.categories || res?.data || null;
+        const catsRaw = await mcqApi.listCategories();
         if (Array.isArray(catsRaw) && catsRaw.length > 0) {
-          // Normalize and dedupe: trim whitespace and remove empty values
           const normalized = Array.from(new Set(catsRaw.map((c: any) => (typeof c === 'string' ? c.trim() : c)).filter(Boolean)));
-          // Merge with predefined and ensure 'All' is first
           const allCats = Array.from(new Set([...predefinedCategories, ...normalized]));
           setCategories(['All', ...allCats.filter((c: string) => c.toLowerCase() !== 'all')]);
         }
       } catch (e) {
-        console.warn('Failed to load categories via rpc, using predefined', e);
+        console.warn('Failed to load categories, using predefined', e);
       }
       fetchQuestions();
     };
     load();
   }, []);
 
-  const fetchQuestions = async (categoryFilter?: string) => {
+  const fetchQuestions = async (categoryFilter?: string, setFilter?: string) => {
     try {
-      const qb = supabase.from("mcq_questions").select("*");
-      if (categoryFilter && categoryFilter !== 'All') qb.eq('category', categoryFilter);
-      qb.order('created_at', { ascending: false });
-      const { data, error } = await qb;
-
-      if (error) throw error;
-      const qs = (data || []) as Question[];
+      const cat = categoryFilter ?? selectedCategory;
+      const setSel = setFilter ?? selectedSet;
+      const qs = await mcqApi.listQuestions({
+        category: cat && cat !== 'All' ? cat : undefined,
+        questionSet: setSel && setSel !== 'All' ? Number(setSel) : undefined,
+        limit: 1000,
+      }) as unknown as Question[];
       setQuestions(qs);
-      // Always merge categories discovered in the fetched questions into the
-      // categories state. This ensures any category present in the DB appears
-      // in the filter even if the backend RPC wasn't available earlier.
+      // Merge any categories discovered in fetched questions into the filter list.
       try {
-        // Support both `category` and legacy `subject` fields returned by the
-        // client shim. Use functional state update to avoid stale-closure issues.
         const catsFromQs = Array.from(new Set(qs.map(q => (q.category ?? (q as any).subject)).filter(Boolean)));
         setCategories((prev) => {
           const existing = Array.isArray(prev) && prev.length > 0 ? prev.filter(c => c && c.toLowerCase() !== 'all') : [];
@@ -85,7 +81,6 @@ export const QuestionsManager = () => {
           return ['All', ...merged];
         });
       } catch (e) {
-        // ignore merge errors and leave categories as-is
         console.warn('Failed to merge categories from questions', e);
       }
     } catch (error: any) {
@@ -171,6 +166,7 @@ export const QuestionsManager = () => {
       const colDifficultyIdx = findIdx(['difficulty']);
       const colPointsIdx = findIdx(['points']);
       const colIsActiveIdx = findIdx(['isactive', 'is_active', 'active']);
+      const colSetIdx = findIdx(['questionset', 'question_set', 'set']);
 
       if (colCategoryIdx < 0 || colQuestionIdx < 0 || colOption1Idx < 0 || colOption2Idx < 0 || colOption3Idx < 0 || colOption4Idx < 0 || colCorrectIdx < 0) {
         throw new Error('CSV must have columns: category/subject, question, option1..option4, correct_answer/correctAnswer');
@@ -296,6 +292,7 @@ export const QuestionsManager = () => {
           continue;
         }
 
+        const setVal = colSetIdx >= 0 ? parseInt((values[colSetIdx] || '').trim(), 10) : NaN;
         parsedQuestions.push({
           category: subj,
           question: q,
@@ -303,6 +300,7 @@ export const QuestionsManager = () => {
           correctAnswer: correctIndex,
           difficulty: /^(easy|medium|hard)$/i.test(difficultyVal) ? difficultyVal.toLowerCase() : 'medium',
           points: pointsVal && !Number.isNaN(pointsVal) ? pointsVal : 1,
+          questionSet: Number.isFinite(setVal) && setVal >= 1 ? setVal : 1,
           isActive: isActiveVal ?? true,
         });
       }
@@ -315,10 +313,7 @@ export const QuestionsManager = () => {
 
       if (parsedQuestions.length === 0) throw new Error('No valid questions found in CSV');
 
-      // Use the shim to call bulk endpoint
-      const { error } = await supabase.from('mcq_questions').insert(parsedQuestions);
-
-      if (error) throw error;
+      await mcqApi.bulkCreateQuestions(parsedQuestions);
 
       toast({
         title: "Success",
@@ -343,16 +338,15 @@ export const QuestionsManager = () => {
     setLoading(true);
 
     try {
-      const { error } = await supabase.from("mcq_questions").insert({
+      await mcqApi.createQuestion({
         category,
         question,
         options,
         correctAnswer: options.indexOf(correctAnswer),
         difficulty,
+        questionSet: Number(questionSet) || 1,
         isActive,
       });
-
-      if (error) throw error;
 
       toast({
         title: "Success",
@@ -365,6 +359,7 @@ export const QuestionsManager = () => {
       setOptions(["", "", "", ""]);
       setCorrectAnswer("");
       setDifficulty("medium");
+      setQuestionSet("1");
       setIsActive(true);
       fetchQuestions();
     } catch (error: any) {
@@ -380,9 +375,7 @@ export const QuestionsManager = () => {
 
   const handleDeleteQuestion = async (id: string) => {
     try {
-      const { error } = await supabase.from("mcq_questions").delete().eq("id", id);
-
-      if (error) throw error;
+      await mcqApi.deleteQuestion(id);
 
       toast({
         title: "Success",
@@ -496,6 +489,20 @@ export const QuestionsManager = () => {
                   </Select>
                 </div>
 
+                <div className="space-y-2">
+                  <Label htmlFor="questionSet">Question Set</Label>
+                  <Select value={questionSet} onValueChange={setQuestionSet}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select set" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="1">Set 1</SelectItem>
+                      <SelectItem value="2">Set 2</SelectItem>
+                      <SelectItem value="3">Set 3</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
                 <div className="flex items-center space-x-2">
                   <input
                     type="checkbox"
@@ -530,7 +537,8 @@ export const QuestionsManager = () => {
                     onChange={(e) => setCsvFile(e.target.files?.[0] || null)}
                   />
                   <p className="text-xs text-muted-foreground">
-                    CSV format: subject,question,option1,option2,option3,option4,correct_answer (0-3)
+                    CSV format: category,question,option1,option2,option3,option4,correct_answer (0-3),difficulty,questionSet
+                    <br />(questionSet column is optional; defaults to 1)
                   </p>
                 </div>
                 <Button
@@ -557,7 +565,7 @@ export const QuestionsManager = () => {
                   </div>
                   <div className="flex items-center gap-2">
                     <Label htmlFor="categoryFilter" className="text-sm">Filter</Label>
-                    <Select value={selectedCategory} onValueChange={(v) => { setSelectedCategory(v); fetchQuestions(v); }}>
+                    <Select value={selectedCategory} onValueChange={(v) => { setSelectedCategory(v); fetchQuestions(v, selectedSet); }}>
                       <SelectTrigger>
                         <SelectValue placeholder="All categories" />
                       </SelectTrigger>
@@ -565,6 +573,17 @@ export const QuestionsManager = () => {
                         {categories.map((c) => (
                           <SelectItem key={c} value={c}>{c}</SelectItem>
                         ))}
+                      </SelectContent>
+                    </Select>
+                    <Select value={selectedSet} onValueChange={(v) => { setSelectedSet(v); fetchQuestions(selectedCategory, v); }}>
+                      <SelectTrigger className="w-[110px]">
+                        <SelectValue placeholder="All sets" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="All">All Sets</SelectItem>
+                        <SelectItem value="1">Set 1</SelectItem>
+                        <SelectItem value="2">Set 2</SelectItem>
+                        <SelectItem value="3">Set 3</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
@@ -578,7 +597,7 @@ export const QuestionsManager = () => {
                         <div className="space-y-2">
                           <div className="flex justify-between items-start">
                             <div className="flex-1">
-                              <p className="font-semibold text-sm text-muted-foreground">{q.category}</p>
+                              <p className="font-semibold text-sm text-muted-foreground">{q.category} · Set {q.questionSet ?? 1}</p>
                               <p className="font-medium mt-1">{q.question}</p>
                               <div className="text-xs text-muted-foreground mt-1">
                                 Difficulty: {q.difficulty || 'medium'}
