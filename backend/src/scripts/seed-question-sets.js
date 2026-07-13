@@ -22,7 +22,7 @@ require('dotenv').config();
 
 const MONGO_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/exam';
 const FORCE = process.argv.includes('--force');
-const SETS_DIR = path.join(__dirname, 'data', 'sets');
+const SETS_DIR = path.join(__dirname, 'data', 'sets-v2');
 
 async function main() {
   await mongoose.connect(MONGO_URI);
@@ -44,7 +44,7 @@ async function main() {
 
     for (const setKey of Object.keys(mod.sets)) {
       const setNum = parseInt(setKey, 10);
-      if (!Number.isFinite(setNum) || setNum < 2) continue; // never touch set 1
+      if (!Number.isFinite(setNum)) continue;
       const questions = mod.sets[setKey] || [];
       if (questions.length === 0) continue;
 

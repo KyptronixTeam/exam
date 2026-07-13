@@ -69,19 +69,32 @@ export const MCQStep = ({ formData, updateFormData, onNext, onBack, onFail, isSu
   const [showConfirm, setShowConfirm] = useState(false);
   const [showCorrectAnswers, setShowCorrectAnswers] = useState(false);
   const [passingPercentage, setPassingPercentage] = useState<number | null>(null);
-  const [elapsedTime, setElapsedTime] = useState(0);
+  // Exam is time-restricted: 40 minutes for SMO, 30 minutes for every other role.
+  const examDurationSeconds = (normalizeMcqRole(formData.role || "") === "SMO" ? 40 : 30) * 60;
+  const [timeLeft, setTimeLeft] = useState(examDurationSeconds);
+  const [timeExpired, setTimeExpired] = useState(false);
   // Question set selection
   const [availableSets, setAvailableSets] = useState<Array<{ set: number; count: number }>>([]);
   const [selectedSet, setSelectedSet] = useState<number | null>(formData.questionSet || null);
   const [loadingSets, setLoadingSets] = useState(true);
 
+  // Countdown anchored to a persisted wall-clock start time so a page refresh
+  // cannot reset the timer.
   useEffect(() => {
     if (loading || checking || showResult || showCorrectAnswers || questions.length === 0) return;
-    const interval = setInterval(() => {
-      setElapsedTime(prev => prev + 1);
-    }, 1000);
+    if (!formData.examStartedAt) {
+      updateFormData({ examStartedAt: Date.now() });
+      return;
+    }
+    const tick = () => {
+      const elapsed = Math.floor((Date.now() - formData.examStartedAt) / 1000);
+      setTimeLeft(Math.max(0, examDurationSeconds - elapsed));
+    };
+    tick();
+    const interval = setInterval(tick, 1000);
     return () => clearInterval(interval);
-  }, [loading, checking, showResult, showCorrectAnswers, questions.length]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [loading, checking, showResult, showCorrectAnswers, questions.length, formData.examStartedAt, examDurationSeconds]);
 
   const formatTime = (seconds: number) => {
     const m = Math.floor(seconds / 60);
@@ -154,7 +167,21 @@ export const MCQStep = ({ formData, updateFormData, onNext, onBack, onFail, isSu
     }
   };
 
-
+  // Auto-submit when the exam time limit is reached.
+  useEffect(() => {
+    if (timeExpired || questions.length === 0 || loading || checking || showResult || showCorrectAnswers) return;
+    if (formData.examStartedAt && timeLeft <= 0) {
+      setTimeExpired(true);
+      setShowConfirm(false);
+      toast({
+        title: "Time's up!",
+        description: "Your exam time has ended. Submitting your answers automatically.",
+        variant: "destructive",
+      });
+      handleFinalSubmit();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [timeLeft, timeExpired, questions.length, loading, checking, showResult, showCorrectAnswers]);
 
   // Fetch passing percentage config from backend
   useEffect(() => {
@@ -428,9 +455,9 @@ export const MCQStep = ({ formData, updateFormData, onNext, onBack, onFail, isSu
             </div>
             
             {!loading && questions.length > 0 && (
-              <div className="flex items-center justify-center gap-2 mt-4 text-sm font-bold text-foreground bg-accent/30 dark:bg-accent/10 px-6 py-2.5 rounded-xl border-2 border-border shadow-sm w-fit mx-auto tracking-widest">
-                <Clock className="h-4 w-4 text-primary" />
-                <span>{formatTime(elapsedTime)}</span>
+              <div className={`flex items-center justify-center gap-2 mt-4 text-sm font-bold px-6 py-2.5 rounded-xl border-2 shadow-sm w-fit mx-auto tracking-widest ${timeLeft <= 5 * 60 ? 'text-destructive border-destructive bg-destructive/10 animate-pulse' : 'text-foreground border-border bg-accent/30 dark:bg-accent/10'}`}>
+                <Clock className={`h-4 w-4 ${timeLeft <= 5 * 60 ? 'text-destructive' : 'text-primary'}`} />
+                <span>{formatTime(timeLeft)} left</span>
               </div>
             )}
           </CardDescription>
